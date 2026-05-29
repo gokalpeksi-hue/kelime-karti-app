@@ -12,6 +12,10 @@ const defCache = {};        // İngilizce → sözlük tanımları ({ data: [], 
 let hideTooltipTimer = null;
 let hoverTimer = null;
 
+// ——— Örnek Cümle Modu ———
+let isShowingExample = false;
+let originalCardIndex = 0;
+
 // =========================================================
 //  VERİ YÜKLEME
 // =========================================================
@@ -69,6 +73,7 @@ document.getElementById("file-input").addEventListener("change", function (e) {
 
             cards = parsed;
             currentIndex = 0;
+            isShowingExample = false;
             showEnglish();
 
             const dedupMsg = uniqueCount !== cards.length
@@ -145,7 +150,11 @@ function speakEnglish(text) {
 function updateCounter() {
     const counter = document.getElementById("counter");
     if (cards.length > 0) {
-        counter.textContent = `${currentIndex + 1} / ${cards.length}`;
+        if (isShowingExample) {
+            counter.textContent = `📝 Örnek · ${originalCardIndex + 1} / ${cards.length}`;
+        } else {
+            counter.textContent = `${currentIndex + 1} / ${cards.length}`;
+        }
     } else {
         counter.textContent = "";
     }
@@ -177,10 +186,16 @@ function scheduleHideTooltip(delay) {
 function showEnglish() {
     showingTurkish = false;
     const card = document.getElementById("card");
-    const sentence = cards[currentIndex].english;
 
     hideTooltip();
     clearTimers();
+
+    if (isShowingExample) {
+        showOriginalCard();
+        return;
+    }
+
+    const sentence = cards[currentIndex].english;
 
     // Cümleyi kelimelere ve noktalama işaretlerine ayır
     const tokens = sentence.match(/[\w']+|[^\w']+/g) || [];
@@ -196,17 +211,22 @@ function showEnglish() {
     card.innerHTML = `<h2>${html}</h2>`;
 
     // Her tıklanabilir kelimeye olay dinleyicisi ekle
+    attachWordListeners(card);
+
+    speakEnglish(sentence);
+    updateCounter();
+}
+
+function attachWordListeners(card) {
     card.querySelectorAll('.word-clickable').forEach(span => {
-        // Tıklama (mobil / masaüstü)
         span.addEventListener('click', function (e) {
-            e.stopPropagation(); // Kart tıklamasını engelle
+            e.stopPropagation();
             clearTimers();
             const word = this.dataset.word;
             const lower = this.dataset.lower;
             showWordMeanings(lower, word, this);
         });
 
-        // Hover – masaüstü için (gecikmeli)
         span.addEventListener('mouseenter', function () {
             clearTimeout(hoverTimer);
             hoverTimer = setTimeout(() => {
@@ -221,9 +241,6 @@ function showEnglish() {
             scheduleHideTooltip(400);
         });
     });
-
-    speakEnglish(sentence);
-    updateCounter();
 }
 
 function showTurkish() {
@@ -329,7 +346,29 @@ async function getDictionaryDefinitions(lower, originalWord) {
 }
 
 // =========================================================
-//  ZENGİN TOOLTIP (çok anlamlı)
+//  KARTLAR İÇİNDE KELİME ARAMA (bağlamsal örnek cümleler)
+// =========================================================
+
+function getContextualSentences(word) {
+    const lower = word.toLowerCase().replace(/[^a-z']/g, '');
+    if (!lower || lower.length < 2) return [];
+    const results = [];
+    for (let i = 0; i < cards.length; i++) {
+        const tokens = cards[i].english.toLowerCase().match(/[\w']+/g) || [];
+        if (tokens.includes(lower)) {
+            results.push({
+                sentence: cards[i].english,
+                turkish: cards[i].turkish,
+                index: i
+            });
+            if (results.length >= 8) break;
+        }
+    }
+    return results;
+}
+
+// =========================================================
+//  ZENGİN TOOLTIP (çok anlamlı + örnek cümle butonları)
 // =========================================================
 
 function showRichTooltip(spanElement, word, translation, meanings) {
@@ -349,10 +388,10 @@ function showRichTooltip(spanElement, word, translation, meanings) {
     }
     headerHtml += `</div>`;
 
-    // ——— Anlamlar ———
+    // ——— Anlamlar + Örnek Cümle Butonları ———
     let meaningsHtml = '<div class="tooltip-meanings">';
     if (meanings && meanings.length > 0) {
-        meanings.forEach((meaning) => {
+        meanings.forEach((meaning, mi) => {
             const posLabel = meaning.partOfSpeech
                 .replace('verb', 'fiil')
                 .replace('noun', 'isim')
@@ -373,12 +412,28 @@ function showRichTooltip(spanElement, word, translation, meanings) {
                 meaningsHtml += `<div class="meaning-def">${di + 1}. ${def.definition}</div>`;
                 if (def.example) {
                     meaningsHtml += `<div class="meaning-example">💬 ${def.example}</div>`;
+                    meaningsHtml += `<button class="example-btn" data-example="${encodeURIComponent(def.example)}" data-word="${word}">▶ Kartta Göster</button>`;
                 }
                 meaningsHtml += `</div>`;
             });
 
             meaningsHtml += `</div>`;
         });
+
+        // ——— Kartlardan bağlamsal örnek cümleler ———
+        const contextSentences = getContextualSentences(word);
+        if (contextSentences.length > 0) {
+            meaningsHtml += `<div class="meaning-group contextual-group">
+                <div class="meaning-pos">📖 KARTLARDAN ÖRNEKLER</div>`;
+            contextSentences.forEach((ctx, ci) => {
+                const isCurrent = ctx.index === currentIndex;
+                meaningsHtml += `<div class="meaning-item ${isCurrent ? 'current-card' : ''}">
+                    <div class="meaning-example ctx-example">${ctx.sentence}</div>
+                    <button class="example-btn small" data-example="${encodeURIComponent(ctx.sentence)}" data-word="${word}" data-turkish="${encodeURIComponent(ctx.turkish)}" data-ctxindex="${ctx.index}">▶ Kartta Göster</button>
+                </div>`;
+            });
+            meaningsHtml += `</div>`;
+        }
     } else {
         // Sözlük tanımı yoksa sadece çeviriyi göster
         meaningsHtml += `<div class="meaning-item">
@@ -393,8 +448,6 @@ function showRichTooltip(spanElement, word, translation, meanings) {
 
     // ——— Konumlandır ———
     const rect = spanElement.getBoundingClientRect();
-
-    // Tooltip'i önce görünmez ekle ki getBoundingClientRect çalışsın
     tooltip.style.opacity = "0";
     const tooltipRect = tooltip.getBoundingClientRect();
 
@@ -407,7 +460,7 @@ function showRichTooltip(spanElement, word, translation, meanings) {
         left = window.innerWidth - tooltipRect.width - 8;
     }
     if (top < 8) {
-        top = rect.bottom + 12; // Üstte yer yoksa alta koy
+        top = rect.bottom + 12;
     }
 
     tooltip.style.left = left + "px";
@@ -418,13 +471,84 @@ function showRichTooltip(spanElement, word, translation, meanings) {
         tooltip.style.opacity = "1";
     });
 
-    // ——— Tooltip fare olayları (tooltip'e geçişe izin ver) ———
+    // ——— Örnek Cümle Butonları ———
+    tooltip.querySelectorAll('.example-btn').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const example = decodeURIComponent(this.dataset.example);
+            const word = this.dataset.word;
+            const turkish = this.dataset.turkish
+                ? decodeURIComponent(this.dataset.turkish)
+                : '';
+            const ctxIndex = this.dataset.ctxindex !== undefined
+                ? parseInt(this.dataset.ctxindex)
+                : null;
+            showExampleInCard(example, word, turkish, ctxIndex);
+            hideTooltip();
+        });
+    });
+
+    // ——— Tooltip fare olayları ———
     tooltip.addEventListener('mouseenter', () => {
         clearTimeout(hideTooltipTimer);
     });
     tooltip.addEventListener('mouseleave', () => {
         scheduleHideTooltip(300);
     });
+}
+
+// =========================================================
+//  ÖRNEK CÜMLEYİ KARTTA GÖSTER
+// =========================================================
+
+function showExampleInCard(exampleSentence, word, turkishTranslation, ctxIndex) {
+    window.speechSynthesis.cancel();
+    isShowingExample = true;
+    originalCardIndex = currentIndex;
+
+    const card = document.getElementById("card");
+
+    // Kelimeyi vurgula
+    const tokens = exampleSentence.match(/[\w']+|[^\w']+/g) || [];
+    const html = tokens.map(token => {
+        if (token.toLowerCase() === word.toLowerCase()) {
+            return `<span class="word-highlight">${token}</span>`;
+        }
+        // Diğer kelimeler de tıklanabilir olsun
+        if (/^[a-zA-Z']{2,}$/.test(token)) {
+            return `<span class="word-clickable" data-word="${token}" data-lower="${token.toLowerCase()}">${token}</span>`;
+        }
+        return token;
+    }).join('');
+
+    card.innerHTML = `
+        <div class="example-card-content">
+            <div class="example-badge">📝 Örnek Cümle</div>
+            <h2>${html}</h2>
+            ${turkishTranslation ? `<div class="example-translation">🇹🇷 ${turkishTranslation}</div>` : ''}
+            <button class="back-to-card-btn">← Ana Karta Dön</button>
+        </div>
+    `;
+
+    // Alt kelimelere de tooltip dinleyicisi ekle
+    attachWordListeners(card);
+
+    // Geri butonu
+    card.querySelector('.back-to-card-btn').addEventListener('click', function (e) {
+        e.stopPropagation();
+        showOriginalCard();
+    });
+
+    updateCounter();
+
+    // Örnek cümleyi seslendir
+    speakEnglish(exampleSentence);
+}
+
+function showOriginalCard() {
+    isShowingExample = false;
+    currentIndex = originalCardIndex;
+    showEnglish();
 }
 
 function hideTooltip() {
@@ -439,6 +563,12 @@ function hideTooltip() {
 // =========================================================
 
 document.getElementById("card").addEventListener("click", function () {
+    // Örnek cümle modunda → ana karta dön
+    if (isShowingExample) {
+        showOriginalCard();
+        return;
+    }
+
     const tooltip = document.getElementById("word-tooltip");
     if (tooltip) {
         hideTooltip();
@@ -467,15 +597,40 @@ document.addEventListener("click", function (e) {
 });
 
 // =========================================================
-//  SONRAKİ KART
+//  ÖNCEKİ / SONRAKİ KART
 // =========================================================
 
-document.getElementById("next-btn").addEventListener("click", nextCard);
+document.getElementById("next-btn")?.addEventListener("click", nextCard);
+document.getElementById("prev-btn")?.addEventListener("click", prevCard);
+
+function goToCard(index) {
+    window.speechSynthesis.cancel();
+    hideTooltip();
+    clearTimers();
+
+    if (isShowingExample) {
+        isShowingExample = false;
+    }
+
+    const card = document.getElementById("card");
+    card.classList.add("fade-out");
+    setTimeout(() => {
+        currentIndex = index;
+        showEnglish();
+        card.classList.remove("fade-out");
+    }, 300);
+}
 
 function nextCard() {
     window.speechSynthesis.cancel();
     hideTooltip();
     clearTimers();
+
+    if (isShowingExample) {
+        currentIndex = originalCardIndex;
+        isShowingExample = false;
+    }
+
     const card = document.getElementById("card");
     card.classList.add("fade-out");
     setTimeout(() => {
@@ -487,6 +642,72 @@ function nextCard() {
         card.classList.remove("fade-out");
     }, 300);
 }
+
+function prevCard() {
+    window.speechSynthesis.cancel();
+    hideTooltip();
+    clearTimers();
+
+    if (isShowingExample) {
+        currentIndex = originalCardIndex;
+        isShowingExample = false;
+    }
+
+    const card = document.getElementById("card");
+    card.classList.add("fade-out");
+    setTimeout(() => {
+        currentIndex--;
+        if (currentIndex < 0) {
+            currentIndex = cards.length - 1;
+        }
+        showEnglish();
+        card.classList.remove("fade-out");
+    }, 300);
+}
+
+// =========================================================
+//  KLAVYE KISAYOLLARI
+// =========================================================
+
+document.addEventListener("keydown", function (e) {
+    const pageInput = document.getElementById("page-input");
+    if (document.activeElement === pageInput) {
+        if (e.key === "Enter") {
+            const num = parseInt(pageInput.value);
+            if (num >= 1 && num <= cards.length) {
+                goToCard(num - 1);
+            }
+            pageInput.value = "";
+        }
+        return;
+    }
+
+    if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        prevCard();
+    } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        nextCard();
+    }
+});
+
+// =========================================================
+//  SAYFA ATLAMA INPUT
+// =========================================================
+
+document.getElementById("page-input")?.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+        const num = parseInt(this.value);
+        if (num >= 1 && num <= cards.length) {
+            goToCard(num - 1);
+        }
+        this.value = "";
+    }
+});
+
+document.getElementById("page-input")?.addEventListener("blur", function () {
+    this.value = "";
+});
 
 // =========================================================
 //  BAŞLAT
