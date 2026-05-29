@@ -160,13 +160,17 @@
         /* =============================================
            TIKLANABİLİR KELİMELER (İngilizce cümle içinde)
            ============================================= */
-        .word-clickable {
+        .word-clickable,
+        .word-keyword {
             cursor: pointer;
-            border-bottom: 2px dashed #563df2;
             transition: background 0.2s, color 0.2s;
             padding: 0 2px;
             border-radius: 4px;
             position: relative;
+        }
+
+        .word-clickable {
+            border-bottom: 2px dashed #563df2;
         }
 
         .word-clickable:hover {
@@ -177,6 +181,34 @@
 
         .word-clickable:active {
             transform: scale(0.95);
+        }
+
+        .word-keyword {
+            border-bottom: 3px solid #563df2;
+            background: rgba(86, 61, 242, 0.12);
+            font-weight: 900;
+            padding: 0 4px;
+            border-radius: 6px;
+        }
+
+        .word-keyword:hover {
+            background: #563df2;
+            color: white;
+            border-bottom-color: white;
+            transform: scale(1.05);
+        }
+
+        .word-keyword:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes keyword-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(86, 61, 242, 0.3); }
+            50% { box-shadow: 0 0 0 4px rgba(86, 61, 242, 0); }
+        }
+
+        .word-keyword {
+            animation: keyword-pulse 2s ease-in-out 3;
         }
 
         /* =============================================

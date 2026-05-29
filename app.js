@@ -5,8 +5,8 @@ let femaleVoice = null;
 let maleVoice = null;
 
 // ——— Önbellekler ———
-const wordCache = {};       // İngilizce → Türkçe çeviri
-const defCache = {};        // İngilizce → sözlük tanımları ({ data: [], promise: Promise } yapısında)
+const wordCache = {};       // İngilizce → Türkçe çeviri (diğer kelimeler için)
+const defCache = {};        // İngilizce → sözlük tanımları
 
 // ——— Zamanlayıcılar ———
 let hideTooltipTimer = null;
@@ -29,7 +29,7 @@ async function loadCards() {
 function deduplicateCards(arr) {
     const seen = new Set();
     return arr.filter(card => {
-        const key = card.english.toLowerCase().trim();
+        const key = (card.sentence || card.english || '').toLowerCase().trim();
         if (seen.has(key)) return false;
         seen.add(key);
         return true;
@@ -64,7 +64,9 @@ document.getElementById("file-input").addEventListener("change", function (e) {
             }
 
             let parsed = rows.map(row => ({
-                english: String(row[0]).trim(),
+                word: String(row[0]).trim().split(' ')[0].toLowerCase(),
+                meanings: [String(row[1]).trim()],
+                sentence: String(row[0]).trim(),
                 turkish: String(row[1]).trim()
             }));
 
@@ -153,7 +155,9 @@ function updateCounter() {
         if (isShowingExample) {
             counter.textContent = `📝 Örnek · ${originalCardIndex + 1} / ${cards.length}`;
         } else {
-            counter.textContent = `${currentIndex + 1} / ${cards.length}`;
+            const card = cards[currentIndex];
+            const word = card.word || '';
+            counter.textContent = `${word} · ${currentIndex + 1} / ${cards.length}`;
         }
     } else {
         counter.textContent = "";
@@ -180,7 +184,7 @@ function scheduleHideTooltip(delay) {
 }
 
 // =========================================================
-//  ANA EKRAN – İNGİLİZCE / TÜRKÇE GÖSTER
+//  ANA EKRAN – İNGİLİZCE CÜMLE + ANAHTAR KELİME VURGULU
 // =========================================================
 
 function showEnglish() {
@@ -195,22 +199,28 @@ function showEnglish() {
         return;
     }
 
-    const sentence = cards[currentIndex].english;
+    const cardData = cards[currentIndex];
+    const sentence = cardData.sentence || cardData.english || '';
+    const keyWord = cardData.word || '';
 
     // Cümleyi kelimelere ve noktalama işaretlerine ayır
     const tokens = sentence.match(/[\w']+|[^\w']+/g) || [];
 
     const html = tokens.map(token => {
+        // Anahtar kelimeyi özel vurgula
+        if (token.toLowerCase() === keyWord.toLowerCase()) {
+            return `<span class="word-keyword" data-word="${token}" data-lower="${token.toLowerCase()}">${token}</span>`;
+        }
+        // Diğer kelimeler tıklanabilir
         if (/^[a-zA-Z']{2,}$/.test(token)) {
-            const lower = token.toLowerCase();
-            return `<span class="word-clickable" data-word="${token}" data-lower="${lower}">${token}</span>`;
+            return `<span class="word-clickable" data-word="${token}" data-lower="${token.toLowerCase()}">${token}</span>`;
         }
         return token;
     }).join('');
 
     card.innerHTML = `<h2>${html}</h2>`;
 
-    // Her tıklanabilir kelimeye olay dinleyicisi ekle
+    // Tıklanabilir kelimelere olay dinleyicisi ekle
     attachWordListeners(card);
 
     speakEnglish(sentence);
@@ -218,6 +228,31 @@ function showEnglish() {
 }
 
 function attachWordListeners(card) {
+    // Anahtar kelime (vurgulu) - özel davranış: Türkçe anlamları göster
+    card.querySelectorAll('.word-keyword').forEach(span => {
+        span.addEventListener('click', function (e) {
+            e.stopPropagation();
+            clearTimers();
+            const word = this.dataset.word;
+            // Anahtar kelimeye tıklandı → karttaki Türkçe anlamları göster
+            showKeywordMeanings(word, this);
+        });
+
+        span.addEventListener('mouseenter', function () {
+            clearTimeout(hoverTimer);
+            hoverTimer = setTimeout(() => {
+                const word = this.dataset.word;
+                showKeywordMeanings(word, this);
+            }, 300);
+        });
+
+        span.addEventListener('mouseleave', function () {
+            clearTimeout(hoverTimer);
+            scheduleHideTooltip(400);
+        });
+    });
+
+    // Diğer tıklanabilir kelimeler - dictionary API ile çeviri
     card.querySelectorAll('.word-clickable').forEach(span => {
         span.addEventListener('click', function (e) {
             e.stopPropagation();
@@ -249,24 +284,160 @@ function showTurkish() {
     const card = document.getElementById("card");
     hideTooltip();
     clearTimers();
-    card.innerHTML = `<p>${cards[currentIndex].turkish}</p>`;
+    const cardData = cards[currentIndex];
+    const turkishText = cardData.turkish || '';
+    card.innerHTML = `<p>${turkishText}</p>`;
 }
 
 // =========================================================
-//  KELİMENİN TÜM ANLAMLARINI GETİR & GÖSTER
+//  ANAHTAR KELİMENİN TÜRKÇE ANLAMLARINI GÖSTER (data.json'dan)
+// =========================================================
+
+function showKeywordMeanings(word, spanElement) {
+    hideTooltip();
+
+    const cardData = cards[currentIndex];
+    const meanings = cardData.meanings || [];
+
+    const tooltip = document.createElement("div");
+    tooltip.className = "word-tooltip";
+    tooltip.id = "word-tooltip";
+
+    // ——— Başlık ———
+    let html = `<div class="tooltip-header">
+        <strong>${word}</strong>
+        <span class="tooltip-tr">🇹🇷 ${meanings.length} anlam</span>
+    </div>`;
+
+    // ——— Anlam Listesi ———
+    html += '<div class="tooltip-meanings">';
+    html += '<div class="meaning-group">';
+    html += '<div class="meaning-pos">📖 TÜRKÇE ANLAMLARI</div>';
+
+    meanings.forEach((m, i) => {
+        html += `<div class="meaning-item">
+            <div class="meaning-def">${i + 1}. ${m}</div>
+        </div>`;
+    });
+
+    html += '</div>'; // meaning-group
+
+    // ——— Cümle içinde kullanımı ———
+    const sentence = cardData.sentence || '';
+    const turkish = cardData.turkish || '';
+    html += `<div class="meaning-group contextual-group">
+        <div class="meaning-pos">📝 CÜMLE İÇİNDE KULLANIMI</div>
+        <div class="meaning-item">
+            <div class="meaning-example ctx-example">${sentence}</div>
+            <div class="meaning-example" style="color:#b8b8ff;margin-top:4px;">🇹🇷 ${turkish}</div>
+        </div>
+    </div>`;
+
+    html += '</div>'; // tooltip-meanings
+
+    tooltip.innerHTML = html;
+    document.body.appendChild(tooltip);
+
+    // ——— Konumlandır ———
+    const rect = spanElement.getBoundingClientRect();
+    tooltip.style.opacity = "0";
+    const tooltipRect = tooltip.getBoundingClientRect();
+
+    let left = rect.left + rect.width / 2 - tooltipRect.width / 2;
+    let top = rect.top - tooltipRect.height - 12;
+
+    if (left < 8) left = 8;
+    if (left + tooltipRect.width > window.innerWidth - 8) {
+        left = window.innerWidth - tooltipRect.width - 8;
+    }
+    if (top < 8) {
+        top = rect.bottom + 12;
+    }
+
+    tooltip.style.left = left + "px";
+    tooltip.style.top = top + "px";
+
+    requestAnimationFrame(() => {
+        tooltip.style.opacity = "1";
+    });
+
+    // Tooltip fare olayları
+    tooltip.addEventListener('mouseenter', () => clearTimeout(hideTooltipTimer));
+    tooltip.addEventListener('mouseleave', () => scheduleHideTooltip(300));
+
+    // Karttaki diğer kelimelerden bağlamsal örnekler
+    loadContextualExamples(word, tooltip);
+}
+
+async function loadContextualExamples(word, tooltip) {
+    const lower = word.toLowerCase().replace(/[^a-z']/g, '');
+    if (!lower || lower.length < 2) return;
+
+    const results = [];
+    for (let i = 0; i < cards.length; i++) {
+        if (i === currentIndex) continue;
+        const sentence = (cards[i].sentence || cards[i].english || '').toLowerCase();
+        const tokens = sentence.match(/[\w']+/g) || [];
+        if (tokens.includes(lower)) {
+            results.push({
+                sentence: cards[i].sentence || cards[i].english,
+                turkish: cards[i].turkish,
+                index: i
+            });
+            if (results.length >= 5) break;
+        }
+    }
+
+    if (results.length === 0) return;
+
+    let html = `<div class="meaning-group contextual-group">
+        <div class="meaning-pos">📖 DİĞER KARTLARDAN ÖRNEKLER</div>`;
+
+    results.forEach((ctx, ci) => {
+        html += `<div class="meaning-item">
+            <div class="meaning-example ctx-example">${ctx.sentence}</div>
+            <button class="example-btn small" data-example="${encodeURIComponent(ctx.sentence)}" data-word="${word}" data-turkish="${encodeURIComponent(ctx.turkish)}" data-ctxindex="${ctx.index}">▶ Kartta Göster</button>
+        </div>`;
+    });
+
+    html += '</div>';
+
+    // Tooltip'in içine ekle
+    const meaningsDiv = tooltip.querySelector('.tooltip-meanings');
+    if (meaningsDiv) {
+        meaningsDiv.insertAdjacentHTML('beforeend', html);
+
+        // Butonlara dinleyici ekle
+        tooltip.querySelectorAll('.example-btn').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const example = decodeURIComponent(this.dataset.example);
+                const word = this.dataset.word;
+                const turkish = this.dataset.turkish
+                    ? decodeURIComponent(this.dataset.turkish)
+                    : '';
+                const ctxIndex = this.dataset.ctxindex !== undefined
+                    ? parseInt(this.dataset.ctxindex)
+                    : null;
+                showExampleInCard(example, word, turkish, ctxIndex);
+                hideTooltip();
+            });
+        });
+    }
+}
+
+// =========================================================
+//  DİĞER KELİMELER İÇİN DICTIONARY API ÇEVİRİSİ
 // =========================================================
 
 async function showWordMeanings(lower, originalWord, spanElement) {
-    // 1) Türkçe çeviriyi al (önbellek / API)
     let translation = wordCache[lower];
     if (!translation) {
         translation = await fetchTranslation(lower, originalWord);
     }
 
-    // 2) Sözlük tanımlarını getir (Free Dictionary API)
     const meanings = await getDictionaryDefinitions(lower, originalWord);
 
-    // 3) Zengin tooltip'i göster
     showRichTooltip(spanElement, originalWord, translation, meanings);
 }
 
@@ -317,14 +488,11 @@ async function fetchTranslation(lower, originalWord) {
 
 // ——— Sözlük tanımları (Free Dictionary API) ———
 async function getDictionaryDefinitions(lower, originalWord) {
-    // Önbellekte varsa döndür
     if (defCache[lower]) {
         if (defCache[lower].data !== undefined) return defCache[lower].data;
-        // Yükleniyor → promise'i bekle
         return defCache[lower].promise;
     }
 
-    // API çağrısını başlat ve önbelleğe al
     const promise = (async () => {
         try {
             const response = await fetch(
@@ -346,29 +514,7 @@ async function getDictionaryDefinitions(lower, originalWord) {
 }
 
 // =========================================================
-//  KARTLAR İÇİNDE KELİME ARAMA (bağlamsal örnek cümleler)
-// =========================================================
-
-function getContextualSentences(word) {
-    const lower = word.toLowerCase().replace(/[^a-z']/g, '');
-    if (!lower || lower.length < 2) return [];
-    const results = [];
-    for (let i = 0; i < cards.length; i++) {
-        const tokens = cards[i].english.toLowerCase().match(/[\w']+/g) || [];
-        if (tokens.includes(lower)) {
-            results.push({
-                sentence: cards[i].english,
-                turkish: cards[i].turkish,
-                index: i
-            });
-            if (results.length >= 8) break;
-        }
-    }
-    return results;
-}
-
-// =========================================================
-//  ZENGİN TOOLTIP (çok anlamlı + örnek cümle butonları)
+//  ZENGİN TOOLTIP (diğer kelimeler için)
 // =========================================================
 
 function showRichTooltip(spanElement, word, translation, meanings) {
@@ -378,7 +524,6 @@ function showRichTooltip(spanElement, word, translation, meanings) {
     tooltip.className = "word-tooltip";
     tooltip.id = "word-tooltip";
 
-    // ——— Header: kelime + Türkçe çeviri ———
     let headerHtml = `<div class="tooltip-header">
         <strong>${word}</strong>`;
     if (translation && translation !== "🔄" && translation !== "❌") {
@@ -388,7 +533,6 @@ function showRichTooltip(spanElement, word, translation, meanings) {
     }
     headerHtml += `</div>`;
 
-    // ——— Anlamlar + Örnek Cümle Butonları ———
     let meaningsHtml = '<div class="tooltip-meanings">';
     if (meanings && meanings.length > 0) {
         meanings.forEach((meaning, mi) => {
@@ -419,23 +563,7 @@ function showRichTooltip(spanElement, word, translation, meanings) {
 
             meaningsHtml += `</div>`;
         });
-
-        // ——— Kartlardan bağlamsal örnek cümleler ———
-        const contextSentences = getContextualSentences(word);
-        if (contextSentences.length > 0) {
-            meaningsHtml += `<div class="meaning-group contextual-group">
-                <div class="meaning-pos">📖 KARTLARDAN ÖRNEKLER</div>`;
-            contextSentences.forEach((ctx, ci) => {
-                const isCurrent = ctx.index === currentIndex;
-                meaningsHtml += `<div class="meaning-item ${isCurrent ? 'current-card' : ''}">
-                    <div class="meaning-example ctx-example">${ctx.sentence}</div>
-                    <button class="example-btn small" data-example="${encodeURIComponent(ctx.sentence)}" data-word="${word}" data-turkish="${encodeURIComponent(ctx.turkish)}" data-ctxindex="${ctx.index}">▶ Kartta Göster</button>
-                </div>`;
-            });
-            meaningsHtml += `</div>`;
-        }
     } else {
-        // Sözlük tanımı yoksa sadece çeviriyi göster
         meaningsHtml += `<div class="meaning-item">
             <div class="meaning-def">${translation || "Çeviri bulunamadı"}</div>
         </div>`;
@@ -443,10 +571,8 @@ function showRichTooltip(spanElement, word, translation, meanings) {
     meaningsHtml += '</div>';
 
     tooltip.innerHTML = headerHtml + meaningsHtml;
-
     document.body.appendChild(tooltip);
 
-    // ——— Konumlandır ———
     const rect = spanElement.getBoundingClientRect();
     tooltip.style.opacity = "0";
     const tooltipRect = tooltip.getBoundingClientRect();
@@ -454,7 +580,6 @@ function showRichTooltip(spanElement, word, translation, meanings) {
     let left = rect.left + rect.width / 2 - tooltipRect.width / 2;
     let top = rect.top - tooltipRect.height - 12;
 
-    // Taşma kontrolleri
     if (left < 8) left = 8;
     if (left + tooltipRect.width > window.innerWidth - 8) {
         left = window.innerWidth - tooltipRect.width - 8;
@@ -466,12 +591,10 @@ function showRichTooltip(spanElement, word, translation, meanings) {
     tooltip.style.left = left + "px";
     tooltip.style.top = top + "px";
 
-    // Animasyonlu göster
     requestAnimationFrame(() => {
         tooltip.style.opacity = "1";
     });
 
-    // ——— Örnek Cümle Butonları ———
     tooltip.querySelectorAll('.example-btn').forEach(btn => {
         btn.addEventListener('click', function (e) {
             e.stopPropagation();
@@ -488,13 +611,8 @@ function showRichTooltip(spanElement, word, translation, meanings) {
         });
     });
 
-    // ——— Tooltip fare olayları ———
-    tooltip.addEventListener('mouseenter', () => {
-        clearTimeout(hideTooltipTimer);
-    });
-    tooltip.addEventListener('mouseleave', () => {
-        scheduleHideTooltip(300);
-    });
+    tooltip.addEventListener('mouseenter', () => clearTimeout(hideTooltipTimer));
+    tooltip.addEventListener('mouseleave', () => scheduleHideTooltip(300));
 }
 
 // =========================================================
@@ -508,13 +626,11 @@ function showExampleInCard(exampleSentence, word, turkishTranslation, ctxIndex) 
 
     const card = document.getElementById("card");
 
-    // Kelimeyi vurgula
     const tokens = exampleSentence.match(/[\w']+|[^\w']+/g) || [];
     const html = tokens.map(token => {
         if (token.toLowerCase() === word.toLowerCase()) {
             return `<span class="word-highlight">${token}</span>`;
         }
-        // Diğer kelimeler de tıklanabilir olsun
         if (/^[a-zA-Z']{2,}$/.test(token)) {
             return `<span class="word-clickable" data-word="${token}" data-lower="${token.toLowerCase()}">${token}</span>`;
         }
@@ -530,18 +646,14 @@ function showExampleInCard(exampleSentence, word, turkishTranslation, ctxIndex) 
         </div>
     `;
 
-    // Alt kelimelere de tooltip dinleyicisi ekle
     attachWordListeners(card);
 
-    // Geri butonu
     card.querySelector('.back-to-card-btn').addEventListener('click', function (e) {
         e.stopPropagation();
         showOriginalCard();
     });
 
     updateCounter();
-
-    // Örnek cümleyi seslendir
     speakEnglish(exampleSentence);
 }
 
@@ -563,7 +675,6 @@ function hideTooltip() {
 // =========================================================
 
 document.getElementById("card").addEventListener("click", function () {
-    // Örnek cümle modunda → ana karta dön
     if (isShowingExample) {
         showOriginalCard();
         return;
@@ -591,7 +702,7 @@ document.getElementById("card").addEventListener("click", function () {
 // Tooltip dışına tıklandığında tooltip'i kapat
 document.addEventListener("click", function (e) {
     const tooltip = document.getElementById("word-tooltip");
-    if (tooltip && !tooltip.contains(e.target) && !e.target.closest('.word-clickable')) {
+    if (tooltip && !tooltip.contains(e.target) && !e.target.closest('.word-clickable') && !e.target.closest('.word-keyword')) {
         hideTooltip();
     }
 });

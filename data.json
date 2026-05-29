@@ -1,274 +1,616 @@
 [
   {
-    "english": "We need to accelerate our 5G strategy to capture the first-mover advantage in phase 2.",
+    "word": "accelerate",
+    "meanings": [
+      "hızlanmak",
+      "hızlandırmak",
+      "Hızlandırılmış"
+    ],
+    "sentence": "We need to accelerate our 5G strategy to capture the first-mover advantage in phase 2.",
     "turkish": "İlk hamle avantajını yakalamak için 5G stratejimizi hızlandırmamız gerekiyor (Aşama 2 kapsamında)."
   },
   {
-    "english": "What is the expected rollout timeline for the 5G CPE and local modems?",
+    "word": "timeline",
+    "meanings": [
+      "zaman çizelgesi",
+      "zaman çizelgesine"
+    ],
+    "sentence": "What is the expected rollout timeline for the 5G CPE and local modems?",
     "turkish": "5G CPE ve yerel modemler için beklenen yaygınlaştırma takvimi nedir?"
   },
   {
-    "english": "The penetration of 5G hardware will inevitably disrupt the market ecosystem in phase 4.",
+    "word": "penetration",
+    "meanings": [
+      "nüfuz",
+      "nüfuz etmek"
+    ],
+    "sentence": "The penetration of 5G hardware will inevitably disrupt the market ecosystem in phase 4.",
     "turkish": "5G donanımının penetrasyonu, pazar ekosistemini kaçınılmaz olarak sekteye uğratacaktır (Aşama 4 kapsamında)."
   },
   {
-    "english": "We are evaluating small cell and femtocell deployment strategies in phase 5.",
+    "word": "deployment",
+    "meanings": [
+      "konuşlandırma",
+      "dağıtıma"
+    ],
+    "sentence": "We are evaluating small cell and femtocell deployment strategies in phase 5.",
     "turkish": "Küçük hücre (small cell) ve femtocell kurulum stratejilerini değerlendiriyoruz (Aşama 5 kapsamında)."
   },
   {
-    "english": "How does the latest Huawei 5G CPE 5S compare in terms of throughput?",
+    "word": "throughput",
+    "meanings": [
+      "verim"
+    ],
+    "sentence": "How does the latest Huawei 5G CPE 5S compare in terms of throughput?",
     "turkish": "En son Huawei 5G CPE 5S, veri aktarım hızı açısından nasıl bir karşılaştırma sunuyor?"
   },
   {
-    "english": "Our priority is to deploy the 5G CPE units in strategic pilot regions in phase 2.",
+    "word": "strategic",
+    "meanings": [
+      "stratejik"
+    ],
+    "sentence": "Our priority is to deploy the 5G CPE units in strategic pilot regions in phase 2.",
     "turkish": "Önceliğimiz, stratejik pilot bölgelerde 5G CPE ünitelerini kurmaktır (Aşama 2 kapsamında)."
   },
   {
-    "english": "We must analyze the latency performance of the new 5G modems in phase 3.",
+    "word": "analyze",
+    "meanings": [
+      "analiz etmek",
+      "Analize tabi tutmak"
+    ],
+    "sentence": "We must analyze the latency performance of the new 5G modems in phase 3.",
     "turkish": "Yeni 5G modemlerin gecikme performansını analiz etmemiz gerekiyor (Aşama 3 kapsamında)."
   },
   {
-    "english": "The transition to 5G infrastructure requires an overhaul of hardware lists in phase 4.",
+    "word": "infrastructure",
+    "meanings": [
+      "altyapı",
+      "altyapıya"
+    ],
+    "sentence": "The transition to 5G infrastructure requires an overhaul of hardware lists in phase 4.",
     "turkish": "5G altyapısına geçiş, donanım listelerinin gözden geçirilmesini gerektiriyor (Aşama 4 kapsamında)."
   },
   {
-    "english": "Are telecom operators ready to support our local 5G router specifications?",
+    "word": "support",
+    "meanings": [
+      "Destek",
+      "desteklemek"
+    ],
+    "sentence": "Are telecom operators ready to support our local 5G router specifications?",
     "turkish": "Telekom operatörleri, yerli 5G yönlendirici özelliklerimizi desteklemeye hazır mı?"
   },
   {
-    "english": "We should focus on small cell architectures to overcome signal penetration issues in phase 1.",
+    "word": "penetration",
+    "meanings": [
+      "nüfuz",
+      "nüfuz etmek"
+    ],
+    "sentence": "We should focus on small cell architectures to overcome signal penetration issues in phase 1.",
     "turkish": "Sinyal penetrasyon sorunlarını aşmak için küçük hücre mimarilerine odaklanmalıyız (Aşama 1 kapsamında)."
   },
   {
-    "english": "The hardware production samples are scheduled for final approval on June 3rd under protocol 2.",
+    "word": "approval",
+    "meanings": [
+      "onay",
+      "onaya"
+    ],
+    "sentence": "The hardware production samples are scheduled for final approval on June 3rd under protocol 2.",
     "turkish": "Donanım üretim numunelerinin nihai onayı 3 Haziran için planlanmıştır (protokol 2 uyarınca)."
   },
   {
-    "english": "We must align our manufacturing pipeline with MASS and TÜRK TELEKOM specifications under protocol 3.",
+    "word": "pipeline",
+    "meanings": [
+      "boru hattı",
+      "boru hattına"
+    ],
+    "sentence": "We must align our manufacturing pipeline with MASS and TÜRK TELEKOM specifications under protocol 3.",
     "turkish": "Üretim hattımızı MASS ve TÜRK TELEKOM teknik şartnamelerine uygun hale getirmeliyiz (protokol 3 uyarınca)."
   },
   {
-    "english": "Any delay in component sourcing will directly impact our July 13th sales launch under protocol 4.",
+    "word": "sourcing",
+    "meanings": [
+      "kaynak bulma",
+      "kaynak bulmak"
+    ],
+    "sentence": "Any delay in component sourcing will directly impact our July 13th sales launch under protocol 4.",
     "turkish": "Bileşen tedariğindeki herhangi bir gecikme, 13 Temmuz satış lansmanımızı doğrudan etkileyecektir (protokol 4 uyarınca)."
   },
   {
-    "english": "We conducted a rigorous teardown of the competitive model to optimize costs under protocol 1.",
+    "word": "teardown",
+    "meanings": [
+      "sökmek",
+      "yıkmak"
+    ],
+    "sentence": "We conducted a rigorous teardown of the competitive model to optimize costs under protocol 1.",
     "turkish": "Maliyetleri optimize etmek için rakip modelin titiz bir ürün sökümünü gerçekleştirdik (protokol 1 uyarınca)."
   },
   {
-    "english": "The local production of these modems will grant significant tax exemptions under protocol 2.",
+    "word": "grant",
+    "meanings": [
+      "hibe etmek",
+      "vermek"
+    ],
+    "sentence": "The local production of these modems will grant significant tax exemptions under protocol 2.",
     "turkish": "Bu modemlerin yerli üretimi, önemli vergi muafiyetleri sağlayacaktır (protokol 2 uyarınca)."
   },
   {
-    "english": "The mass production timeline depends entirely on the initial samples under protocol 3.",
+    "word": "timeline",
+    "meanings": [
+      "zaman çizelgesi",
+      "zaman çizelgesine"
+    ],
+    "sentence": "The mass production timeline depends entirely on the initial samples under protocol 3.",
     "turkish": "Seri üretim takvimi, tamamen ilk numunelerin onaylanmasına bağlıdır (protokol 3 uyarınca)."
   },
   {
-    "english": "We are closely cooperating with engineering teams to ensure compliance under protocol 4.",
+    "word": "compliance",
+    "meanings": [
+      "uyumluluk"
+    ],
+    "sentence": "We are closely cooperating with engineering teams to ensure compliance under protocol 4.",
     "turkish": "Uyum sağlamak için mühendislik ekipleriyle yakın iş birliği içindeyiz (protokol 4 uyarınca)."
   },
   {
-    "english": "We need to conduct a comprehensive teardown report immediately under protocol 1.",
+    "word": "teardown",
+    "meanings": [
+      "sökmek",
+      "yıkmak"
+    ],
+    "sentence": "We need to conduct a comprehensive teardown report immediately under protocol 1.",
     "turkish": "Derhal kapsamlı bir ürün söküm (teardown) raporu hazırlamamız gerekiyor (protokol 1 uyarınca)."
   },
   {
-    "english": "Localizing the assembly line will optimize our overall logistics costs under protocol 2.",
+    "word": "localizing",
+    "meanings": [
+      "yerelleştirme",
+      "yerelleştirmeye",
+      "Bu yerelleştirir"
+    ],
+    "sentence": "Localizing the assembly line will optimize our overall logistics costs under protocol 2.",
     "turkish": "Montaj hattını yerlileştirmek, genel lojistik maliyetlerimizi optimize edecektir (protokol 2 uyarınca)."
   },
   {
-    "english": "Quality control standards must be maintained throughout the assembly process under protocol 3.",
+    "word": "assembly",
+    "meanings": [
+      "toplantı",
+      "montaja"
+    ],
+    "sentence": "Quality control standards must be maintained throughout the assembly process under protocol 3.",
     "turkish": "Montaj süreci boyunca kalite kontrol standartları korunmalıdır (protokol 3 uyarınca)."
   },
   {
-    "english": "The hardware production samples are scheduled for final approval on June 3rd under protocol 4.",
+    "word": "approval",
+    "meanings": [
+      "onay",
+      "onaya"
+    ],
+    "sentence": "The hardware production samples are scheduled for final approval on June 3rd under protocol 4.",
     "turkish": "Donanım üretim numunelerinin nihai onayı 3 Haziran için planlanmıştır (protokol 4 uyarınca)."
   },
   {
-    "english": "We must align our manufacturing pipeline with MASS and TÜRK TELEKOM specifications under protocol 1.",
+    "word": "pipeline",
+    "meanings": [
+      "boru hattı",
+      "boru hattına"
+    ],
+    "sentence": "We must align our manufacturing pipeline with MASS and TÜRK TELEKOM specifications under protocol 1.",
     "turkish": "Üretim hattımızı MASS ve TÜRK TELEKOM teknik şartnamelerine uygun hale getirmeliyiz (protokol 1 uyarınca)."
   },
   {
-    "english": "Any delay in component sourcing will directly impact our July 13th sales launch under protocol 2.",
+    "word": "sourcing",
+    "meanings": [
+      "kaynak bulma",
+      "kaynak bulmak"
+    ],
+    "sentence": "Any delay in component sourcing will directly impact our July 13th sales launch under protocol 2.",
     "turkish": "Bileşen tedariğindeki herhangi bir gecikme, 13 Temmuz satış lansmanımızı doğrudan etkileyecektir (protokol 2 uyarınca)."
   },
   {
-    "english": "We conducted a rigorous teardown of the competitive model to optimize costs under protocol 3.",
+    "word": "teardown",
+    "meanings": [
+      "sökmek",
+      "yıkmak"
+    ],
+    "sentence": "We conducted a rigorous teardown of the competitive model to optimize costs under protocol 3.",
     "turkish": "Maliyetleri optimize etmek için rakip modelin titiz bir ürün sökümünü gerçekleştirdik (protokol 3 uyarınca)."
   },
   {
-    "english": "The local production of these modems will grant significant tax exemptions under protocol 4.",
+    "word": "grant",
+    "meanings": [
+      "hibe etmek",
+      "vermek"
+    ],
+    "sentence": "The local production of these modems will grant significant tax exemptions under protocol 4.",
     "turkish": "Bu modemlerin yerli üretimi, önemli vergi muafiyetleri sağlayacaktır (protokol 4 uyarınca)."
   },
   {
-    "english": "The mass production timeline depends entirely on the initial samples under protocol 1.",
+    "word": "timeline",
+    "meanings": [
+      "zaman çizelgesi",
+      "zaman çizelgesine"
+    ],
+    "sentence": "The mass production timeline depends entirely on the initial samples under protocol 1.",
     "turkish": "Seri üretim takvimi, tamamen ilk numunelerin onaylanmasına bağlıdır (protokol 1 uyarınca)."
   },
   {
-    "english": "We are closely cooperating with engineering teams to ensure compliance under protocol 2.",
+    "word": "compliance",
+    "meanings": [
+      "uyumluluk"
+    ],
+    "sentence": "We are closely cooperating with engineering teams to ensure compliance under protocol 2.",
     "turkish": "Uyum sağlamak için mühendislik ekipleriyle yakın iş birliği içindeyiz (protokol 2 uyarınca)."
   },
   {
-    "english": "We need to conduct a comprehensive teardown report immediately under protocol 3.",
+    "word": "teardown",
+    "meanings": [
+      "sökmek",
+      "yıkmak"
+    ],
+    "sentence": "We need to conduct a comprehensive teardown report immediately under protocol 3.",
     "turkish": "Derhal kapsamlı bir ürün söküm (teardown) raporu hazırlamamız gerekiyor (protokol 3 uyarınca)."
   },
   {
-    "english": "Localizing the assembly line will optimize our overall logistics costs under protocol 4.",
+    "word": "localizing",
+    "meanings": [
+      "yerelleştirme",
+      "yerelleştirmeye",
+      "Bu yerelleştirir"
+    ],
+    "sentence": "Localizing the assembly line will optimize our overall logistics costs under protocol 4.",
     "turkish": "Montaj hattını yerlileştirmek, genel lojistik maliyetlerimizi optimize edecektir (protokol 4 uyarınca)."
   },
   {
-    "english": "Quality control standards must be maintained throughout the assembly process under protocol 1.",
+    "word": "assembly",
+    "meanings": [
+      "toplantı",
+      "montaja"
+    ],
+    "sentence": "Quality control standards must be maintained throughout the assembly process under protocol 1.",
     "turkish": "Montaj süreci boyunca kalite kontrol standartları korunmalıdır (protokol 1 uyarınca)."
   },
   {
-    "english": "The ORAIMO channel penetration strategy focuses on expanding our retail footprint targeting segment 2.",
+    "word": "penetration",
+    "meanings": [
+      "nüfuz",
+      "nüfuz etmek"
+    ],
+    "sentence": "The ORAIMO channel penetration strategy focuses on expanding our retail footprint targeting segment 2.",
     "turkish": "ORAIMO kanal penetrasyon stratejisi, perakende ayak izimizi genişletmeye odaklanmaktadır (2. segment hedeflenerek)."
   },
   {
-    "english": "We need to monitor regional smartphone price lists daily via our scrapers targeting segment 3.",
+    "word": "monitor",
+    "meanings": [
+      "monitör",
+      "izlemek"
+    ],
+    "sentence": "We need to monitor regional smartphone price lists daily via our scrapers targeting segment 3.",
     "turkish": "Bölgesel akıllı telefon fiyat listelerini veri kazıma araçlarımızla günlük olarak takip etmeliyiz (3. segment hedeflenerek)."
   },
   {
-    "english": "We operate on a White Label business model to give partners maximum flexibility targeting segment 4.",
+    "word": "segment",
+    "meanings": [
+      "bölüm",
+      "bölümlere ayırmak"
+    ],
+    "sentence": "We operate on a White Label business model to give partners maximum flexibility targeting segment 4.",
     "turkish": "Ortaklara maksimum esneklik sağlamak için White Label bir iş modeliyle faaliyet gösteriyoruz (4. segment hedeflenerek)."
   },
   {
-    "english": "What are the current inventory turnover ratios across our distribution channels?",
+    "word": "distribution",
+    "meanings": [
+      "dağıtım",
+      "dağıtıma"
+    ],
+    "sentence": "What are the current inventory turnover ratios across our distribution channels?",
     "turkish": "Dağıtım kanallarımızdaki mevcut stok devir hızları nedir?"
   },
   {
-    "english": "We should offer tiered incentive schemes to master distributors to boost volume targeting segment 1.",
+    "word": "incentive",
+    "meanings": [
+      "teşvik",
+      "teşvik etmek"
+    ],
+    "sentence": "We should offer tiered incentive schemes to master distributors to boost volume targeting segment 1.",
     "turkish": "Hacmi artırmak için ana distribütörlere kademeli teşvik şemaları sunmalıyız (1. segment hedeflenerek)."
   },
   {
-    "english": "The channel penetration strategy requires aggressive marketing support targeting segment 2.",
+    "word": "penetration",
+    "meanings": [
+      "nüfuz",
+      "nüfuz etmek"
+    ],
+    "sentence": "The channel penetration strategy requires aggressive marketing support targeting segment 2.",
     "turkish": "Kanal penetrasyon stratejisi, agresif pazarlama desteği gerektiriyor (2. segment hedeflenerek)."
   },
   {
-    "english": "Our automated price tracking system monitors competitor movements in real time targeting segment 3.",
+    "word": "tracking",
+    "meanings": [
+      "izleme",
+      "takip etmek",
+      "Zamanla devam etmek"
+    ],
+    "sentence": "Our automated price tracking system monitors competitor movements in real time targeting segment 3.",
     "turkish": "Otomatik fiyat takip sistemimiz, rakip hareketlerini gerçek zamanlı olarak izliyor (3. segment hedeflenerek)."
   },
   {
-    "english": "By shifting to a White Label model",
+    "word": "label",
+    "meanings": [
+      "etiket",
+      "etiketlemek",
+      "Plak satan bir şirket"
+    ],
+    "sentence": "By shifting to a White Label model",
     "turkish": "we allow seamless rebranding targeting segment 4. White Label modeline geçerek, sorunsuz bir şekilde yeniden markalamaya olanak tanıyoruz (4. segment hedeflenerek)."
   },
   {
-    "english": "We must review the distributor profit margins to maintain price stability targeting segment 5.",
+    "word": "distributor",
+    "meanings": [
+      "distribütör",
+      "distribütöre",
+      "Dağıtan kişi veya şey"
+    ],
+    "sentence": "We must review the distributor profit margins to maintain price stability targeting segment 5.",
     "turkish": "Fiyat istikrarını korumak için distribütör kar marjlarını gözden geçirmeliyiz (5. segment hedeflenerek)."
   },
   {
-    "english": "What is our current market share in the premium smartphone accessories segment?",
+    "word": "premium",
+    "meanings": [
+      "prim",
+      "prim yapmak",
+      "Kalite açısından üstün"
+    ],
+    "sentence": "What is our current market share in the premium smartphone accessories segment?",
     "turkish": "Premium akıllı telefon aksesuarları segmentindeki mevcut pazar payımız nedir?"
   },
   {
-    "english": "We are preparing a high-level strategic proposal for Vodafone Turkey leadership in accordance with guideline 2.",
+    "word": "proposal",
+    "meanings": [
+      "teklif",
+      "teklife"
+    ],
+    "sentence": "We are preparing a high-level strategic proposal for Vodafone Turkey leadership in accordance with guideline 2.",
     "turkish": "Vodafone Türkiye liderliği için üst düzey stratejik bir teklif hazırlıyoruz (2. yönergeye uygun olarak)."
   },
   {
-    "english": "To avoid any conflict of interest",
+    "word": "conflict",
+    "meanings": [
+      "anlaşmazlık",
+      "çatışmak",
+      "Anlaşmazlığa düşmek (ile)"
+    ],
+    "sentence": "To avoid any conflict of interest",
     "turkish": "all details must be transparent in accordance with guideline 3. Herhangi bir çıkar çatışmasını önlemek için, tüm detaylar şeffaf olmalıdır (3. yönergeye uygun olarak)."
   },
   {
-    "english": "Due to strict regulatory compliance",
+    "word": "regulatory",
+    "meanings": [
+      "düzenleyici"
+    ],
+    "sentence": "Due to strict regulatory compliance",
     "turkish": "we must secure the necessary permits in accordance with guideline 1. Sıkı yasal uyumluluk nedeniyle, gerekli izinleri almamız gerekmektedir (1. yönergeye uygun olarak)."
   },
   {
-    "english": "We value this partnership and believe it will synergize our strengths in accordance with guideline 2.",
+    "word": "partnership",
+    "meanings": [
+      "ortaklık",
+      "ortaklığa"
+    ],
+    "sentence": "We value this partnership and believe it will synergize our strengths in accordance with guideline 2.",
     "turkish": "Bu ortaklığa değer veriyoruz ve güçlerimizi sinerji haline getireceğine inanıyoruz (2. yönergeye uygun olarak)."
   },
   {
-    "english": "Can we lock in these commercial terms for a multi-year exclusivity agreement?",
+    "word": "exclusivity",
+    "meanings": [
+      "ayrıcalık",
+      "ayrıcalıklı olmak"
+    ],
+    "sentence": "Can we lock in these commercial terms for a multi-year exclusivity agreement?",
     "turkish": "Çok yıllı bir münhasırlık anlaşması için bu ticari şartları sabitleyebilir miyiz?"
   },
   {
-    "english": "We are presenting our comprehensive 5G roadmap to executive leadership next week in accordance with guideline 1.",
+    "word": "comprehensive",
+    "meanings": [
+      "kapsayıcı",
+      "kapsamlı",
+      "Kapsamlı bir okul"
+    ],
+    "sentence": "We are presenting our comprehensive 5G roadmap to executive leadership next week in accordance with guideline 1.",
     "turkish": "Gelecek hafta üst düzey liderliğe kapsamlı 5G yol haritamızı sunuyoruz (1. yönergeye uygun olarak)."
   },
   {
-    "english": "To ensure a sustainable partnership",
+    "word": "partnership",
+    "meanings": [
+      "ortaklık",
+      "ortaklığa"
+    ],
+    "sentence": "To ensure a sustainable partnership",
     "turkish": "we must address the contract clauses in accordance with guideline 2. Sürdürülebilir bir ortaklık sağlamak için sözleşme maddelerini ele almalıyız (2. yönergeye uygun olarak)."
   },
   {
-    "english": "Due to regulatory shifts",
+    "word": "regulatory",
+    "meanings": [
+      "düzenleyici"
+    ],
+    "sentence": "Due to regulatory shifts",
     "turkish": "we need to update our strategy presentation immediately in accordance with guideline 3. Yasal düzenlemelerdeki değişiklikler nedeniyle, strateji sunumumuzu derhal güncellemeliyiz (3. yönergeye uygun olarak)."
   },
   {
-    "english": "This partnership will allow us to leverage each other's customer base in accordance with guideline 1.",
+    "word": "partnership",
+    "meanings": [
+      "ortaklık",
+      "ortaklığa"
+    ],
+    "sentence": "This partnership will allow us to leverage each other's customer base in accordance with guideline 1.",
     "turkish": "Bu ortaklık, birbirimizin müşteri tabanından yararlanmamıza olanak sağlayacaktır (1. yönergeye uygun olarak)."
   },
   {
-    "english": "Are there any outstanding issues regarding the exclusivity terms of the agreement?",
+    "word": "exclusivity",
+    "meanings": [
+      "ayrıcalık",
+      "ayrıcalıklı olmak"
+    ],
+    "sentence": "Are there any outstanding issues regarding the exclusivity terms of the agreement?",
     "turkish": "Sözleşmenin münhasırlık şartlarıyla ilgili çözülmemiş herhangi bir sorun var mı?"
   },
   {
-    "english": "We are preparing a high-level strategic proposal for Vodafone Turkey leadership in accordance with guideline 3.",
+    "word": "proposal",
+    "meanings": [
+      "teklif",
+      "teklife"
+    ],
+    "sentence": "We are preparing a high-level strategic proposal for Vodafone Turkey leadership in accordance with guideline 3.",
     "turkish": "Vodafone Türkiye liderliği için üst düzey stratejik bir teklif hazırlıyoruz (3. yönergeye uygun olarak)."
   },
   {
-    "english": "We value this partnership and believe it will synergize our strengths in accordance with guideline 3.",
+    "word": "partnership",
+    "meanings": [
+      "ortaklık",
+      "ortaklığa"
+    ],
+    "sentence": "We value this partnership and believe it will synergize our strengths in accordance with guideline 3.",
     "turkish": "Bu ortaklığa değer veriyoruz ve güçlerimizi sinerji haline getireceğine inanıyoruz (3. yönergeye uygun olarak)."
   },
   {
-    "english": "We are presenting our comprehensive 5G roadmap to executive leadership next week in accordance with guideline 2.",
+    "word": "comprehensive",
+    "meanings": [
+      "kapsayıcı",
+      "kapsamlı",
+      "Kapsamlı bir okul"
+    ],
+    "sentence": "We are presenting our comprehensive 5G roadmap to executive leadership next week in accordance with guideline 2.",
     "turkish": "Gelecek hafta üst düzey liderliğe kapsamlı 5G yol haritamızı sunuyoruz (2. yönergeye uygun olarak)."
   },
   {
-    "english": "This partnership will allow us to leverage each other's customer base in accordance with guideline 2.",
+    "word": "partnership",
+    "meanings": [
+      "ortaklık",
+      "ortaklığa"
+    ],
+    "sentence": "This partnership will allow us to leverage each other's customer base in accordance with guideline 2.",
     "turkish": "Bu ortaklık, birbirimizin müşteri tabanından yararlanmamıza olanak sağlayacaktır (2. yönergeye uygun olarak)."
   },
   {
-    "english": "We are preparing a high-level strategic proposal for Vodafone Turkey leadership in accordance with guideline 1.",
+    "word": "proposal",
+    "meanings": [
+      "teklif",
+      "teklife"
+    ],
+    "sentence": "We are preparing a high-level strategic proposal for Vodafone Turkey leadership in accordance with guideline 1.",
     "turkish": "Vodafone Türkiye liderliği için üst düzey stratejik bir teklif hazırlıyoruz (1. yönergeye uygun olarak)."
   },
   {
-    "english": "We value this partnership and believe it will synergize our strengths in accordance with guideline 1.",
+    "word": "partnership",
+    "meanings": [
+      "ortaklık",
+      "ortaklığa"
+    ],
+    "sentence": "We value this partnership and believe it will synergize our strengths in accordance with guideline 1.",
     "turkish": "Bu ortaklığa değer veriyoruz ve güçlerimizi sinerji haline getireceğine inanıyoruz (1. yönergeye uygun olarak)."
   },
   {
-    "english": "We are presenting our comprehensive 5G roadmap to executive leadership next week in accordance with guideline 3.",
+    "word": "comprehensive",
+    "meanings": [
+      "kapsayıcı",
+      "kapsamlı",
+      "Kapsamlı bir okul"
+    ],
+    "sentence": "We are presenting our comprehensive 5G roadmap to executive leadership next week in accordance with guideline 3.",
     "turkish": "Gelecek hafta üst düzey liderliğe kapsamlı 5G yol haritamızı sunuyoruz (3. yönergeye uygun olarak)."
   },
   {
-    "english": "This partnership will allow us to leverage each other's customer base in accordance with guideline 3.",
+    "word": "partnership",
+    "meanings": [
+      "ortaklık",
+      "ortaklığa"
+    ],
+    "sentence": "This partnership will allow us to leverage each other's customer base in accordance with guideline 3.",
     "turkish": "Bu ortaklık, birbirimizin müşteri tabanından yararlanmamıza olanak sağlayacaktır (3. yönergeye uygun olarak)."
   },
   {
-    "english": "Our investments are heavily exposed to market volatility",
+    "word": "volatility",
+    "meanings": [
+      "oynaklık",
+      "oynaklığa",
+      "Değişken olma durumu"
+    ],
+    "sentence": "Our investments are heavily exposed to market volatility",
     "turkish": "so hedging via VIOP is crucial as per update 2. Yatırımlarımız piyasa oynaklığına maruz kalıyor, bu yüzden VİOP aracılığıyla riskten korunmak çok önemlidir (2. güncelleme uyarınca)."
   },
   {
-    "english": "We need a detailed breakdown of the corporate vehicle leasing proposals as per update 3.",
+    "word": "breakdown",
+    "meanings": [
+      "bozulma",
+      "bozulmak"
+    ],
+    "sentence": "We need a detailed breakdown of the corporate vehicle leasing proposals as per update 3.",
     "turkish": "Kurumsal araç kiralama tekliflerinin ayrıntılı bir dökümüne ihtiyacımız var (3. güncelleme uyarınca)."
   },
   {
-    "english": "Let's summarize the key action items and assign ownership before we conclude as per update 4.",
+    "word": "summarize",
+    "meanings": [
+      "özetlemek"
+    ],
+    "sentence": "Let's summarize the key action items and assign ownership before we conclude as per update 4.",
     "turkish": "Toplantıyı bitirmeden önce önemli aksiyon maddelerini özetleyelim ve sorumluları belirleyelim (4. güncelleme uyarınca)."
   },
   {
-    "english": "We must mitigate these operational risks before moving into the mass production phase as per update 5.",
+    "word": "mitigate",
+    "meanings": [
+      "hafifletmek"
+    ],
+    "sentence": "We must mitigate these operational risks before moving into the mass production phase as per update 5.",
     "turkish": "Seri üretim aşamasına geçmeden önce bu operasyonel riskleri azaltmalıyız (5. güncelleme uyarınca)."
   },
   {
-    "english": "Could you elaborate on the contingency plan if delivery is delayed?",
+    "word": "contingency",
+    "meanings": [
+      "beklenmedik durum",
+      "beklenmedik duruma"
+    ],
+    "sentence": "Could you elaborate on the contingency plan if delivery is delayed?",
     "turkish": "Teslimatın gecikmesi durumunda acil durum planını detaylandırabilir misiniz?"
   },
   {
-    "english": "We are currently evaluating the financial feasibility of the new fleet as per update 2.",
+    "word": "feasibility",
+    "meanings": [
+      "fizibilite",
+      "fizibiliteye"
+    ],
+    "sentence": "We are currently evaluating the financial feasibility of the new fleet as per update 2.",
     "turkish": "Şu anda yeni filonun finansal fizibilitesini değerlendiriyoruz (2. güncelleme uyarınca)."
   },
   {
-    "english": "Let's review the meeting minutes and finalize the action list before COB as per update 3.",
+    "word": "finalize",
+    "meanings": [
+      "sonuçlandırmak"
+    ],
+    "sentence": "Let's review the meeting minutes and finalize the action list before COB as per update 3.",
     "turkish": "Mesai bitiminden önce toplantı tutanaklarını gözden geçirelim ve aksiyon listesini netleştirelim (3. güncelleme uyarınca)."
   },
   {
-    "english": "What is our contingency plan if the regulatory body delays certification?",
+    "word": "contingency",
+    "meanings": [
+      "beklenmedik durum",
+      "beklenmedik duruma"
+    ],
+    "sentence": "What is our contingency plan if the regulatory body delays certification?",
     "turkish": "Düzenleyici kurum sertifikasyonu geciktirirse acil durum planımız nedir?"
   },
   {
-    "english": "We must optimize our operational expenses to sustain profitability as per update 5.",
+    "word": "profitability",
+    "meanings": [
+      "karlılık",
+      "karlılığa"
+    ],
+    "sentence": "We must optimize our operational expenses to sustain profitability as per update 5.",
     "turkish": "Karlılığı sürdürmek için operasyonel giderlerimizi optimize etmeliyiz (5. güncelleme uyarınca)."
   },
   {
-    "english": "The executive committee will review the quarterly performance metrics tomorrow as per update 1.",
+    "word": "review",
+    "meanings": [
+      "gözden geçirmek"
+    ],
+    "sentence": "The executive committee will review the quarterly performance metrics tomorrow as per update 1.",
     "turkish": "Yönetim kurulu, çeyreklik performans metriklerini yarın gözden geçirecek (1. güncelleme uyarınca)."
   }
 ]
