@@ -180,43 +180,117 @@
         }
 
         /* =============================================
-           KELİME ÇEVİRİ TOOLTIP
+           KELİME ÇEVİRİ TOOLTIP — ZENGİN (ÇOK ANLAMLI)
            ============================================= */
         .word-tooltip {
             position: fixed;
             z-index: 1000;
-            background: #071b49;
-            color: white;
-            padding: 10px 18px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-            font-size: 18px;
-            font-weight: 600;
+            background: #1a1a2e;
+            color: #f0f0f0;
+            padding: 16px 20px;
+            border-radius: 14px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+            font-size: 15px;
+            font-weight: 400;
             opacity: 0;
             transition: opacity 0.2s ease;
-            pointer-events: none;
-            max-width: 320px;
+            pointer-events: auto;
+            max-width: 420px;
+            max-height: 360px;
+            overflow-y: auto;
+            white-space: normal;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        /* Tooltip scrollbar stilleri */
+        .word-tooltip::-webkit-scrollbar {
+            width: 6px;
+        }
+        .word-tooltip::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .word-tooltip::-webkit-scrollbar-thumb {
+            background: #563df2;
+            border-radius: 3px;
+        }
+
+        /* ——— Tooltip Başlık ——— */
+        .tooltip-header {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            flex-wrap: wrap;
+        }
+
+        .tooltip-header strong {
+            font-size: 22px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .tooltip-tr {
+            font-size: 15px;
+            font-weight: 500;
+            color: #b8b8ff;
+            background: rgba(86, 61, 242, 0.2);
+            padding: 2px 10px;
+            border-radius: 20px;
             white-space: nowrap;
         }
 
-        .tooltip-content {
+        .tooltip-tr.loading {
+            color: #aaa;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ——— Anlam Grupları ——— */
+        .tooltip-meanings {
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
+            gap: 14px;
         }
 
-        .tooltip-content strong {
-            font-size: 20px;
+        .meaning-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
-        .tooltip-arrow {
-            font-size: 18px;
-            opacity: 0.7;
+        .meaning-pos {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #9d8eff;
+            background: rgba(86, 61, 242, 0.15);
+            padding: 2px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            align-self: flex-start;
         }
 
-        .tooltip-translation {
-            font-weight: 400;
-            font-size: 18px;
+        .meaning-item {
+            padding-left: 12px;
+            border-left: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .meaning-def {
+            font-size: 14px;
+            color: #e0e0e0;
+            line-height: 1.5;
+        }
+
+        .meaning-example {
+            font-size: 13px;
+            color: #9e9e9e;
+            font-style: italic;
+            margin-top: 2px;
+            padding-left: 16px;
+            line-height: 1.4;
         }
 
         /* ========================
@@ -301,6 +375,30 @@
                 border-radius: 14px;
             }
 
+            /* Mobil tooltip */
+            .word-tooltip {
+                max-width: 92vw;
+                max-height: 280px;
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+
+            .tooltip-header strong {
+                font-size: 19px;
+            }
+
+            .tooltip-tr {
+                font-size: 13px;
+            }
+
+            .meaning-def {
+                font-size: 13px;
+            }
+
+            .meaning-example {
+                font-size: 12px;
+            }
+
             button#next-btn {
                 position: fixed;
                 left: 16px;
@@ -357,6 +455,13 @@
             .card-container p {
                 padding: 24px 16px;
                 border-radius: 12px;
+            }
+
+            .word-tooltip {
+                max-width: 96vw;
+                max-height: 240px;
+                padding: 12px 14px;
+                font-size: 13px;
             }
 
             button#next-btn {
