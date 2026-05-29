@@ -11,6 +11,20 @@ async function loadCards() {
     loadVoices();
 }
 
+/**
+ * Tekrarlanan kartları ingilizce cümleye göre temizler.
+ * İlk geçen kart korunur, sonraki tekrarlar atılır.
+ */
+function deduplicateCards(arr) {
+    const seen = new Set();
+    return arr.filter(card => {
+        const key = card.english.toLowerCase().trim();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+}
+
 // ——— Excel / CSV yükleme ———
 document.getElementById("file-input").addEventListener("change", function (e) {
     const file = e.target.files[0];
@@ -23,8 +37,8 @@ document.getElementById("file-input").addEventListener("change", function (e) {
         try {
             let data;
             if (file.name.endsWith(".csv")) {
-                // CSV dosyası
-                data = XLSX.read(loadEvent.target.result, { type: "binary", raw: true });
+                // CSV dosyası — string olarak oku, XLSX'in CSV ayrıştırıcısı kullansın
+                data = XLSX.read(loadEvent.target.result, { type: "string" });
             } else {
                 // Excel dosyası (.xlsx / .xls)
                 data = XLSX.read(loadEvent.target.result, { type: "array" });
@@ -34,6 +48,7 @@ document.getElementById("file-input").addEventListener("change", function (e) {
             const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
             // Başlık satırını atla (varsa), veri satırlarını al
+            // row[2] = kategori sütunu (varsa) yoksayılır
             const rows = json.filter(row => row.length >= 2 && row[0] && row[1]);
 
             if (rows.length === 0) {
@@ -41,21 +56,30 @@ document.getElementById("file-input").addEventListener("change", function (e) {
                 return;
             }
 
-            cards = rows.map(row => ({
+            let parsed = rows.map(row => ({
                 english: String(row[0]).trim(),
                 turkish: String(row[1]).trim()
             }));
 
+            // Tekrarlanan kartları temizle
+            const uniqueCount = parsed.length;
+            parsed = deduplicateCards(parsed);
+
+            cards = parsed;
             currentIndex = 0;
             showEnglish();
-            fileStatus.textContent = `✅ ${cards.length} kelime yüklendi: ${file.name}`;
+
+            const dedupMsg = uniqueCount !== cards.length
+                ? ` (${uniqueCount - cards.length} tekrar temizlendi)`
+                : "";
+            fileStatus.textContent = `✅ ${cards.length} benzersiz kelime yüklendi${dedupMsg}: ${file.name}`;
         } catch (err) {
             fileStatus.textContent = "❌ Dosya okunamadı: " + err.message;
         }
     };
 
     if (file.name.endsWith(".csv")) {
-        reader.readAsBinaryString(file);
+        reader.readAsText(file, "UTF-8"); // CSV'yi UTF-8 metin olarak oku
     } else {
         reader.readAsArrayBuffer(file);
     }
