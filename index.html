@@ -3,10 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="icon-512.png">
+    <link rel="apple-touch-icon" href="icon-512.png">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <title>İngilizce Kelime Kartları</title>
 </head>
 <body>
+    <div class="upload-area">
+        <label for="file-input" class="upload-btn">📂 Excel / CSV Yükle</label>
+        <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
+        <span id="file-status">Henüz dosya yüklenmedi</span>
+    </div>
+    <div class="counter" id="counter"></div>
     <div class="card-container" id="card">
     </div>
     <button id="next-btn">Sonraki Cümle →</button>
