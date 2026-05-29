@@ -4,6 +4,9 @@ let showingTurkish = false;
 let femaleVoice = null;
 let maleVoice = null;
 
+// Kelime çeviri önbelleği
+const wordCache = {};
+
 // ——— Varsayılan veriyi yükle ———
 async function loadCards() {
     const response = await fetch("data.json");
@@ -37,18 +40,14 @@ document.getElementById("file-input").addEventListener("change", function (e) {
         try {
             let data;
             if (file.name.endsWith(".csv")) {
-                // CSV dosyası — string olarak oku, XLSX'in CSV ayrıştırıcısı kullansın
                 data = XLSX.read(loadEvent.target.result, { type: "string" });
             } else {
-                // Excel dosyası (.xlsx / .xls)
                 data = XLSX.read(loadEvent.target.result, { type: "array" });
             }
 
             const sheet = data.Sheets[data.SheetNames[0]];
             const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-            // Başlık satırını atla (varsa), veri satırlarını al
-            // row[2] = kategori sütunu (varsa) yoksayılır
             const rows = json.filter(row => row.length >= 2 && row[0] && row[1]);
 
             if (rows.length === 0) {
@@ -61,7 +60,6 @@ document.getElementById("file-input").addEventListener("change", function (e) {
                 turkish: String(row[1]).trim()
             }));
 
-            // Tekrarlanan kartları temizle
             const uniqueCount = parsed.length;
             parsed = deduplicateCards(parsed);
 
@@ -79,20 +77,18 @@ document.getElementById("file-input").addEventListener("change", function (e) {
     };
 
     if (file.name.endsWith(".csv")) {
-        reader.readAsText(file, "UTF-8"); // CSV'yi UTF-8 metin olarak oku
+        reader.readAsText(file, "UTF-8");
     } else {
         reader.readAsArrayBuffer(file);
     }
 });
 
 function loadVoices() {
-    // Mevcut sesleri yükle
     const voices = window.speechSynthesis.getVoices();
     if (voices.length > 0) {
         assignVoices(voices);
         showEnglish();
     } else {
-        // voices henüz yüklenmemişse bekle
         window.speechSynthesis.onvoiceschanged = () => {
             const allVoices = window.speechSynthesis.getVoices();
             assignVoices(allVoices);
@@ -102,23 +98,18 @@ function loadVoices() {
 }
 
 function assignVoices(voices) {
-    // İngilizce sesleri filtrele
     const englishVoices = voices.filter(v => v.lang.startsWith("en"));
 
-    // Kadın sesi bul (Zira, female vb.)
     femaleVoice = englishVoices.find(v =>
         v.name.toLowerCase().includes("zira") ||
         v.name.toLowerCase().includes("female")
     );
-
-    // Erkek sesi bul (David, Mark, male vb.)
     maleVoice = englishVoices.find(v =>
         v.name.toLowerCase().includes("david") ||
         v.name.toLowerCase().includes("mark") ||
         v.name.toLowerCase().includes("male")
     );
 
-    // Bulunamazsa ilk 2 İngilizce sesi kullan
     if (!femaleVoice && englishVoices.length > 0) femaleVoice = englishVoices[0];
     if (!maleVoice && englishVoices.length > 1) maleVoice = englishVoices[1];
     if (!maleVoice && englishVoices.length > 0) maleVoice = englishVoices[0];
@@ -133,11 +124,44 @@ function updateCounter() {
     }
 }
 
+/**
+ * İngilizce cümleyi kelimelere ayırıp her kelimeyi tıklanabilir span yapar.
+ */
 function showEnglish() {
     showingTurkish = false;
     const card = document.getElementById("card");
-    card.innerHTML = `<h2>"${cards[currentIndex].english}"</h2>`;
-    speakEnglish(cards[currentIndex].english);
+    const sentence = cards[currentIndex].english;
+
+    // Tooltip'i gizle
+    hideTooltip();
+
+    // Cümleyi kelimelere ve noktalama işaretlerine ayır
+    // Regex: kelime (harf + ' + harf) veya noktalama/boşluk
+    const tokens = sentence.match(/[\w']+|[^\w']+/g) || [];
+
+    const html = tokens.map(token => {
+        // Sadece harflerden oluşan token'ları tıklanabilir yap (2+ harf)
+        if (/^[a-zA-Z']{2,}$/.test(token)) {
+            const lower = token.toLowerCase();
+            return `<span class="word-clickable" data-word="${token}" data-lower="${lower}">${token}</span>`;
+        }
+        // Noktalama ve boşlukları olduğu gibi ekle
+        return token;
+    }).join('');
+
+    card.innerHTML = `<h2>${html}</h2>`;
+
+    // Her tıklanabilir kelimeye olay dinleyicisi ekle
+    card.querySelectorAll('.word-clickable').forEach(span => {
+        span.addEventListener('click', function (e) {
+            e.stopPropagation(); // Kart tıklamasını engelle
+            const word = this.dataset.word;
+            const lower = this.dataset.lower;
+            showWordTranslation(lower, word, this);
+        });
+    });
+
+    speakEnglish(sentence);
     updateCounter();
 }
 
@@ -145,11 +169,120 @@ function showTurkish() {
     window.speechSynthesis.cancel();
     showingTurkish = true;
     const card = document.getElementById("card");
+    hideTooltip();
     card.innerHTML = `<p>${cards[currentIndex].turkish}</p>`;
+}
+
+/**
+ * Bir kelimenin Türkçe çevirisini gösterir.
+ */
+async function showWordTranslation(lower, originalWord, spanElement) {
+    // Önce önbelleğe bak
+    if (wordCache[lower]) {
+        showTooltip(spanElement, originalWord, wordCache[lower]);
+        return;
+    }
+
+    // Tooltip'te "yükleniyor" göster
+    showTooltip(spanElement, originalWord, "🔄 Çeviriliyor...");
+
+    try {
+        // LibreTranslate dene
+        const response = await fetch("https://libretranslate.de/translate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                q: originalWord,
+                source: "en",
+                target: "tr"
+            })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const translation = data.translatedText || "";
+            if (translation) {
+                wordCache[lower] = translation;
+                showTooltip(spanElement, originalWord, translation);
+                return;
+            }
+        }
+    } catch (e) {
+        // LibreTranslate başarısız, Google Translate dene
+    }
+
+    try {
+        // Google Translate dene (CORS proxy'siz)
+        const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=tr&dt=t&q=${encodeURIComponent(originalWord)}`;
+        const response = await fetch(url);
+        if (response.ok) {
+            const data = await response.json();
+            const translation = data[0]?.[0]?.[0] || "";
+            if (translation) {
+                wordCache[lower] = translation;
+                showTooltip(spanElement, originalWord, translation);
+                return;
+            }
+        }
+    } catch (e) {
+        // Her iki API de başarısız
+    }
+
+    showTooltip(spanElement, originalWord, "❌ Çeviri alınamadı");
+}
+
+/**
+ * Kelimenin üzerinde tooltip gösterir.
+ */
+function showTooltip(spanElement, word, translation) {
+    hideTooltip();
+
+    const tooltip = document.createElement("div");
+    tooltip.className = "word-tooltip";
+    tooltip.id = "word-tooltip";
+    tooltip.innerHTML = `
+        <div class="tooltip-content">
+            <strong>${word}</strong>
+            <span class="tooltip-arrow">→</span>
+            <span class="tooltip-translation">${translation}</span>
+        </div>
+    `;
+
+    // Tooltip'i span'ın üstüne konumlandır
+    document.body.appendChild(tooltip);
+
+    const rect = spanElement.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+
+    // Tooltip'i kelimenin üstüne, ortalanmış şekilde konumlandır
+    let left = rect.left + rect.width / 2 - tooltipRect.width / 2;
+    let top = rect.top - tooltipRect.height - 10;
+
+    // Taşma kontrolü
+    if (left < 5) left = 5;
+    if (top < 5) top = rect.bottom + 10; // Üstte yer yoksa alta koy
+
+    tooltip.style.left = left + "px";
+    tooltip.style.top = top + "px";
+    tooltip.style.opacity = "1";
+}
+
+function hideTooltip() {
+    const existing = document.getElementById("word-tooltip");
+    if (existing) {
+        existing.remove();
+    }
 }
 
 // Kart tıklama — çeviriyi göster/gizle
 document.getElementById("card").addEventListener("click", function () {
+    // Eğer tooltip açıksa kapat ama kart çevirme
+    const tooltip = document.getElementById("word-tooltip");
+    if (tooltip) {
+        hideTooltip();
+        return;
+    }
+
     const card = this;
     card.classList.add("flip-effect");
 
@@ -163,6 +296,14 @@ document.getElementById("card").addEventListener("click", function () {
     }, 300);
 });
 
+// Tooltip dışına tıklandığında tooltip'i kapat
+document.addEventListener("click", function (e) {
+    const tooltip = document.getElementById("word-tooltip");
+    if (tooltip && !tooltip.contains(e.target) && !e.target.closest('.word-clickable')) {
+        hideTooltip();
+    }
+});
+
 // Sonraki kart
 document.getElementById("next-btn").addEventListener("click", nextCard);
 
@@ -173,7 +314,6 @@ function speakEnglish(text) {
     speech.rate = 0.85;
     speech.pitch = 1;
 
-    // Kadın/erkek ses alternasyonu — kart indeksine göre sabit
     const voice = currentIndex % 2 === 0 ? femaleVoice : maleVoice;
     if (voice) {
         speech.voice = voice;
@@ -184,6 +324,7 @@ function speakEnglish(text) {
 
 function nextCard() {
     window.speechSynthesis.cancel();
+    hideTooltip();
     const card = document.getElementById("card");
     card.classList.add("fade-out");
     setTimeout(() => {

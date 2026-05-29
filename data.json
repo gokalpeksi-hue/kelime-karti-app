@@ -1,122 +1,306 @@
 [
   {
-    "english": "I need to fix the database connection issue before deployment.",
-    "turkish": "Yayına almadan önce veritabanı bağlantı sorununu çözmem gerekiyor."
+    "english": "We need to accelerate our 5G strategy to capture the first-mover advantage in phase 2.",
+    "turkish": "İlk hamle avantajını yakalamak için 5G stratejimizi hızlandırmamız gerekiyor (Aşama 2 kapsamında)."
   },
   {
-    "english": "The admin panel is working correctly on localhost.",
-    "turkish": "Admin panel localhost üzerinde düzgün çalışıyor."
+    "english": "What is the expected rollout timeline for the 5G CPE and local modems?",
+    "turkish": "5G CPE ve yerel modemler için beklenen yaygınlaştırma takvimi nedir?"
   },
   {
-    "english": "I am testing the CRUD operations right now.",
-    "turkish": "Şu anda CRUD işlemlerini test ediyorum."
+    "english": "The penetration of 5G hardware will inevitably disrupt the market ecosystem in phase 4.",
+    "turkish": "\"5G donanımının penetrasyonu"
   },
   {
-    "english": "Can you check why the API response is too slow?",
-    "turkish": "API yanıtının neden çok yavaş olduğunu kontrol edebilir misin?"
+    "english": "We are evaluating small cell and femtocell deployment strategies in phase 5.",
+    "turkish": "Küçük hücre (small cell) ve femtocell kurulum stratejilerini değerlendiriyoruz (Aşama 5 kapsamında)."
   },
   {
-    "english": "The customer information should be updated automatically.",
-    "turkish": "Müşteri bilgileri otomatik olarak güncellenmeli."
+    "english": "How does the latest Huawei 5G CPE 5S compare in terms of throughput?",
+    "turkish": "\"En son Huawei 5G CPE 5S"
   },
   {
-    "english": "I forgot to save the file before refreshing the page.",
-    "turkish": "Sayfayı yenilemeden önce dosyayı kaydetmeyi unuttum."
+    "english": "Our priority is to deploy the 5G CPE units in strategic pilot regions in phase 2.",
+    "turkish": "\"Önceliğimiz"
   },
   {
-    "english": "We need a better user interface for the dashboard.",
-    "turkish": "Dashboard için daha iyi bir kullanıcı arayüzüne ihtiyacımız var."
+    "english": "We must analyze the latency performance of the new 5G modems in phase 3.",
+    "turkish": "Yeni 5G modemlerin gecikme performansını analiz etmemiz gerekiyor (Aşama 3 kapsamında)."
   },
   {
-    "english": "The project is almost ready for production.",
-    "turkish": "Proje neredeyse canlı kullanıma hazır."
+    "english": "The transition to 5G infrastructure requires an overhaul of hardware lists in phase 4.",
+    "turkish": "\"5G altyapısına geçiş"
   },
   {
-    "english": "I want to improve my backend development skills.",
-    "turkish": "Backend geliştirme becerilerimi geliştirmek istiyorum."
+    "english": "Are telecom operators ready to support our local 5G router specifications?",
+    "turkish": "\"Telekom operatörleri"
   },
   {
-    "english": "Please send me the latest version of the source code.",
-    "turkish": "Lütfen kaynak kodun en son sürümünü bana gönder."
+    "english": "We should focus on small cell architectures to overcome signal penetration issues in phase 1.",
+    "turkish": "Sinyal penetrasyon sorunlarını aşmak için küçük hücre mimarilerine odaklanmalıyız (Aşama 1 kapsamında)."
   },
   {
-    "english": "The login system should be more secure.",
-    "turkish": "Giriş sistemi daha güvenli olmalı."
+    "english": "The hardware production samples are scheduled for final approval on June 3rd under protocol 2.",
+    "turkish": "Donanım üretim numunelerinin nihai onayı 3 Haziran için planlanmıştır (protokol 2 uyarınca)."
   },
   {
-    "english": "I am learning how to work with APIs.",
-    "turkish": "API'lerle nasıl çalışılacağını öğreniyorum."
+    "english": "We must align our manufacturing pipeline with MASS and TÜRK TELEKOM specifications under protocol 3.",
+    "turkish": "Üretim hattımızı MASS ve TÜRK TELEKOM teknik şartnamelerine uygun hale getirmeliyiz (protokol 3 uyarınca)."
   },
   {
-    "english": "This function returns all active users from the database.",
-    "turkish": "Bu fonksiyon veritabanındaki tüm aktif kullanıcıları döndürür."
+    "english": "Any delay in component sourcing will directly impact our July 13th sales launch under protocol 4.",
+    "turkish": "\"Bileşen tedariğindeki herhangi bir gecikme"
   },
   {
-    "english": "We should optimize the page loading speed.",
-    "turkish": "Sayfa yüklenme hızını optimize etmeliyiz."
+    "english": "We conducted a rigorous teardown of the competitive model to optimize costs under protocol 1.",
+    "turkish": "Maliyetleri optimize etmek için rakip modelin titiz bir ürün sökümünü gerçekleştirdik (protokol 1 uyarınca)."
   },
   {
-    "english": "The application crashes when I submit the form.",
-    "turkish": "Formu gönderdiğimde uygulama çöküyor."
+    "english": "The local production of these modems will grant significant tax exemptions under protocol 2.",
+    "turkish": "\"Bu modemlerin yerli üretimi"
   },
   {
-    "english": "I need to create a new table for customer orders.",
-    "turkish": "Müşteri siparişleri için yeni bir tablo oluşturmam gerekiyor."
+    "english": "The mass production timeline depends entirely on the initial samples under protocol 3.",
+    "turkish": "\"Seri üretim takvimi"
   },
   {
-    "english": "The server is currently offline for maintenance.",
-    "turkish": "Sunucu şu anda bakım nedeniyle çevrimdışı."
+    "english": "We are closely cooperating with engineering teams to ensure compliance under protocol 4.",
+    "turkish": "Uyum sağlamak için mühendislik ekipleriyle yakın iş birliği içindeyiz (protokol 4 uyarınca)."
   },
   {
-    "english": "Can you help me debug this JavaScript error?",
-    "turkish": "Bu JavaScript hatasını debug etmemde bana yardımcı olabilir misin?"
+    "english": "We need to conduct a comprehensive teardown report immediately under protocol 1.",
+    "turkish": "Derhal kapsamlı bir ürün söküm (teardown) raporu hazırlamamız gerekiyor (protokol 1 uyarınca)."
   },
   {
-    "english": "I am trying to build a professional admin dashboard.",
-    "turkish": "Profesyonel bir admin panel oluşturmaya çalışıyorum."
+    "english": "Localizing the assembly line will optimize our overall logistics costs under protocol 2.",
+    "turkish": "\"Montaj hattını yerlileştirmek"
   },
   {
-    "english": "The design looks much cleaner after the update.",
-    "turkish": "Güncellemeden sonra tasarım çok daha temiz görünüyor."
+    "english": "Quality control standards must be maintained throughout the assembly process under protocol 3.",
+    "turkish": "Montaj süreci boyunca kalite kontrol standartları korunmalıdır (protokol 3 uyarınca)."
   },
   {
-    "english": "We should use Bootstrap for responsive design.",
-    "turkish": "Responsive tasarım için Bootstrap kullanmalıyız."
+    "english": "The hardware production samples are scheduled for final approval on June 3rd under protocol 4.",
+    "turkish": "Donanım üretim numunelerinin nihai onayı 3 Haziran için planlanmıştır (protokol 4 uyarınca)."
   },
   {
-    "english": "I accidentally deleted an important file yesterday.",
-    "turkish": "Dün yanlışlıkla önemli bir dosyayı sildim."
+    "english": "We must align our manufacturing pipeline with MASS and TÜRK TELEKOM specifications under protocol 1.",
+    "turkish": "Üretim hattımızı MASS ve TÜRK TELEKOM teknik şartnamelerine uygun hale getirmeliyiz (protokol 1 uyarınca)."
   },
   {
-    "english": "The users table contains duplicated records.",
-    "turkish": "Users tablosunda kopya kayıtlar bulunuyor."
+    "english": "Any delay in component sourcing will directly impact our July 13th sales launch under protocol 2.",
+    "turkish": "\"Bileşen tedariğindeki herhangi bir gecikme"
   },
   {
-    "english": "I need to improve the mobile version of the application.",
-    "turkish": "Uygulamanın mobil sürümünü geliştirmem gerekiyor."
+    "english": "We conducted a rigorous teardown of the competitive model to optimize costs under protocol 3.",
+    "turkish": "Maliyetleri optimize etmek için rakip modelin titiz bir ürün sökümünü gerçekleştirdik (protokol 3 uyarınca)."
   },
   {
-    "english": "The notification system is not working properly.",
-    "turkish": "Bildirim sistemi düzgün çalışmıyor."
+    "english": "The local production of these modems will grant significant tax exemptions under protocol 4.",
+    "turkish": "\"Bu modemlerin yerli üretimi"
   },
   {
-    "english": "I want to add dark mode support to the application.",
-    "turkish": "Uygulamaya karanlık mod desteği eklemek istiyorum."
+    "english": "The mass production timeline depends entirely on the initial samples under protocol 1.",
+    "turkish": "\"Seri üretim takvimi"
   },
   {
-    "english": "The customer requested a new reporting feature.",
-    "turkish": "Müşteri yeni bir raporlama özelliği talep etti."
+    "english": "We are closely cooperating with engineering teams to ensure compliance under protocol 2.",
+    "turkish": "Uyum sağlamak için mühendislik ekipleriyle yakın iş birliği içindeyiz (protokol 2 uyarınca)."
   },
   {
-    "english": "I am currently working on the authentication system.",
-    "turkish": "Şu anda kimlik doğrulama sistemi üzerinde çalışıyorum."
+    "english": "We need to conduct a comprehensive teardown report immediately under protocol 3.",
+    "turkish": "Derhal kapsamlı bir ürün söküm (teardown) raporu hazırlamamız gerekiyor (protokol 3 uyarınca)."
   },
   {
-    "english": "The code becomes difficult to maintain without documentation.",
-    "turkish": "Dokümantasyon olmadan kodun bakımı zorlaşıyor."
+    "english": "Localizing the assembly line will optimize our overall logistics costs under protocol 4.",
+    "turkish": "\"Montaj hattını yerlileştirmek"
   },
   {
-    "english": "I need to back up the database before making changes.",
-    "turkish": "Değişiklik yapmadan önce veritabanını yedeklemem gerekiyor."
+    "english": "Quality control standards must be maintained throughout the assembly process under protocol 1.",
+    "turkish": "Montaj süreci boyunca kalite kontrol standartları korunmalıdır (protokol 1 uyarınca)."
+  },
+  {
+    "english": "The ORAIMO channel penetration strategy focuses on expanding our retail footprint targeting segment 2.",
+    "turkish": "\"ORAIMO kanal penetrasyon stratejisi"
+  },
+  {
+    "english": "We need to monitor regional smartphone price lists daily via our scrapers targeting segment 3.",
+    "turkish": "Bölgesel akıllı telefon fiyat listelerini veri kazıma araçlarımızla günlük olarak takip etmeliyiz (3. segment hedeflenerek)."
+  },
+  {
+    "english": "We operate on a White Label business model to give partners maximum flexibility targeting segment 4.",
+    "turkish": "Ortaklara maksimum esneklik sağlamak için White Label bir iş modeliyle faaliyet gösteriyoruz (4. segment hedeflenerek)."
+  },
+  {
+    "english": "What are the current inventory turnover ratios across our distribution channels?",
+    "turkish": "Dağıtım kanallarımızdaki mevcut stok devir hızları nedir?"
+  },
+  {
+    "english": "We should offer tiered incentive schemes to master distributors to boost volume targeting segment 1.",
+    "turkish": "Hacmi artırmak için ana distribütörlere kademeli teşvik şemaları sunmalıyız (1. segment hedeflenerek)."
+  },
+  {
+    "english": "The channel penetration strategy requires aggressive marketing support targeting segment 2.",
+    "turkish": "\"Kanal penetrasyon stratejisi"
+  },
+  {
+    "english": "Our automated price tracking system monitors competitor movements in real time targeting segment 3.",
+    "turkish": "\"Otomatik fiyat takip sistemimiz"
+  },
+  {
+    "english": "By shifting to a White Label model",
+    "turkish": "we allow seamless rebranding targeting segment 4."
+  },
+  {
+    "english": "We must review the distributor profit margins to maintain price stability targeting segment 5.",
+    "turkish": "Fiyat istikrarını korumak için distribütör kar marjlarını gözden geçirmeliyiz (5. segment hedeflenerek)."
+  },
+  {
+    "english": "What is our current market share in the premium smartphone accessories segment?",
+    "turkish": "Premium akıllı telefon aksesuarları segmentindeki mevcut pazar payımız nedir?"
+  },
+  {
+    "english": "We are preparing a high-level strategic proposal for Vodafone Turkey leadership in accordance with guideline 2.",
+    "turkish": "Vodafone Türkiye liderliği için üst düzey stratejik bir teklif hazırlıyoruz (2. yönergeye uygun olarak)."
+  },
+  {
+    "english": "To avoid any conflict of interest",
+    "turkish": "all details must be transparent in accordance with guideline 3."
+  },
+  {
+    "english": "Due to strict regulatory compliance",
+    "turkish": "we must secure the necessary permits in accordance with guideline 1."
+  },
+  {
+    "english": "We value this partnership and believe it will synergize our strengths in accordance with guideline 2.",
+    "turkish": "Bu ortaklığa değer veriyoruz ve güçlerimizi sinerji haline getireceğine inanıyoruz (2. yönergeye uygun olarak)."
+  },
+  {
+    "english": "Can we lock in these commercial terms for a multi-year exclusivity agreement?",
+    "turkish": "Çok yıllı bir münhasırlık anlaşması için bu ticari şartları sabitleyebilir miyiz?"
+  },
+  {
+    "english": "We are presenting our comprehensive 5G roadmap to executive leadership next week in accordance with guideline 1.",
+    "turkish": "Gelecek hafta üst düzey liderliğe kapsamlı 5G yol haritamızı sunuyoruz (1. yönergeye uygun olarak)."
+  },
+  {
+    "english": "To ensure a sustainable partnership",
+    "turkish": "we must address the contract clauses in accordance with guideline 2."
+  },
+  {
+    "english": "Due to regulatory shifts",
+    "turkish": "we need to update our strategy presentation immediately in accordance with guideline 3."
+  },
+  {
+    "english": "This partnership will allow us to leverage each other's customer base in accordance with guideline 1.",
+    "turkish": "\"Bu ortaklık"
+  },
+  {
+    "english": "Are there any outstanding issues regarding the exclusivity terms of the agreement?",
+    "turkish": "Sözleşmenin münhasırlık şartlarıyla ilgili çözülmemiş herhangi bir sorun var mı?"
+  },
+  {
+    "english": "We are preparing a high-level strategic proposal for Vodafone Turkey leadership in accordance with guideline 3.",
+    "turkish": "Vodafone Türkiye liderliği için üst düzey stratejik bir teklif hazırlıyoruz (3. yönergeye uygun olarak)."
+  },
+  {
+    "english": "To avoid any conflict of interest",
+    "turkish": "all details must be transparent in accordance with guideline 1."
+  },
+  {
+    "english": "Due to strict regulatory compliance",
+    "turkish": "we must secure the necessary permits in accordance with guideline 2."
+  },
+  {
+    "english": "We value this partnership and believe it will synergize our strengths in accordance with guideline 3.",
+    "turkish": "Bu ortaklığa değer veriyoruz ve güçlerimizi sinerji haline getireceğine inanıyoruz (3. yönergeye uygun olarak)."
+  },
+  {
+    "english": "We are presenting our comprehensive 5G roadmap to executive leadership next week in accordance with guideline 2.",
+    "turkish": "Gelecek hafta üst düzey liderliğe kapsamlı 5G yol haritamızı sunuyoruz (2. yönergeye uygun olarak)."
+  },
+  {
+    "english": "To ensure a sustainable partnership",
+    "turkish": "we must address the contract clauses in accordance with guideline 3."
+  },
+  {
+    "english": "Due to regulatory shifts",
+    "turkish": "we need to update our strategy presentation immediately in accordance with guideline 1."
+  },
+  {
+    "english": "This partnership will allow us to leverage each other's customer base in accordance with guideline 2.",
+    "turkish": "\"Bu ortaklık"
+  },
+  {
+    "english": "We are preparing a high-level strategic proposal for Vodafone Turkey leadership in accordance with guideline 1.",
+    "turkish": "Vodafone Türkiye liderliği için üst düzey stratejik bir teklif hazırlıyoruz (1. yönergeye uygun olarak)."
+  },
+  {
+    "english": "To avoid any conflict of interest",
+    "turkish": "all details must be transparent in accordance with guideline 2."
+  },
+  {
+    "english": "Due to strict regulatory compliance",
+    "turkish": "we must secure the necessary permits in accordance with guideline 3."
+  },
+  {
+    "english": "We value this partnership and believe it will synergize our strengths in accordance with guideline 1.",
+    "turkish": "Bu ortaklığa değer veriyoruz ve güçlerimizi sinerji haline getireceğine inanıyoruz (1. yönergeye uygun olarak)."
+  },
+  {
+    "english": "We are presenting our comprehensive 5G roadmap to executive leadership next week in accordance with guideline 3.",
+    "turkish": "Gelecek hafta üst düzey liderliğe kapsamlı 5G yol haritamızı sunuyoruz (3. yönergeye uygun olarak)."
+  },
+  {
+    "english": "To ensure a sustainable partnership",
+    "turkish": "we must address the contract clauses in accordance with guideline 1."
+  },
+  {
+    "english": "Due to regulatory shifts",
+    "turkish": "we need to update our strategy presentation immediately in accordance with guideline 2."
+  },
+  {
+    "english": "This partnership will allow us to leverage each other's customer base in accordance with guideline 3.",
+    "turkish": "\"Bu ortaklık"
+  },
+  {
+    "english": "Our investments are heavily exposed to market volatility",
+    "turkish": "so hedging via VIOP is crucial as per update 2."
+  },
+  {
+    "english": "We need a detailed breakdown of the corporate vehicle leasing proposals as per update 3.",
+    "turkish": "Kurumsal araç kiralama tekliflerinin ayrıntılı bir dökümüne ihtiyacımız var (3. güncelleme uyarınca)."
+  },
+  {
+    "english": "Let's summarize the key action items and assign ownership before we conclude as per update 4.",
+    "turkish": "Toplantıyı bitirmeden önce önemli aksiyon maddelerini özetleyelim ve sorumluları belirleyelim (4. güncelleme uyarınca)."
+  },
+  {
+    "english": "We must mitigate these operational risks before moving into the mass production phase as per update 5.",
+    "turkish": "Seri üretim aşamasına geçmeden önce bu operasyonel riskleri azaltmalıyız (5. güncelleme uyarınca)."
+  },
+  {
+    "english": "Could you elaborate on the contingency plan if delivery is delayed?",
+    "turkish": "Teslimatın gecikmesi durumunda acil durum planını detaylandırabilir misiniz?"
+  },
+  {
+    "english": "We are currently evaluating the financial feasibility of the new fleet as per update 2.",
+    "turkish": "Şu anda yeni filonun finansal fizibilitesini değerlendiriyoruz (2. güncelleme uyarınca)."
+  },
+  {
+    "english": "Let's review the meeting minutes and finalize the action list before COB as per update 3.",
+    "turkish": "Mesai bitiminden önce toplantı tutanaklarını gözden geçirelim ve aksiyon listesini netleştirelim (3. güncelleme uyarınca)."
+  },
+  {
+    "english": "What is our contingency plan if the regulatory body delays certification?",
+    "turkish": "Düzenleyici kurum sertifikasyonu geciktirirse acil durum planımız nedir?"
+  },
+  {
+    "english": "We must optimize our operational expenses to sustain profitability as per update 5.",
+    "turkish": "Karlılığı sürdürmek için operasyonel giderlerimizi optimize etmeliyiz (5. güncelleme uyarınca)."
+  },
+  {
+    "english": "The executive committee will review the quarterly performance metrics tomorrow as per update 1.",
+    "turkish": "\"Yönetim kurulu"
   }
 ]
