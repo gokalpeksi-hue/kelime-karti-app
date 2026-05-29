@@ -1,0 +1,122 @@
+[
+  {
+    "english": "I need to fix the database connection issue before deployment.",
+    "turkish": "Yayına almadan önce veritabanı bağlantı sorununu çözmem gerekiyor."
+  },
+  {
+    "english": "The admin panel is working correctly on localhost.",
+    "turkish": "Admin panel localhost üzerinde düzgün çalışıyor."
+  },
+  {
+    "english": "I am testing the CRUD operations right now.",
+    "turkish": "Şu anda CRUD işlemlerini test ediyorum."
+  },
+  {
+    "english": "Can you check why the API response is too slow?",
+    "turkish": "API yanıtının neden çok yavaş olduğunu kontrol edebilir misin?"
+  },
+  {
+    "english": "The customer information should be updated automatically.",
+    "turkish": "Müşteri bilgileri otomatik olarak güncellenmeli."
+  },
+  {
+    "english": "I forgot to save the file before refreshing the page.",
+    "turkish": "Sayfayı yenilemeden önce dosyayı kaydetmeyi unuttum."
+  },
+  {
+    "english": "We need a better user interface for the dashboard.",
+    "turkish": "Dashboard için daha iyi bir kullanıcı arayüzüne ihtiyacımız var."
+  },
+  {
+    "english": "The project is almost ready for production.",
+    "turkish": "Proje neredeyse canlı kullanıma hazır."
+  },
+  {
+    "english": "I want to improve my backend development skills.",
+    "turkish": "Backend geliştirme becerilerimi geliştirmek istiyorum."
+  },
+  {
+    "english": "Please send me the latest version of the source code.",
+    "turkish": "Lütfen kaynak kodun en son sürümünü bana gönder."
+  },
+  {
+    "english": "The login system should be more secure.",
+    "turkish": "Giriş sistemi daha güvenli olmalı."
+  },
+  {
+    "english": "I am learning how to work with APIs.",
+    "turkish": "API'lerle nasıl çalışılacağını öğreniyorum."
+  },
+  {
+    "english": "This function returns all active users from the database.",
+    "turkish": "Bu fonksiyon veritabanındaki tüm aktif kullanıcıları döndürür."
+  },
+  {
+    "english": "We should optimize the page loading speed.",
+    "turkish": "Sayfa yüklenme hızını optimize etmeliyiz."
+  },
+  {
+    "english": "The application crashes when I submit the form.",
+    "turkish": "Formu gönderdiğimde uygulama çöküyor."
+  },
+  {
+    "english": "I need to create a new table for customer orders.",
+    "turkish": "Müşteri siparişleri için yeni bir tablo oluşturmam gerekiyor."
+  },
+  {
+    "english": "The server is currently offline for maintenance.",
+    "turkish": "Sunucu şu anda bakım nedeniyle çevrimdışı."
+  },
+  {
+    "english": "Can you help me debug this JavaScript error?",
+    "turkish": "Bu JavaScript hatasını debug etmemde bana yardımcı olabilir misin?"
+  },
+  {
+    "english": "I am trying to build a professional admin dashboard.",
+    "turkish": "Profesyonel bir admin panel oluşturmaya çalışıyorum."
+  },
+  {
+    "english": "The design looks much cleaner after the update.",
+    "turkish": "Güncellemeden sonra tasarım çok daha temiz görünüyor."
+  },
+  {
+    "english": "We should use Bootstrap for responsive design.",
+    "turkish": "Responsive tasarım için Bootstrap kullanmalıyız."
+  },
+  {
+    "english": "I accidentally deleted an important file yesterday.",
+    "turkish": "Dün yanlışlıkla önemli bir dosyayı sildim."
+  },
+  {
+    "english": "The users table contains duplicated records.",
+    "turkish": "Users tablosunda kopya kayıtlar bulunuyor."
+  },
+  {
+    "english": "I need to improve the mobile version of the application.",
+    "turkish": "Uygulamanın mobil sürümünü geliştirmem gerekiyor."
+  },
+  {
+    "english": "The notification system is not working properly.",
+    "turkish": "Bildirim sistemi düzgün çalışmıyor."
+  },
+  {
+    "english": "I want to add dark mode support to the application.",
+    "turkish": "Uygulamaya karanlık mod desteği eklemek istiyorum."
+  },
+  {
+    "english": "The customer requested a new reporting feature.",
+    "turkish": "Müşteri yeni bir raporlama özelliği talep etti."
+  },
+  {
+    "english": "I am currently working on the authentication system.",
+    "turkish": "Şu anda kimlik doğrulama sistemi üzerinde çalışıyorum."
+  },
+  {
+    "english": "The code becomes difficult to maintain without documentation.",
+    "turkish": "Dokümantasyon olmadan kodun bakımı zorlaşıyor."
+  },
+  {
+    "english": "I need to back up the database before making changes.",
+    "turkish": "Değişiklik yapmadan önce veritabanını yedeklemem gerekiyor."
+  }
+]
