@@ -348,6 +348,13 @@ function showKeywordMeanings(word, spanElement) {
 </div>`;
     });
     html += '</div>'; // meaning-group
+
+    // ——— Eş anlamlılar (ikame kelimeler) ———
+    html += `<div class="meaning-group contextual-group">
+<div class="meaning-pos">🔁 EŞ ANLAMLILAR (İKAME)</div>
+<div class="syn-list" data-synlist>⏳ aranıyor...</div>
+</div>`;
+
     html += '</div>'; // tooltip-meanings
 
     tooltip.innerHTML = html;
@@ -379,8 +386,56 @@ function showKeywordMeanings(word, spanElement) {
     // Bu balon artık açık → aç/kapa için kaydet
     activeTooltipEl = spanElement;
 
-    // Her anlam için örnek cümleleri arka planda doldur
-    fillKeywordExamples(word, meanings, tooltip);
+    // Önce örnekleri, sonra eş anlamlıları sırayla doldur (hız sınırını aşmamak için)
+    fillKeywordExamples(word, meanings, tooltip)
+        .then(() => fillKeywordSynonyms(word, tooltip));
+}
+
+// =========================================================
+// EŞ ANLAMLILAR (İKAME KELİMELER) — Free Dictionary API'den
+// =========================================================
+async function fillKeywordSynonyms(word, tooltip) {
+    const container = tooltip.querySelector('[data-synlist]');
+    if (!container) return;
+
+    const lower = word.toLowerCase().replace(/[^a-z']/g, '');
+    let synonyms = [];
+
+    if (lower.length >= 2) {
+        try {
+            const defs = await getDictionaryDefinitions(lower, word);
+            const set = new Set();
+            for (const meaning of (defs || [])) {
+                (meaning.synonyms || []).forEach(s => set.add(s));
+                for (const def of (meaning.definitions || [])) {
+                    (def.synonyms || []).forEach(s => set.add(s));
+                }
+            }
+            synonyms = [...set]
+                .filter(s => s && s.toLowerCase() !== lower)
+                .slice(0, 8);
+        } catch (_) {}
+    }
+
+    if (!document.body.contains(tooltip)) return;
+
+    if (synonyms.length === 0) {
+        container.textContent = '— eş anlamlı bulunamadı —';
+        return;
+    }
+
+    // İngilizce eş anlamlıları listele, Türkçelerini sırayla ekle
+    container.innerHTML = synonyms.map((s, i) =>
+        `<div class="syn-item"><span class="syn-en">${s}</span> <span class="syn-tr" data-syntr="${i}"></span></div>`
+    ).join('');
+
+    for (let i = 0; i < synonyms.length; i++) {
+        if (!document.body.contains(tooltip)) return;
+        const trEl = container.querySelector(`[data-syntr="${i}"]`);
+        if (!trEl) continue;
+        const tr = await translateToTurkish(synonyms[i]);
+        if (tr) trEl.textContent = `(${tr})`;
+    }
 }
 
 // =========================================================
