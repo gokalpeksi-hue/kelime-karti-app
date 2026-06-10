@@ -665,31 +665,35 @@ function showRichTooltip(spanElement, word, translation, meanings) {
         tooltip.style.opacity = "1";
     });
 
-    // İngilizce tanımların Türkçesini arka planda çevir ve parantez içinde yerleştir
-    defsToTranslate.forEach(async (d) => {
-        const tr = await translateToTurkish(d.text);
-        const el = tooltip.querySelector(`[data-deftr="${d.idx}"]`);
-        if (el) {
-            if (tr) {
-                el.textContent = `(🇹🇷 ${tr})`;
-            } else {
-                el.style.display = "none";
-            }
-        }
-    });
+    // Tanımların ve örneklerin Türkçesini SIRAYLA çevir (paralel istekler ücretsiz
+    // çeviri servisinde hız sınırına takıldığı için teker teker yapılır)
+    (async () => {
+        const tasks = [
+            ...defsToTranslate.map(d => ({
+                sel: `[data-deftr="${d.idx}"]`,
+                text: d.text,
+                fmt: tr => `(🇹🇷 ${tr})`
+            })),
+            ...examplesToTranslate.map(ex => ({
+                sel: `[data-extr="${ex.idx}"]`,
+                text: ex.text,
+                fmt: tr => `🇹🇷 ${tr}`
+            }))
+        ];
 
-    // Örnek cümlelerin Türkçesini arka planda çevir ve yerleştir
-    examplesToTranslate.forEach(async (ex) => {
-        const tr = await translateToTurkish(ex.text);
-        const el = tooltip.querySelector(`[data-extr="${ex.idx}"]`);
-        if (el) {
+        for (const t of tasks) {
+            // Balon kapandıysa boşuna çeviri yapma
+            if (!document.body.contains(tooltip)) return;
+            const el = tooltip.querySelector(t.sel);
+            if (!el) continue;
+            const tr = await translateToTurkish(t.text);
             if (tr) {
-                el.textContent = `🇹🇷 ${tr}`;
+                el.textContent = t.fmt(tr);
             } else {
                 el.style.display = "none";
             }
         }
-    });
+    })();
 
     tooltip.querySelectorAll('.example-btn').forEach(btn => {
         btn.addEventListener('click', function (e) {
