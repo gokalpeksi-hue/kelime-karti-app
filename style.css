@@ -162,6 +162,26 @@ body {
     transform: scale(0.95);
 }
 
+/* ——— Kalıp (phrase) — birden çok kelimelik ifade ——— */
+.word-phrase {
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    padding: 0 3px;
+    border-radius: 6px;
+    border-bottom: 2px dotted #e8a13c;
+    background: rgba(232, 161, 60, 0.12);
+}
+
+.word-phrase:hover {
+    background: #e8a13c;
+    color: #1a1330;
+    border-bottom-color: #1a1330;
+}
+
+.word-phrase:active {
+    transform: scale(0.97);
+}
+
 /* ——— Anahtar Kelime Vurgusu (data.json'daki word alanı) ——— */
 .word-keyword {
     border-bottom: 3px solid #563df2;
