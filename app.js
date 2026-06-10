@@ -220,14 +220,15 @@ function showEnglish() {
     const keyWord = cardData.word || '';
 
     // Cümleyi kelimelere ve noktalama işaretlerine ayır
-    const tokens = sentence.match(/[\w']+|[^\w']+/g) || [];
+    // Tireli birleşik kelimeler (örn. "first-mover") tek parça sayılır
+    const tokens = sentence.match(/[\w']+(?:-[\w']+)*|[^\w']+/g) || [];
     const html = tokens.map(token => {
         // Anahtar kelimeyi özel vurgula
         if (token.toLowerCase() === keyWord.toLowerCase()) {
             return `<span class="word-keyword" data-word="${token}" data-lower="${token.toLowerCase()}">${token}</span>`;
         }
-        // Diğer kelimeler tıklanabilir
-        if (/^[a-zA-Z']{2,}$/.test(token)) {
+        // Diğer kelimeler tıklanabilir (tireli birleşikler dahil)
+        if (/^[a-zA-Z][a-zA-Z'-]*$/.test(token)) {
             return `<span class="word-clickable" data-word="${token}" data-lower="${token.toLowerCase()}">${token}</span>`;
         }
         return token;
@@ -703,12 +704,13 @@ function showExampleInCard(exampleSentence, word, turkishTranslation, ctxIndex) 
     originalCardIndex = currentIndex;
     const card = document.getElementById("card");
 
-    const tokens = exampleSentence.match(/[\w']+|[^\w']+/g) || [];
+    // Tireli birleşik kelimeler (örn. "first-mover") tek parça sayılır
+    const tokens = exampleSentence.match(/[\w']+(?:-[\w']+)*|[^\w']+/g) || [];
     const html = tokens.map(token => {
         if (token.toLowerCase() === word.toLowerCase()) {
             return `<span class="word-highlight">${token}</span>`;
         }
-        if (/^[a-zA-Z']{2,}$/.test(token)) {
+        if (/^[a-zA-Z][a-zA-Z'-]*$/.test(token)) {
             return `<span class="word-clickable" data-word="${token}" data-lower="${token.toLowerCase()}">${token}</span>`;
         }
         return token;
