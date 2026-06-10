@@ -308,6 +308,14 @@ body {
     line-height: 1.4;
 }
 
+/* ——— İngilizce tanımın Türkçe karşılığı (parantez içinde) ——— */
+.meaning-def-tr {
+    font-size: 13px;
+    color: #c9b8ff;
+    margin-top: 2px;
+    line-height: 1.45;
+}
+
 /* ——— Örnek cümlenin Türkçesi (kelime balonu içinde) ——— */
 .meaning-example-tr {
     font-size: 13px;

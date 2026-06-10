@@ -597,6 +597,8 @@ function showRichTooltip(spanElement, word, translation, meanings) {
 
     let exIndex = 0;
     const examplesToTranslate = [];
+    let defIndex = 0;
+    const defsToTranslate = [];
 
     let meaningsHtml = '<div class="tooltip-meanings">';
     if (meanings && meanings.length > 0) {
@@ -619,6 +621,10 @@ function showRichTooltip(spanElement, word, translation, meanings) {
             meaning.definitions.forEach((def, di) => {
                 meaningsHtml += `<div class="meaning-item">`;
                 meaningsHtml += `<div class="meaning-def">${di + 1}. ${def.definition}</div>`;
+                // Her İngilizce tanımın Türkçe karşılığı (parantez içinde)
+                const didx = defIndex++;
+                defsToTranslate.push({ idx: didx, text: def.definition });
+                meaningsHtml += `<div class="meaning-def-tr" data-deftr="${didx}">🔄 Türkçesi çevriliyor...</div>`;
                 if (def.example) {
                     const idx = exIndex++;
                     examplesToTranslate.push({ idx: idx, text: def.example });
@@ -657,6 +663,19 @@ function showRichTooltip(spanElement, word, translation, meanings) {
     tooltip.style.top = top + "px";
     requestAnimationFrame(() => {
         tooltip.style.opacity = "1";
+    });
+
+    // İngilizce tanımların Türkçesini arka planda çevir ve parantez içinde yerleştir
+    defsToTranslate.forEach(async (d) => {
+        const tr = await translateToTurkish(d.text);
+        const el = tooltip.querySelector(`[data-deftr="${d.idx}"]`);
+        if (el) {
+            if (tr) {
+                el.textContent = `(🇹🇷 ${tr})`;
+            } else {
+                el.style.display = "none";
+            }
+        }
     });
 
     // Örnek cümlelerin Türkçesini arka planda çevir ve yerleştir
