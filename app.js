@@ -14,6 +14,9 @@ const phraseCache = {}; // İngilizce cümle → Türkçe çeviri (örnek cümle
 let hideTooltipTimer = null;
 let hoverTimer = null;
 
+// ——— Açık olan açıklama balonunun kaynağı (aç/kapa için) ———
+let activeTooltipEl = null;
+
 // ——— Örnek Cümle Modu ———
 let isShowingExample = false;
 let originalCardIndex = 0;
@@ -245,6 +248,11 @@ function attachWordListeners(card) {
         span.addEventListener('click', function (e) {
             e.stopPropagation();
             clearTimers();
+            // Aynı kelimeye tekrar basılırsa açıklamayı kapat (aç/kapa)
+            if (activeTooltipEl === this && document.getElementById('word-tooltip')) {
+                hideTooltip();
+                return;
+            }
             const word = this.dataset.word;
             // Anahtar kelimeye tıklandı → karttaki Türkçe anlamları göster
             showKeywordMeanings(word, this);
@@ -269,6 +277,11 @@ function attachWordListeners(card) {
         span.addEventListener('click', function (e) {
             e.stopPropagation();
             clearTimers();
+            // Aynı kelimeye tekrar basılırsa açıklamayı kapat (aç/kapa)
+            if (activeTooltipEl === this && document.getElementById('word-tooltip')) {
+                hideTooltip();
+                return;
+            }
             const word = this.dataset.word;
             const lower = this.dataset.lower;
             showWordMeanings(lower, word, this);
@@ -322,28 +335,18 @@ function showKeywordMeanings(word, spanElement) {
 <span class="tooltip-tr">🇹🇷 ${meanings.length} anlam</span>
 </div>`;
 
-    // ——— Anlam Listesi ———
+    // ——— Her Türkçe anlam + İngilizce örnek cümle + Türkçe çevirisi ———
     html += '<div class="tooltip-meanings">';
     html += '<div class="meaning-group">';
-    html += '<div class="meaning-pos">📖 TÜRKÇE ANLAMLARI</div>';
+    html += '<div class="meaning-pos">📖 TÜRKÇE ANLAMLARI & ÖRNEKLER</div>';
     meanings.forEach((m, i) => {
         html += `<div class="meaning-item">
 <div class="meaning-def">${i + 1}. ${m}</div>
+<div class="meaning-example" data-exslot="${i}">⏳ örnek hazırlanıyor...</div>
+<div class="meaning-example-tr" data-exslot-tr="${i}"></div>
 </div>`;
     });
     html += '</div>'; // meaning-group
-
-    // ——— Cümle içinde kullanımı ———
-    const sentence = cardData.sentence || '';
-    const turkish = cardData.turkish || '';
-    html += `<div class="meaning-group contextual-group">
-<div class="meaning-pos">📝 CÜMLE İÇİNDE KULLANIMI</div>
-<div class="meaning-item">
-<div class="meaning-example ctx-example">${sentence}</div>
-<div class="meaning-example" style="color:#b8b8ff;margin-top:4px;">🇹🇷 ${turkish}</div>
-</div>
-</div>`;
-
     html += '</div>'; // tooltip-meanings
 
     tooltip.innerHTML = html;
@@ -372,62 +375,80 @@ function showKeywordMeanings(word, spanElement) {
     tooltip.addEventListener('mouseenter', () => clearTimeout(hideTooltipTimer));
     tooltip.addEventListener('mouseleave', () => scheduleHideTooltip(300));
 
-    // Karttaki diğer kelimelerden bağlamsal örnekler
-    loadContextualExamples(word, tooltip);
+    // Bu balon artık açık → aç/kapa için kaydet
+    activeTooltipEl = spanElement;
+
+    // Her anlam için örnek cümleleri arka planda doldur
+    fillKeywordExamples(word, meanings, tooltip);
 }
 
-async function loadContextualExamples(word, tooltip) {
+// =========================================================
+// HER ANLAM İÇİN İNGİLİZCE ÖRNEK CÜMLE + TÜRKÇE ÇEVİRİSİ
+// =========================================================
+async function fillKeywordExamples(word, meanings, tooltip) {
+    const cardData = cards[currentIndex];
     const lower = word.toLowerCase().replace(/[^a-z']/g, '');
-    if (!lower || lower.length < 2) return;
 
-    const results = [];
-    for (let i = 0; i < cards.length; i++) {
+    // ——— Örnek havuzu oluştur: { en, tr } ———
+    const pool = [];
+
+    // 1. Mevcut kartın cümlesi (gerçek bağlam, Türkçesi hazır)
+    if (cardData.sentence) {
+        pool.push({ en: cardData.sentence, tr: cardData.turkish || '' });
+    }
+
+    // 2. Aynı kelimeyi içeren diğer kartlar (Türkçeleri hazır)
+    for (let i = 0; i < cards.length && pool.length < meanings.length + 2; i++) {
         if (i === currentIndex) continue;
-        const sentence = (cards[i].sentence || cards[i].english || '').toLowerCase();
-        const tokens = sentence.match(/[\w']+/g) || [];
+        const s = cards[i].sentence || cards[i].english || '';
+        const tokens = s.toLowerCase().match(/[\w']+/g) || [];
         if (tokens.includes(lower)) {
-            results.push({
-                sentence: cards[i].sentence || cards[i].english,
-                turkish: cards[i].turkish,
-                index: i
-            });
-            if (results.length >= 5) break;
+            pool.push({ en: s, tr: cards[i].turkish || '' });
         }
     }
 
-    if (results.length === 0) return;
+    // 3. Yeterli örnek yoksa sözlük API'sinden örnek cümleler çek (Türkçesi sonra çevrilir)
+    if (pool.length < meanings.length && lower.length >= 2) {
+        try {
+            const defs = await getDictionaryDefinitions(lower, word);
+            for (const meaning of (defs || [])) {
+                for (const def of (meaning.definitions || [])) {
+                    if (def.example) {
+                        pool.push({ en: def.example, tr: null });
+                        if (pool.length >= meanings.length + 2) break;
+                    }
+                }
+                if (pool.length >= meanings.length + 2) break;
+            }
+        } catch (_) {}
+    }
 
-    let html = `<div class="meaning-group contextual-group">
-<div class="meaning-pos">📖 DİĞER KARTLARDAN ÖRNEKLER</div>`;
-    results.forEach((ctx, ci) => {
-        html += `<div class="meaning-item">
-<div class="meaning-example ctx-example">${ctx.sentence}</div>
-<button class="example-btn small" data-example="${encodeURIComponent(ctx.sentence)}" data-word="${word}" data-turkish="${encodeURIComponent(ctx.turkish)}" data-ctxindex="${ctx.index}">▶ Kartta Göster</button>
-</div>`;
-    });
-    html += '</div>';
+    // ——— Her anlama bir örnek ata ve gerekirse Türkçeye çevir ———
+    for (let i = 0; i < meanings.length; i++) {
+        const enEl = tooltip.querySelector(`[data-exslot="${i}"]`);
+        const trEl = tooltip.querySelector(`[data-exslot-tr="${i}"]`);
+        if (!enEl) continue;
 
-    // Tooltip'in içine ekle
-    const meaningsDiv = tooltip.querySelector('.tooltip-meanings');
-    if (meaningsDiv) {
-        meaningsDiv.insertAdjacentHTML('beforeend', html);
+        const ex = pool[i];
+        if (!ex) {
+            enEl.textContent = '— örnek bulunamadı —';
+            if (trEl) trEl.style.display = 'none';
+            continue;
+        }
 
-        // Butonlara dinleyici ekle
-        tooltip.querySelectorAll('.example-btn').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                const example = decodeURIComponent(this.dataset.example);
-                const word = this.dataset.word;
-                const turkish = this.dataset.turkish
-                    ? decodeURIComponent(this.dataset.turkish)
-                    : '';
-                const ctxIndex = this.dataset.ctxindex !== undefined
-                    ? parseInt(this.dataset.ctxindex)
-                    : null;
-                showExampleInCard(example, word, turkish, ctxIndex);
-                hideTooltip();
-            });
-        });
+        enEl.textContent = `💬 ${ex.en}`;
+        let tr = ex.tr;
+        if (!tr) {
+            if (trEl) trEl.textContent = '🔄 Türkçesi çevriliyor...';
+            tr = await translateToTurkish(ex.en);
+        }
+        if (trEl) {
+            if (tr) {
+                trEl.textContent = `🇹🇷 ${tr}`;
+            } else {
+                trEl.style.display = 'none';
+            }
+        }
     }
 }
 
@@ -668,6 +689,9 @@ function showRichTooltip(spanElement, word, translation, meanings) {
 
     tooltip.addEventListener('mouseenter', () => clearTimeout(hideTooltipTimer));
     tooltip.addEventListener('mouseleave', () => scheduleHideTooltip(300));
+
+    // Bu balon artık açık → aç/kapa için kaydet
+    activeTooltipEl = spanElement;
 }
 
 // =========================================================
@@ -721,6 +745,7 @@ function hideTooltip() {
     if (existing) {
         existing.remove();
     }
+    activeTooltipEl = null;
 }
 
 // =========================================================
