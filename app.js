@@ -202,6 +202,92 @@ function scheduleHideTooltip(delay) {
 }
 
 // =========================================================
+// İNGİLİZCE KALIPLAR (PHRASES) — cümlede tek tıklanabilir birim olarak
+// =========================================================
+const PHRASES = [
+    // Bağlaç / edat kalıpları
+    "as long as", "as soon as", "as well as", "as far as", "as much as",
+    "as if", "as though", "as a result of", "as a result", "as opposed to",
+    "in case of", "in case", "in order to", "in order for", "in spite of",
+    "in terms of", "in addition to", "in addition", "in front of",
+    "in favor of", "in favour of", "in charge of", "in accordance with",
+    "in advance", "in line with", "in light of", "in the long run",
+    "in the short term", "in the event of", "in response to", "in contrast to",
+    "instead of", "the case for", "the case against",
+    "due to", "owing to", "thanks to", "according to", "regardless of",
+    "apart from", "aside from", "rather than", "other than", "such as",
+    "so that", "so as to", "even though", "even if", "for the sake of",
+    "on behalf of", "on account of", "with respect to", "with regard to",
+    "with regards to", "by means of", "ahead of", "prior to", "subject to",
+    "based on", "up to date", "more or less", "at least", "at most",
+    "at first", "at last", "no longer", "as of",
+    // Fiil kalıpları (phrasal / collocation)
+    "look forward to", "take into account", "take advantage of",
+    "give rise to", "come up with", "carry out", "point out", "set up",
+    "follow up", "break down", "deal with", "rely on", "depend on",
+    "result in", "lead to", "focus on", "go through", "bring about",
+    "phase out", "roll out", "scale up", "ramp up", "follow through",
+    "keep up with", "catch up with", "make up for", "account for",
+    "due diligence", "supply chain", "value chain", "market share",
+    "go to market", "first mover", "first-mover advantage", "first mover advantage"
+];
+
+let _phraseRegex = null;
+function getPhraseRegex() {
+    if (_phraseRegex) return _phraseRegex;
+    const sorted = [...PHRASES].sort((a, b) => b.length - a.length);
+    const escaped = sorted.map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    _phraseRegex = new RegExp('\\b(?:' + escaped.join('|') + ')\\b', 'gi');
+    return _phraseRegex;
+}
+
+// Cümleyi kalıpları tek parça, geri kalanı verilen tokenizer ile işleyerek HTML üretir
+function buildHtmlWithPhrases(sentence, tokenizeSegment) {
+    const regex = getPhraseRegex();
+    regex.lastIndex = 0;
+    let result = '';
+    let lastIndex = 0;
+    let m;
+    while ((m = regex.exec(sentence)) !== null) {
+        result += tokenizeSegment(sentence.slice(lastIndex, m.index));
+        const phraseText = m[0];
+        result += `<span class="word-phrase" data-phrase="${phraseText}" data-lower="${phraseText.toLowerCase()}">${phraseText}</span>`;
+        lastIndex = m.index + phraseText.length;
+        if (phraseText.length === 0) regex.lastIndex++; // güvenlik
+    }
+    result += tokenizeSegment(sentence.slice(lastIndex));
+    return result;
+}
+
+// Düz metin parçasını kelimelere ayırıp anahtar kelimeyi vurgular
+function tokenizeSegmentKeyword(text, keyWord) {
+    const tokens = text.match(/[\w']+(?:-[\w']+)*|[^\w']+/g) || [];
+    return tokens.map(token => {
+        if (keyWord && token.toLowerCase() === keyWord.toLowerCase()) {
+            return `<span class="word-keyword" data-word="${token}" data-lower="${token.toLowerCase()}">${token}</span>`;
+        }
+        if (/^[a-zA-Z][a-zA-Z'-]*$/.test(token)) {
+            return `<span class="word-clickable" data-word="${token}" data-lower="${token.toLowerCase()}">${token}</span>`;
+        }
+        return token;
+    }).join('');
+}
+
+// Düz metin parçasını kelimelere ayırıp eşleşen kelimeyi (örnek kartında) vurgular
+function tokenizeSegmentHighlight(text, word) {
+    const tokens = text.match(/[\w']+(?:-[\w']+)*|[^\w']+/g) || [];
+    return tokens.map(token => {
+        if (word && token.toLowerCase() === word.toLowerCase()) {
+            return `<span class="word-highlight">${token}</span>`;
+        }
+        if (/^[a-zA-Z][a-zA-Z'-]*$/.test(token)) {
+            return `<span class="word-clickable" data-word="${token}" data-lower="${token.toLowerCase()}">${token}</span>`;
+        }
+        return token;
+    }).join('');
+}
+
+// =========================================================
 // ANA EKRAN – İNGİLİZCE CÜMLE + ANAHTAR KELİME VURGULU
 // =========================================================
 function showEnglish() {
@@ -219,20 +305,8 @@ function showEnglish() {
     const sentence = cardData.sentence || cardData.english || '';
     const keyWord = cardData.word || '';
 
-    // Cümleyi kelimelere ve noktalama işaretlerine ayır
-    // Tireli birleşik kelimeler (örn. "first-mover") tek parça sayılır
-    const tokens = sentence.match(/[\w']+(?:-[\w']+)*|[^\w']+/g) || [];
-    const html = tokens.map(token => {
-        // Anahtar kelimeyi özel vurgula
-        if (token.toLowerCase() === keyWord.toLowerCase()) {
-            return `<span class="word-keyword" data-word="${token}" data-lower="${token.toLowerCase()}">${token}</span>`;
-        }
-        // Diğer kelimeler tıklanabilir (tireli birleşikler dahil)
-        if (/^[a-zA-Z][a-zA-Z'-]*$/.test(token)) {
-            return `<span class="word-clickable" data-word="${token}" data-lower="${token.toLowerCase()}">${token}</span>`;
-        }
-        return token;
-    }).join('');
+    // Cümleyi kalıplar (örn. "as long as") tek parça, geri kalanı kelime kelime işle
+    const html = buildHtmlWithPhrases(sentence, (t) => tokenizeSegmentKeyword(t, keyWord));
 
     card.innerHTML = `<h2>${html}</h2>`;
 
@@ -302,6 +376,92 @@ function attachWordListeners(card) {
             scheduleHideTooltip(400);
         });
     });
+
+    // Kalıplar (phrase) - kalıbın Türkçe anlamını göster
+    card.querySelectorAll('.word-phrase').forEach(span => {
+        span.addEventListener('click', function (e) {
+            e.stopPropagation();
+            clearTimers();
+            // Aynı kalıba tekrar basılırsa açıklamayı kapat (aç/kapa)
+            if (activeTooltipEl === this && document.getElementById('word-tooltip')) {
+                hideTooltip();
+                return;
+            }
+            showPhraseMeaning(this.dataset.phrase, this);
+        });
+
+        span.addEventListener('mouseenter', function () {
+            clearTimeout(hoverTimer);
+            hoverTimer = setTimeout(() => {
+                showPhraseMeaning(this.dataset.phrase, this);
+            }, 300);
+        });
+
+        span.addEventListener('mouseleave', function () {
+            clearTimeout(hoverTimer);
+            scheduleHideTooltip(400);
+        });
+    });
+}
+
+// =========================================================
+// KALIBIN (PHRASE) TÜRKÇE ANLAMINI GÖSTER
+// =========================================================
+function showPhraseMeaning(phrase, spanElement) {
+    hideTooltip();
+
+    const tooltip = document.createElement("div");
+    tooltip.className = "word-tooltip";
+    tooltip.id = "word-tooltip";
+
+    tooltip.innerHTML = `<div class="tooltip-header">
+<strong>${phrase}</strong>
+<span class="tooltip-tr">🧩 kalıp</span>
+</div>
+<div class="tooltip-meanings">
+<div class="meaning-group">
+<div class="meaning-pos">🧩 KALIP ANLAMI</div>
+<div class="meaning-item">
+<div class="meaning-def" data-phrasetr>🔄 çevriliyor...</div>
+</div>
+</div>
+</div>`;
+
+    document.body.appendChild(tooltip);
+
+    // ——— Konumlandır ———
+    const rect = spanElement.getBoundingClientRect();
+    tooltip.style.opacity = "0";
+    const tooltipRect = tooltip.getBoundingClientRect();
+    let left = rect.left + rect.width / 2 - tooltipRect.width / 2;
+    let top = rect.top - tooltipRect.height - 12;
+    if (left < 8) left = 8;
+    if (left + tooltipRect.width > window.innerWidth - 8) {
+        left = window.innerWidth - tooltipRect.width - 8;
+    }
+    if (top < 8) {
+        top = rect.bottom + 12;
+    }
+    tooltip.style.left = left + "px";
+    tooltip.style.top = top + "px";
+    requestAnimationFrame(() => {
+        tooltip.style.opacity = "1";
+    });
+
+    tooltip.addEventListener('mouseenter', () => clearTimeout(hideTooltipTimer));
+    tooltip.addEventListener('mouseleave', () => scheduleHideTooltip(300));
+
+    activeTooltipEl = spanElement;
+
+    // Kalıbın Türkçe karşılığını çevir
+    (async () => {
+        const tr = await translateToTurkish(phrase);
+        if (!document.body.contains(tooltip)) return;
+        const el = tooltip.querySelector('[data-phrasetr]');
+        if (el) {
+            el.textContent = tr ? `🇹🇷 ${tr}` : 'Çeviri bulunamadı';
+        }
+    })();
 }
 
 function showTurkish() {
@@ -782,17 +942,8 @@ function showExampleInCard(exampleSentence, word, turkishTranslation, ctxIndex) 
     originalCardIndex = currentIndex;
     const card = document.getElementById("card");
 
-    // Tireli birleşik kelimeler (örn. "first-mover") tek parça sayılır
-    const tokens = exampleSentence.match(/[\w']+(?:-[\w']+)*|[^\w']+/g) || [];
-    const html = tokens.map(token => {
-        if (token.toLowerCase() === word.toLowerCase()) {
-            return `<span class="word-highlight">${token}</span>`;
-        }
-        if (/^[a-zA-Z][a-zA-Z'-]*$/.test(token)) {
-            return `<span class="word-clickable" data-word="${token}" data-lower="${token.toLowerCase()}">${token}</span>`;
-        }
-        return token;
-    }).join('');
+    // Kalıplar tek parça, geri kalanı kelime kelime; eşleşen kelime vurgulanır
+    const html = buildHtmlWithPhrases(exampleSentence, (t) => tokenizeSegmentHighlight(t, word));
 
     card.innerHTML = `
 <div class="example-card-content">
