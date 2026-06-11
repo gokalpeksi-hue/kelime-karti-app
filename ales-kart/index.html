@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALES KART — Soru &amp; Çözüm</title>
+
+    <!-- Özel logo (favicon) -->
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="apple-touch-icon" href="logo.svg">
+
+    <link rel="stylesheet" href="style.css?v=1">
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <!-- BAŞLIK / LOGO -->
+    <div class="app-header">
+        <img src="logo.svg" alt="ALES KART logosu">
+        <div class="title">
+            <b>ALES KART</b>
+            <span>SORU &amp; ÇÖZÜM</span>
+        </div>
+    </div>
+
+    <!-- DOSYA YÜKLEME ALANI -->
+    <div class="upload-area">
+        <label for="file-input" class="upload-btn">📂 Excel / CSV Yükle</label>
+        <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
+        <span id="file-status">Örnek sorular yüklü</span>
+    </div>
+
+    <!-- SAYAÇ -->
+    <div class="counter" id="counter"></div>
+
+    <!-- KART -->
+    <div class="card-container" id="card"></div>
+
+    <!-- NAVİGASYON -->
+    <div class="nav-area">
+        <button id="prev-btn" class="nav-btn" title="Önceki soru (←)">←</button>
+        <div class="page-jump-wrapper">
+            <input type="number" id="page-input" min="1" placeholder="No" title="Soru numarasını yazıp Enter'a basın">
+        </div>
+        <button id="next-btn" class="nav-btn" title="Sonraki soru (→)">→</button>
+        <button id="speak-btn" class="nav-btn" title="Seslendir">🔊</button>
+    </div>
+
+    <script src="app.js?v=1"></script>
+</body>
+</html>
