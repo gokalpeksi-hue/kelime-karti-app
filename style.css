@@ -124,7 +124,7 @@ body {
 
 .card-container h2 {
     color: #ffffff;
-    background: #d32f2f;
+    background: #563df2;
     width: 100%;
     padding: 70px 45px;
     padding: clamp(30px, 8vw, 70px) clamp(20px, 5vw, 45px);
