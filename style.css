@@ -123,12 +123,18 @@ body {
 }
 
 .card-container h2 {
-    color: #071b49;
+    color: #ffffff;
+    background: #800020;
+    width: 100%;
+    padding: 70px 45px;
+    padding: clamp(30px, 8vw, 70px) clamp(20px, 5vw, 45px);
+    border-radius: 18px;
+    box-sizing: border-box;
 }
 
 .card-container p {
-    color: white;
-    background: #071b49;
+    color: #1a1a1a;
+    background: #ffd60a;
     width: 100%;
     padding: 70px 45px;
     padding: clamp(30px, 8vw, 70px) clamp(20px, 5vw, 45px);
@@ -441,9 +447,9 @@ body {
 
 .example-translation {
     font-size: 18px;
-    font-weight: 500;
-    color: #b8b8ff;
-    background: rgba(86, 61, 242, 0.1);
+    font-weight: 600;
+    color: #1a1a1a;
+    background: #ffd60a;
     padding: 8px 20px;
     border-radius: 12px;
     line-height: 1.4;
