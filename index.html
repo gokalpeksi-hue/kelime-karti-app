@@ -17,11 +17,17 @@
         aşağıdaki inline stiller devreye girer.
         (style.css ile bu blok aynı tutulmalıdır!)
     -->
-    <link rel="stylesheet" href="style.css?v=10">
+    <link rel="stylesheet" href="style.css?v=11">
     <style>
-        /* ========================
-           RESET & TEMEL
-           ======================== */
+        /* =========================================================
+           NOT: Bu CSS dosyasının bir kopyası index.html içine de
+           inline olarak gömülüdür. GitHub Pages'te harici CSS
+           yüklenemezse diye yedek olarak index.html'deki
+           <style> etiketi kullanılır.
+           Değişiklik yaparken index.html içindeki <style>
+           bloğunu da aynı şekilde güncellemeyi unutmayın!
+           ========================================================= */
+
         *,
         *::before,
         *::after {
@@ -41,13 +47,10 @@
             padding: 20px;
         }
 
-        /* ========================
-           DOSYA YÜKLEME ALANI
-           ======================== */
+        /* ——— Dosya Yükleme Alanı ——— */
         .upload-area {
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 12px;
             background: white;
             padding: 12px 24px;
@@ -55,6 +58,7 @@
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
             max-width: 100%;
             flex-wrap: wrap;
+            justify-content: center;
         }
 
         .upload-btn {
@@ -87,9 +91,7 @@
             max-width: 200px;
         }
 
-        /* ========================
-           SAYAÇ
-           ======================== */
+        /* ———— Sayaç ———— */
         .counter {
             font-size: 18px;
             font-weight: 800;
@@ -98,9 +100,7 @@
             letter-spacing: 1px;
         }
 
-        /* ========================
-           KART
-           ======================== */
+        /* ———— Kart ———— */
         .card-container {
             width: 720px;
             max-width: 100%;
@@ -144,12 +144,18 @@
         }
 
         .card-container h2 {
-            color: #071b49;
+            color: #ffffff;
+            background: #d32f2f;
+            width: 100%;
+            padding: 70px 45px;
+            padding: clamp(30px, 8vw, 70px) clamp(20px, 5vw, 45px);
+            border-radius: 18px;
+            box-sizing: border-box;
         }
 
         .card-container p {
-            color: white;
-            background: #071b49;
+            color: #1a1a1a;
+            background: #ffd60a;
             width: 100%;
             padding: 70px 45px;
             padding: clamp(30px, 8vw, 70px) clamp(20px, 5vw, 45px);
@@ -183,6 +189,27 @@
             transform: scale(0.95);
         }
 
+        /* ——— Kalıp (phrase) — birden çok kelimelik ifade ——— */
+        .word-phrase {
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            padding: 0 3px;
+            border-radius: 6px;
+            border-bottom: 2px dotted #e8a13c;
+            background: rgba(232, 161, 60, 0.12);
+        }
+
+        .word-phrase:hover {
+            background: #e8a13c;
+            color: #1a1330;
+            border-bottom-color: #1a1330;
+        }
+
+        .word-phrase:active {
+            transform: scale(0.97);
+        }
+
+        /* ——— Anahtar Kelime Vurgusu (data.json'daki word alanı) ——— */
         .word-keyword {
             border-bottom: 3px solid #563df2;
             background: rgba(86, 61, 242, 0.12);
@@ -202,6 +229,7 @@
             transform: scale(0.95);
         }
 
+        /* Anahtar kelime için hafif nabız animasyonu */
         @keyframes keyword-pulse {
             0%, 100% { box-shadow: 0 0 0 0 rgba(86, 61, 242, 0.3); }
             50% { box-shadow: 0 0 0 4px rgba(86, 61, 242, 0); }
@@ -327,6 +355,37 @@
             line-height: 1.4;
         }
 
+        /* ——— İngilizce tanımın Türkçe karşılığı (parantez içinde) ——— */
+        .meaning-def-tr {
+            font-size: 13px;
+            color: #c9b8ff;
+            margin-top: 2px;
+            line-height: 1.45;
+        }
+
+        /* ——— Eş anlamlılar (ikame kelimeler) ——— */
+        .syn-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding-left: 4px;
+        }
+
+        .syn-item {
+            font-size: 13px;
+            color: #e0e0e0;
+            line-height: 1.4;
+        }
+
+        .syn-en {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .syn-tr {
+            color: #c9b8ff;
+        }
+
         /* ——— Örnek cümlenin Türkçesi (kelime balonu içinde) ——— */
         .meaning-example-tr {
             font-size: 13px;
@@ -409,9 +468,9 @@
 
         .example-translation {
             font-size: 18px;
-            font-weight: 500;
-            color: #b8b8ff;
-            background: rgba(86, 61, 242, 0.1);
+            font-weight: 600;
+            color: #1a1a1a;
+            background: #ffd60a;
             padding: 8px 20px;
             border-radius: 12px;
             line-height: 1.4;
@@ -841,6 +900,6 @@
         <button id="speak-btn" class="nav-btn" title="Cümleyi seslendir">🔊</button>
     </div>
 
-    <script src="app.js?v=10"></script>
+    <script src="app.js?v=11"></script>
 </body>
 </html>
