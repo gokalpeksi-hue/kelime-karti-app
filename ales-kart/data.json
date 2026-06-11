@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Bir sayının 3 katının 5 fazlası 26'dır. Bu sayı kaçtır?",
+    "solution": "3x + 5 = 26\n3x = 21\nx = 7\n\nCevap: 7"
+  },
+  {
+    "question": "Ardışık iki çift sayının toplamı 34'tür. Büyük sayı kaçtır?",
+    "solution": "Sayılar: x ve x + 2\nx + (x + 2) = 34\n2x + 2 = 34\n2x = 32 → x = 16\nBüyük sayı: x + 2 = 18\n\nCevap: 18"
+  },
+  {
+    "question": "Bir işi A tek başına 6 günde, B tek başına 12 günde bitirebiliyor. İkisi birlikte çalışırsa işi kaç günde bitirirler?",
+    "solution": "A'nın 1 günlük işi: 1/6\nB'nin 1 günlük işi: 1/12\nBirlikte: 1/6 + 1/12 = 2/12 + 1/12 = 3/12 = 1/4\nTüm işi bitirme süresi: 4 gün\n\nCevap: 4 gün"
+  },
+  {
+    "question": "Bir sayının %20'si 30'dur. Bu sayının %50'si kaçtır?",
+    "solution": "Sayı = 30 / 0,20 = 150\n%50'si = 150 × 0,50 = 75\n\nCevap: 75"
+  },
+  {
+    "question": "2, 6, 12, 20, 30, ... örüntüsünde 6. terim kaçtır?",
+    "solution": "Terimler arasındaki farklar: 4, 6, 8, 10, 12\n5. terim 30, sonraki fark 12 → 30 + 12 = 42\nGenel terim: n·(n+1) → 6·7 = 42\n\nCevap: 42"
+  },
+  {
+    "question": "x + y = 10 ve x − y = 4 ise x · y çarpımı kaçtır?",
+    "solution": "İki denklemi toplayalım:\n2x = 14 → x = 7\ny = 10 − 7 = 3\nx · y = 7 · 3 = 21\n\nCevap: 21"
+  },
+  {
+    "question": "Bir üçgenin iç açılarından biri 90°, diğeri 35°'dir. Üçüncü açı kaç derecedir?",
+    "solution": "Üçgenin iç açıları toplamı 180°'dir.\n180 − 90 − 35 = 55°\n\nCevap: 55°"
+  },
+  {
+    "question": "Bütün kediler memelidir. Bütün memeliler omurgalıdır. Buna göre aşağıdakilerden hangisi kesinlikle doğrudur?",
+    "solution": "Geçişlilik (kıyas) kuralı uygulanır:\nKediler → memeli → omurgalı\nDolayısıyla 'Bütün kediler omurgalıdır' kesinlikle doğrudur.\n\nCevap: Bütün kediler omurgalıdır."
+  },
+  {
+    "question": "Saat tam 02:00'ı gösterdiğinde akrep ile yelkovan arasındaki dar açı kaç derecedir?",
+    "solution": "Yelkovan 12'yi, akrep 2'yi gösterir.\nKomşu iki rakam arası açı: 360° / 12 = 30°\n2 rakam aralık var: 2 × 30 = 60°\n\nCevap: 60°"
+  },
+  {
+    "question": "Bir malın fiyatı önce %20 artırılıyor, sonra yeni fiyat üzerinden %20 indiriliyor. Son fiyat ilk fiyatın yüzde kaçıdır?",
+    "solution": "İlk fiyat 100 TL olsun.\n%20 artış: 100 × 1,20 = 120 TL\n%20 indirim: 120 × 0,80 = 96 TL\nSon fiyat ilk fiyatın %96'sıdır (yani %4 azalmıştır).\n\nCevap: %96"
+  }
+]

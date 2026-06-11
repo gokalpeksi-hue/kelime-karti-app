@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="ALES KART logosu">
+  <defs>
+    <linearGradient id="alesBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7a00b5"/>
+      <stop offset="1" stop-color="#563df2"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Arka plan kart -->
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="url(#alesBg)"/>
+
+  <!-- İkinci kart (çift kart / flip vurgusu) -->
+  <rect x="92" y="120" width="300" height="210" rx="26" fill="#ffffff" opacity="0.16" transform="rotate(-8 242 225)"/>
+
+  <!-- Mezuniyet kepi: üst tahta (eşkenar dörtgen) -->
+  <polygon points="256,150 404,210 256,270 108,210" fill="#ffd60a"/>
+  <!-- Kep gövdesi -->
+  <path d="M188 238 V292 Q188 320 256 320 Q324 320 324 292 V238 L256 270 Z" fill="#ffe14d"/>
+  <!-- Püskül ipi -->
+  <path d="M404 210 V306" stroke="#ffffff" stroke-width="9" fill="none" stroke-linecap="round"/>
+  <circle cx="404" cy="320" r="15" fill="#ffffff"/>
+
+  <!-- Marka adı -->
+  <text x="256" y="420" font-family="Arial, Helvetica, sans-serif" font-size="96" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="6">ALES</text>
+</svg>
