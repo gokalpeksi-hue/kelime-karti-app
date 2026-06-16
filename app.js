@@ -24,7 +24,43 @@ let originalCardIndex = 0;
 // =========================================================
 // VERİ YÜKLEME
 // =========================================================
+// Yüklenen Excel/CSV'yi tarayıcı hafızasında kalıcı tutmak için anahtarlar
+const STORAGE_KEY = "kelimeKarti_cards";
+const STORAGE_NAME_KEY = "kelimeKarti_fileName";
+
+// Yüklenen kartları localStorage'a kaydet
+function saveCardsToStorage(fileName) {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+        if (fileName) localStorage.setItem(STORAGE_NAME_KEY, fileName);
+    } catch (err) {
+        console.warn("Kartlar hafızaya kaydedilemedi:", err);
+    }
+}
+
 async function loadCards() {
+    // Önce daha önce yüklenmiş bir dosya var mı diye bak
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                cards = parsed;
+                loadVoices();
+                const fileStatus = document.getElementById("file-status");
+                const savedName = localStorage.getItem(STORAGE_NAME_KEY);
+                if (fileStatus) {
+                    fileStatus.textContent = savedName
+                        ? `✅ ${cards.length} kelime (kayıtlı): ${savedName}`
+                        : `✅ ${cards.length} kayıtlı kelime yüklendi`;
+                }
+                return;
+            }
+        } catch (err) {
+            console.warn("Kayıtlı kartlar okunamadı, varsayılana dönülüyor:", err);
+        }
+    }
+    // Kayıt yoksa varsayılan data.json'u yükle
     const response = await fetch("data.json");
     cards = await response.json();
     loadVoices();
@@ -78,6 +114,7 @@ document.getElementById("file-input").addEventListener("change", function (e) {
             cards = parsed;
             currentIndex = 0;
             isShowingExample = false;
+            saveCardsToStorage(file.name);  // kalıcı olarak hafızaya kaydet
             showEnglish();
 
             const dedupMsg = uniqueCount !== cards.length
@@ -95,6 +132,23 @@ document.getElementById("file-input").addEventListener("change", function (e) {
         reader.readAsArrayBuffer(file);
     }
 });
+
+// ——— Sıfırla: yüklenen dosyayı sil, varsayılan listeye dön ———
+const resetBtn = document.getElementById("reset-btn");
+if (resetBtn) {
+    resetBtn.addEventListener("click", async function () {
+        if (!confirm("Yüklediğiniz dosya silinip varsayılan kelime listesine dönülecek. Emin misiniz?")) return;
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(STORAGE_NAME_KEY);
+        const response = await fetch("data.json");
+        cards = await response.json();
+        currentIndex = 0;
+        isShowingExample = false;
+        showEnglish();
+        const fileStatus = document.getElementById("file-status");
+        if (fileStatus) fileStatus.textContent = "Henüz dosya yüklenmedi";
+    });
+}
 
 // =========================================================
 // SES

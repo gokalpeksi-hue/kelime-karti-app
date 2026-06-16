@@ -82,6 +82,22 @@
             display: none;
         }
 
+        .reset-btn {
+            display: inline-block;
+            background: #eee;
+            color: #555;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        .reset-btn:hover {
+            background: #ddd;
+        }
+
         #file-status {
             font-size: 13px;
             color: #666;
@@ -881,6 +897,7 @@
     <div class="upload-area">
         <label for="file-input" class="upload-btn">📂 Excel / CSV Yükle</label>
         <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
+        <button id="reset-btn" class="reset-btn" title="Yüklenen dosyayı sil, varsayılan listeye dön">🗑 Sıfırla</button>
         <span id="file-status">Henüz dosya yüklenmedi</span>
     </div>
 
