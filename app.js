@@ -27,6 +27,24 @@ let originalCardIndex = 0;
 // Yüklenen Excel/CSV'yi tarayıcı hafızasında kalıcı tutmak için anahtarlar
 const STORAGE_KEY = "kelimeKarti_cards";
 const STORAGE_NAME_KEY = "kelimeKarti_fileName";
+const STORAGE_INDEX_KEY = "kelimeKarti_index";
+
+// Kaldığımız kartın sırasını hafızaya kaydet
+function saveCurrentIndex() {
+    try {
+        localStorage.setItem(STORAGE_INDEX_KEY, String(currentIndex));
+    } catch (_) {}
+}
+
+// Hafızadaki kart sırasını geri yükle (geçerliyse), yoksa 0'dan başla
+function restoreSavedIndex() {
+    const saved = parseInt(localStorage.getItem(STORAGE_INDEX_KEY), 10);
+    if (!isNaN(saved) && saved >= 0 && saved < cards.length) {
+        currentIndex = saved;
+    } else {
+        currentIndex = 0;
+    }
+}
 
 // Yüklenen kartları localStorage'a kaydet
 function saveCardsToStorage(fileName) {
@@ -46,6 +64,7 @@ async function loadCards() {
             const parsed = JSON.parse(saved);
             if (Array.isArray(parsed) && parsed.length > 0) {
                 cards = parsed;
+                restoreSavedIndex();
                 loadVoices();
                 const fileStatus = document.getElementById("file-status");
                 const savedName = localStorage.getItem(STORAGE_NAME_KEY);
@@ -63,6 +82,7 @@ async function loadCards() {
     // Kayıt yoksa varsayılan data.json'u yükle
     const response = await fetch("data.json");
     cards = await response.json();
+    restoreSavedIndex();
     loadVoices();
 }
 
@@ -198,15 +218,21 @@ function speakEnglish(text) {
     window.speechSynthesis.speak(speech);
 }
 
-// ——— İsteğe bağlı (elle) seslendirme — 🔊 butonu bunu çağırır ———
-function speakCurrentSentence() {
-    let text = "";
+// ——— Geçerli kartın İngilizce cümlesini döndür (örnek modunda örnek cümle) ———
+function getCurrentSentenceText() {
     if (isShowingExample) {
         const h2 = document.querySelector("#card h2");
-        text = h2 ? h2.textContent : "";
-    } else if (cards[currentIndex]) {
-        text = cards[currentIndex].sentence || cards[currentIndex].english || "";
+        return h2 ? h2.textContent : "";
     }
+    if (cards[currentIndex]) {
+        return cards[currentIndex].sentence || cards[currentIndex].english || "";
+    }
+    return "";
+}
+
+// ——— İsteğe bağlı (elle) seslendirme — 🔊 butonu bunu çağırır ———
+function speakCurrentSentence() {
+    const text = getCurrentSentenceText();
     if (!text) return;
 
     window.speechSynthesis.cancel();
@@ -413,6 +439,7 @@ function showEnglish() {
 
     speakEnglish(sentence);
     updateCounter();
+    saveCurrentIndex();   // kaldığımız kartı hafızaya yaz
 }
 
 function attachWordListeners(card) {
@@ -1119,6 +1146,52 @@ document.getElementById("speak-btn")?.addEventListener("click", function (e) {
     e.stopPropagation();
     speakCurrentSentence();
 });
+document.getElementById("copy-btn")?.addEventListener("click", function (e) {
+    e.stopPropagation();
+    copyCurrentSentence();
+});
+
+// =========================================================
+// CÜMLEYİ KOPYALA (📋 butonu) — İngilizce cümlenin tamamını panoya kopyala
+// =========================================================
+function copyCurrentSentence() {
+    const text = getCurrentSentenceText().trim();
+    if (!text) return;
+
+    const btn = document.getElementById("copy-btn");
+    const flash = (symbol) => {
+        if (!btn) return;
+        btn.textContent = symbol;
+        setTimeout(() => { btn.textContent = "📋"; }, 1200);
+    };
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+            .then(() => flash("✅"))
+            .catch(() => flash(fallbackCopy(text) ? "✅" : "❌"));
+    } else {
+        flash(fallbackCopy(text) ? "✅" : "❌");
+    }
+}
+
+// Pano API'si çalışmazsa (eski tarayıcı / izin yok) yedek kopyalama
+function fallbackCopy(text) {
+    try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.top = "-1000px";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+        return ok;
+    } catch (_) {
+        return false;
+    }
+}
 
 function goToCard(index) {
     window.speechSynthesis.cancel();
