@@ -292,6 +292,10 @@
   .rnav:hover{color:var(--ink);border-color:var(--accent)}
   body.mode-kayit .rnav{border-color:rgba(255,176,77,.4);color:#ffb04d;background:#0b0702}
   body.mode-kayit .rnav:hover{background:#2a1d0a;color:#ffc879;border-color:#ffb04d}
+
+  /* uzun kart içeriği: ortalama yerine baştan başla */
+  .face.long .card-text{margin:0;justify-content:flex-start}
+  .face.long{scroll-padding-top:10px}
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -638,8 +642,17 @@
     $("counterText").textContent=(pos+1)+" / "+order.length+"  ·  #"+c.num;
     $("modeText").textContent=c.known?"✓ öğrenildi":"";
     $("progressBar").style.width = cards.length? (knownCount()/cards.length*100)+"%" : "0%";
+    var ff=document.querySelector("#card .face.front"), fb=document.querySelector("#card .face.back");
+    [ff,fb].forEach(function(f){ if(f) f.scrollTop=0; });
+    requestAnimationFrame(function(){
+      [ff,fb].forEach(function(f){ if(!f) return; f.classList.toggle("long", f.scrollHeight>f.clientHeight+4); f.scrollTop=0; });
+    });
   }
-  function flip(){ $("card").classList.toggle("flipped"); }
+  function flip(){
+    $("card").classList.toggle("flipped");
+    var ff=document.querySelector("#card .face.front"), fb=document.querySelector("#card .face.back");
+    [ff,fb].forEach(function(f){ if(f) f.scrollTop=0; });
+  }
   function next(){ if(order.length){ pos=(pos+1)%order.length; showCard(); } }
   function prev(){ if(order.length){ pos=(pos-1+order.length)%order.length; showCard(); } }
   $("card").onclick=function(){ if(cardSwiped){ return; } flip(); }; $("btnNext").onclick=next; $("btnPrev").onclick=prev;
@@ -777,7 +790,7 @@
     var rows=$("rows");
     Array.prototype.forEach.call(rows.children,function(r){ r.classList.remove("open"); });
     var target=rows.querySelector('[data-id="'+openRowId+'"]');
-    if(target){ target.classList.add("open"); target.scrollIntoView({behavior:"smooth",block:"center"}); }
+    if(target){ target.classList.add("open"); target.scrollIntoView({behavior:"smooth",block:"start"}); }
     toast("Kayıt #"+list[n].num+" · "+(n+1)+"/"+list.length);
   }
   var rowsSwiped=false;
