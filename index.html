@@ -223,6 +223,51 @@
   body.mode-ezber .iconbtn{color:rgba(255,255,255,.75)}
   body.mode-ezber .iconbtn:hover{background:rgba(255,255,255,.12);color:#fff}
   body.mode-ezber .numb{color:#ffdbe4;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3)}
+
+  /* ===== KAYIT: turuncu tema, kalın siyah yazılar ===== */
+  body.mode-kayit{background:radial-gradient(120% 80% at 50% -10%,#ffbe5e 0%,#f79a1f 55%,#ef8a10 100%);color:#1a1206}
+  body.mode-kayit .brand h1{color:#1a1206}
+  body.mode-kayit .brand .sub{color:rgba(26,18,6,.75);font-weight:700}
+  body.mode-kayit .stat{background:rgba(255,255,255,.55);border-color:rgba(26,18,6,.28);box-shadow:none}
+  body.mode-kayit .stat b{color:#1a1206}
+  body.mode-kayit .stat span{color:rgba(26,18,6,.72);font-weight:700}
+  body.mode-kayit .tabs{background:rgba(26,18,6,.14);border-color:rgba(26,18,6,.28)}
+  body.mode-kayit .tab{color:rgba(26,18,6,.62)}
+  body.mode-kayit .tab.active{background:#fffdf7;color:#1a1206;box-shadow:none}
+  body.mode-kayit .panel{background:#fff3df;border-color:rgba(26,18,6,.28);box-shadow:0 12px 30px -12px rgba(110,55,0,.4)}
+  body.mode-kayit .panel h2{color:#1a1206}
+  body.mode-kayit .panel p.lead{color:rgba(26,18,6,.78);font-weight:600}
+  body.mode-kayit .field label{color:rgba(26,18,6,.8)}
+  body.mode-kayit .field .num{background:#1a1206;color:#ffc46b}
+  body.mode-kayit textarea,body.mode-kayit input[type=text]{background:#fffaf1;border-color:rgba(26,18,6,.32);color:#1a1206;font-weight:700}
+  body.mode-kayit textarea::placeholder,body.mode-kayit input[type=text]::placeholder{color:rgba(26,18,6,.45);font-weight:500}
+  body.mode-kayit textarea:focus,body.mode-kayit input[type=text]:focus{border-color:#1a1206;background:#fff;box-shadow:0 0 0 3px rgba(26,18,6,.15)}
+  body.mode-kayit .btn{background:#fffdf7;border-color:rgba(26,18,6,.32);color:#1a1206;box-shadow:none;font-weight:700}
+  body.mode-kayit .btn.primary{background:#1a1206;border-color:#1a1206;color:#ffc46b}
+  body.mode-kayit .list-head h2{color:#1a1206}
+  body.mode-kayit .sortsel{background:#fffaf1;border-color:rgba(26,18,6,.32);color:#1a1206;font-weight:700}
+  body.mode-kayit .search input{background:#fffaf1;border-color:rgba(26,18,6,.32);color:#1a1206;font-weight:700}
+  body.mode-kayit .search input::placeholder{color:rgba(26,18,6,.45);font-weight:500}
+  body.mode-kayit .search svg{color:rgba(26,18,6,.55)}
+  body.mode-kayit .row{background:#fff3df;border-color:rgba(26,18,6,.28);box-shadow:none}
+  body.mode-kayit .row .f{color:#1a1206;font-weight:700}
+  body.mode-kayit .row .f strong,body.mode-kayit .row .f .mh{color:#1a1206}
+  body.mode-kayit .row .b{color:rgba(26,18,6,.82);font-weight:600}
+  body.mode-kayit .row .b strong,body.mode-kayit .row .b .mh{color:#1a1206}
+  body.mode-kayit .row .dot{background:rgba(26,18,6,.3)}
+  body.mode-kayit .row.learned .dot{background:#1f6b4a}
+  body.mode-kayit .row .caret{color:rgba(26,18,6,.6)}
+  body.mode-kayit .iconbtn{color:rgba(26,18,6,.62)}
+  body.mode-kayit .iconbtn:hover{background:rgba(26,18,6,.12);color:#1a1206}
+  body.mode-kayit .iconbtn.del:hover{color:#a02020}
+  body.mode-kayit .numb{color:#7a4a00;background:rgba(255,255,255,.5);border-color:rgba(26,18,6,.35)}
+  body.mode-kayit .chip{background:#fffdf7;border-color:rgba(26,18,6,.32);color:#1a1206;font-weight:700}
+  body.mode-kayit .chip:hover{background:#fff}
+  body.mode-kayit .data-tools .chip.drive{background:#fffdf7;border-color:rgba(26,18,6,.32);color:#1a1206}
+  body.mode-kayit .tools-label{color:rgba(26,18,6,.72);font-weight:800}
+  body.mode-kayit .empty{color:rgba(26,18,6,.72)}
+  body.mode-kayit .empty .big{color:#1a1206}
+  body.mode-kayit a{color:#7a3d00;font-weight:700}
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -360,6 +405,28 @@
       <button class="chip drive" id="btnDriveSave"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Drive'a yedekle</button>
       <button class="chip drive" id="btnDriveLoad"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 3h14"/></svg>Drive'dan yükle</button>
     </div>
+    <div class="tools-label">Google bağlantısı (Drive yedekleme için gerekli)</div>
+    <div class="panel" id="gcidPanel" style="margin-bottom:0">
+      <p class="lead" id="gcidStatus" style="margin-bottom:10px"></p>
+      <div class="field" style="margin-bottom:10px">
+        <label>Google OAuth Client ID</label>
+        <input type="text" id="gcidInput" placeholder="örn. 1234567890-abc….apps.googleusercontent.com">
+      </div>
+      <div class="form-actions">
+        <button class="btn primary" id="btnGcidSave">Bağlantıyı kaydet</button>
+      </div>
+      <details id="gcidHelp" style="margin-top:12px;font-size:13px;line-height:1.55">
+        <summary style="cursor:pointer;font-weight:700">Client ID nasıl alınır? (yaklaşık 5 dk, ücretsiz)</summary>
+        <ol style="margin:10px 0 0 18px">
+          <li><a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a> adresine Google hesabınla gir ve yeni bir proje oluştur (örn. <b>MyDictionary</b>).</li>
+          <li>Soldaki menüden <b>APIs &amp; Services → OAuth consent screen</b>: <b>External</b> seç, uygulama adını yaz, e-postanı seç, kaydet. Son adımda <b>Publish app</b> düğmesine bas.</li>
+          <li><b>APIs &amp; Services → Library</b> bölümünden <b>Google Drive API</b>'yi bulup <b>Enable</b> et.</li>
+          <li><b>APIs &amp; Services → Credentials → + Create Credentials → OAuth client ID → Web application</b> seç.</li>
+          <li><b>Authorized JavaScript origins</b> alanına şunu ekle: <b>https://gokalpeksi-hue.github.io</b></li>
+          <li>Oluşan <b>Client ID</b>'yi kopyala, yukarıdaki kutuya yapıştır ve <b>Bağlantıyı kaydet</b>'e bas. Artık "Drive'a yedekle" ve "Drive'dan yükle" düğmeleri çalışır.</li>
+        </ol>
+      </details>
+    </div>
   </section>
 </div>
 
@@ -433,8 +500,9 @@
     var cardMode=$("studyCard").style.display!=="none";
     document.body.classList.toggle("mode-study", studyActive && !cardMode);
     document.body.classList.toggle("mode-ezber", studyActive && cardMode);
+    document.body.classList.toggle("mode-kayit", !studyActive);
     var mc=document.querySelector('meta[name="theme-color"]');
-    if(mc) mc.setAttribute("content", studyActive? (cardMode? "#40101d" : "#2e2050") : "#1f2933");
+    if(mc) mc.setAttribute("content", studyActive? (cardMode? "#40101d" : "#2e2050") : "#ef8a10");
   }
   function setStudyMode(mode){
     $("studyList").style.display = mode==="list"?"block":"none";
@@ -635,14 +703,36 @@
   }
 
   /* ===== Google Drive senkron ===== */
-  var tokenClient=null, driveToken=null;
+  var tokenClient=null, driveToken=null, tokenClientId="";
+  var GCID_KEY="MyDictionary_gcid";
+  function effectiveClientId(){ return GOOGLE_CLIENT_ID || localStorage.getItem(GCID_KEY) || ""; }
+  function gcidRefresh(){
+    var id=effectiveClientId();
+    $("gcidStatus").innerHTML = id
+      ? "✅ Google bağlantısı hazır: <b>"+esc(id.length>24? id.slice(0,24)+"…" : id)+"</b>"
+      : "⚠️ Henüz bağlı değil. Aşağıdaki adımlarla ücretsiz Client ID oluşturup kutuya yapıştır.";
+    if(id) $("gcidInput").value=id;
+  }
+  $("btnGcidSave").onclick=function(){
+    var v=$("gcidInput").value.trim();
+    if(!v){ localStorage.removeItem(GCID_KEY); tokenClient=null; driveToken=null; gcidRefresh(); toast("Google bağlantısı kaldırıldı"); return; }
+    if(v.indexOf(".apps.googleusercontent.com")<0){ toast("Bu bir Client ID'ye benzemiyor"); return; }
+    localStorage.setItem(GCID_KEY,v); tokenClient=null; driveToken=null; gcidRefresh(); toast("Google bağlantısı kaydedildi ✅");
+  };
   function gisReady(){ return window.google && google.accounts && google.accounts.oauth2; }
   function withToken(cb){
-    if(!GOOGLE_CLIENT_ID){ toast("Önce Google kurulumu gerekli"); return; }
+    var cid=effectiveClientId();
+    if(!cid){
+      toast("Önce Google bağlantısını kur");
+      var p=$("gcidPanel"); if(p){ $("gcidHelp").open=true; p.scrollIntoView({behavior:"smooth"}); }
+      return;
+    }
     if(!gisReady()){ toast("Google bağlanamadı, tekrar dene"); return; }
+    if(tokenClient && tokenClientId!==cid){ tokenClient=null; driveToken=null; }
     if(!tokenClient){
+      tokenClientId=cid;
       tokenClient=google.accounts.oauth2.initTokenClient({
-        client_id:GOOGLE_CLIENT_ID,
+        client_id:cid,
         scope:"https://www.googleapis.com/auth/drive.file",
         callback:function(){}
       });
@@ -699,7 +789,7 @@
   $("btnDriveSave").onclick=driveSave;
   $("btnDriveLoad").onclick=driveLoad;
 
-  updateStats();
+  updateStats(); gcidRefresh();
   if(cards.length===0) setTab("add"); else setTab("study");
 })();
 </script>
