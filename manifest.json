@@ -1,0 +1,17 @@
+{
+  "name": "MyDictionary — İngilizce Kelime & Cümle Kartları",
+  "short_name": "MyDictionary",
+  "description": "İngilizce kelime ve cümle kartlarıyla çalışma ve ezber uygulaması",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1d2c4f",
+  "theme_color": "#1d2c4f",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "logo.png", "sizes": "1232x1232", "type": "image/png", "purpose": "any" },
+    { "src": "logo.png", "sizes": "1232x1232", "type": "image/png", "purpose": "maskable" }
+  ],
+  "categories": ["education"],
+  "lang": "tr"
+}
