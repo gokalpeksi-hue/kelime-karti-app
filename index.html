@@ -619,8 +619,11 @@
     var chev='<span class="caret" style="transform:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></span>';
     function addRow(id,name,cnt,kn){
       var d=document.createElement("div"); d.className="row"; d.style.cursor="pointer";
-      d.innerHTML='<span class="dot"'+(cnt>0&&kn===cnt?' style="background:var(--known)"':'')+'></span><div class="body"><div class="f">'+esc(name)+'</div><div class="b" style="display:block">'+cnt+" kelime · "+kn+" öğrenildi</div></div>"+chev;
+      var del = id!=="all" ? '<button class="iconbtn del projdel" title="Projeyi sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg></button>' : '';
+      d.innerHTML='<span class="dot"'+(cnt>0&&kn===cnt?' style="background:var(--known)"':'')+'></span><div class="body"><div class="f">'+esc(name)+'</div><div class="b" style="display:block">'+cnt+" kelime · "+kn+" öğrenildi</div></div>"+del+chev;
       d.onclick=function(){ selectedProj=id; showProjWords(); window.scrollTo(0,0); };
+      var db=d.querySelector(".projdel");
+      if(db){ db.onclick=function(e){ e.stopPropagation(); removeProject(id); }; }
       wrap.appendChild(d);
     }
     addRow("all","📚 Tüm Projeler",cards.length,knownCount());
@@ -630,6 +633,31 @@
       addRow(p.id,p.name,cnt,kn);
     }
   }
+  /* ===== Proje silme: kelimeler "İsimsiz Proje"ye taşınır ===== */
+  function findDefaultProject(){
+    for(var i=0;i<projects.length;i++){
+      if(String(projects[i].name).trim().toLocaleLowerCase("tr")==="isimsiz proje") return projects[i];
+    }
+    return null;
+  }
+  function removeProject(pid){
+    var p=projById(pid); if(!p) return;
+    var def=findDefaultProject();
+    if(def && def.id===pid){ toast('"İsimsiz Proje" silinemez'); return; }
+    var cnt=0, i;
+    for(i=0;i<cards.length;i++){ if(cards[i].proj===pid) cnt++; }
+    var msg='"'+p.name+'" projesi silinsin mi?'+(cnt? "\nİçindeki "+cnt+' kelime "İsimsiz Proje" altına taşınacak.':"");
+    if(!confirm(msg)) return;
+    if(!def){ def={ id:uid(), name:"İsimsiz Proje", created:Date.now() }; projects.push(def); }
+    for(i=0;i<cards.length;i++){ if(cards[i].proj===pid) cards[i].proj=def.id; }
+    projects=projects.filter(function(x){ return x.id!==pid; });
+    saveProjects(); save();
+    if(selectedProj===pid) selectedProj=null;
+    try{ if(localStorage.getItem(LASTPROJ_KEY)===pid) localStorage.setItem(LASTPROJ_KEY,def.id); }catch(e){}
+    fillProjSelect(null); renderProjects(); renderList();
+    toast(cnt? 'Proje silindi · '+cnt+' kelime "İsimsiz Proje"ye taşındı' : "Proje silindi");
+  }
+
   function showProjPick(){ $("projPick").style.display="block"; $("projWords").style.display="none"; renderProjects(); }
   function showProjWords(){
     $("projPick").style.display="none"; $("projWords").style.display="block";
