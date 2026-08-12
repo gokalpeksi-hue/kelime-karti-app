@@ -25,7 +25,7 @@
     --radius:18px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
+  html,body{height:100%;overscroll-behavior-x:none}
   body{
     font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
     background:radial-gradient(120% 80% at 50% -10%, #efebe1 0%, var(--desk) 55%, var(--desk-2) 100%);
@@ -326,7 +326,8 @@
   body.mode-study .proj-menu .pm-item.pm-new{color:#cdb9f7;border-top-color:rgba(255,255,255,.18)}
 
   /* kart sayfası: ön yüzün hemen altında cevap önizlemesi (kaydırılabilir) */
-  .back-peek{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px}
+  .back-peek{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px;touch-action:pan-y}
+  .card{touch-action:pan-y}
   .back-peek .bp-label{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
   .back-peek .bp-text{font-size:13px;font-style:italic;line-height:1.55;white-space:pre-wrap;word-wrap:break-word;max-height:40vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:4px}
   body.mode-ezber .back-peek{background:#4a1425;border-color:rgba(255,255,255,.18);box-shadow:0 12px 30px -12px rgba(0,0,0,.55)}
@@ -1005,6 +1006,8 @@
     else if(e.key==="ArrowLeft"){ e.preventDefault(); if(openRowId) kayitRowStep(-1); else kayitStep(-1); }
   });
   addSwipe($("card"),function(){ markCardSwipe(); next(); },function(){ markCardSwipe(); prev(); });
+  /* anlam önizleme alanında sağa/sola kaydırma da kart değiştirir (dikey kaydırma serbest) */
+  addSwipe($("backPeek"),function(){ markCardSwipe(); next(); },function(){ markCardSwipe(); prev(); });
 
   /* ===== Yedek ===== */
   $("btnExport").onclick=function(){
