@@ -84,8 +84,8 @@
   .counter{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:13px;color:var(--muted)}
   .progress{height:6px;background:var(--desk-2);border-radius:99px;overflow:hidden;border:1px solid var(--line);margin-bottom:18px}
   .progress > i{display:block;height:100%;background:var(--known);width:0;transition:width .35s ease}
-  .stage{perspective:1400px;display:flex;align-items:center;min-height:300px}
-  .card{position:relative;width:100%;min-height:300px;cursor:pointer;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+  .stage{perspective:1400px;display:flex;align-items:center;min-height:200px}
+  .card{position:relative;width:100%;min-height:200px;cursor:pointer;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
   .card.flipped{transform:rotateY(180deg)}
   .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 26px 26px 52px;display:flex;flex-direction:column;background-image:repeating-linear-gradient(transparent 0 37px, var(--rule) 37px 38px);background-position:0 26px;overflow:auto}
   .face::before{content:"";position:absolute;top:0;bottom:0;left:36px;width:1.5px;background:var(--margin);opacity:.7}
@@ -323,10 +323,10 @@
   body.mode-study .proj-menu .pm-item .pm-check{color:#5fd6a1}
   body.mode-study .proj-menu .pm-item.pm-new{color:#cdb9f7;border-top-color:rgba(255,255,255,.18)}
 
-  /* kart sayfası: ön yüzün hemen altında cevap önizlemesi */
-  .back-peek{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px;cursor:pointer}
+  /* kart sayfası: ön yüzün hemen altında cevap önizlemesi (kaydırılabilir) */
+  .back-peek{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px}
   .back-peek .bp-label{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-  .back-peek .bp-text{font-size:13px;font-style:italic;line-height:1.5;white-space:pre-wrap;word-wrap:break-word;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+  .back-peek .bp-text{font-size:13px;font-style:italic;line-height:1.55;white-space:pre-wrap;word-wrap:break-word;max-height:40vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:4px}
   body.mode-ezber .back-peek{background:#4a1425;border-color:rgba(255,255,255,.18);box-shadow:0 12px 30px -12px rgba(0,0,0,.55)}
   body.mode-ezber .back-peek .bp-label{color:rgba(255,255,255,.6)}
   body.mode-ezber .back-peek .bp-text{color:rgba(255,255,255,.92);font-weight:600}
@@ -415,7 +415,7 @@
           </div>
         </div>
       </div>
-      <div class="back-peek" id="backPeek" style="display:none" title="Tamamını görmek için karta dokun">
+      <div class="back-peek" id="backPeek" style="display:none">
         <div class="bp-label">Anlamı</div>
         <div class="bp-text" id="backPeekText"></div>
       </div>
@@ -802,7 +802,8 @@
     var flipped=$("card").classList.contains("flipped");
     bp.style.display=(bp._has&&!flipped)?"block":"none";
   }
-  $("backPeek").onclick=function(e){ e.stopPropagation(); flip(); };
+  /* önizleme alanı kaydırılabilir: dokunuş kartı çevirmesin */
+  $("backPeek").onclick=function(e){ e.stopPropagation(); };
   function next(){ if(order.length){ pos=(pos+1)%order.length; showCard(); } }
   function prev(){ if(order.length){ pos=(pos-1+order.length)%order.length; showCard(); } }
   $("card").onclick=function(){ if(cardSwiped){ return; } flip(); }; $("btnNext").onclick=next; $("btnPrev").onclick=prev;
