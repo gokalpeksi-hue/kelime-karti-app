@@ -84,8 +84,8 @@
   .counter{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:13px;color:var(--muted)}
   .progress{height:6px;background:var(--desk-2);border-radius:99px;overflow:hidden;border:1px solid var(--line);margin-bottom:18px}
   .progress > i{display:block;height:100%;background:var(--known);width:0;transition:width .35s ease}
-  .stage{perspective:1400px;display:flex;align-items:center;min-height:300px}
-  .card{position:relative;width:100%;min-height:300px;cursor:pointer;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+  .stage{perspective:1400px;display:flex;align-items:center;min-height:200px}
+  .card{position:relative;width:100%;min-height:200px;cursor:pointer;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
   .card.flipped{transform:rotateY(180deg)}
   .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 26px 26px 52px;display:flex;flex-direction:column;background-image:repeating-linear-gradient(transparent 0 37px, var(--rule) 37px 38px);background-position:0 26px;overflow:auto}
   .face::before{content:"";position:absolute;top:0;bottom:0;left:36px;width:1.5px;background:var(--margin);opacity:.7}
@@ -323,10 +323,10 @@
   body.mode-study .proj-menu .pm-item .pm-check{color:#5fd6a1}
   body.mode-study .proj-menu .pm-item.pm-new{color:#cdb9f7;border-top-color:rgba(255,255,255,.18)}
 
-  /* kart sayfası: ön yüzün hemen altında cevap önizlemesi */
-  .back-peek{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px;cursor:pointer}
+  /* kart sayfası: ön yüzün hemen altında cevap önizlemesi (kaydırılabilir) */
+  .back-peek{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:12px 14px}
   .back-peek .bp-label{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-  .back-peek .bp-text{font-size:13px;font-style:italic;line-height:1.5;white-space:pre-wrap;word-wrap:break-word;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+  .back-peek .bp-text{font-size:13px;font-style:italic;line-height:1.55;white-space:pre-wrap;word-wrap:break-word;max-height:40vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-right:4px}
   body.mode-ezber .back-peek{background:#4a1425;border-color:rgba(255,255,255,.18);box-shadow:0 12px 30px -12px rgba(0,0,0,.55)}
   body.mode-ezber .back-peek .bp-label{color:rgba(255,255,255,.6)}
   body.mode-ezber .back-peek .bp-text{color:rgba(255,255,255,.92);font-weight:600}
@@ -415,7 +415,7 @@
           </div>
         </div>
       </div>
-      <div class="back-peek" id="backPeek" style="display:none" title="Tamamını görmek için karta dokun">
+      <div class="back-peek" id="backPeek" style="display:none">
         <div class="bp-label">Anlamı</div>
         <div class="bp-text" id="backPeekText"></div>
       </div>
@@ -619,8 +619,11 @@
     var chev='<span class="caret" style="transform:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></span>';
     function addRow(id,name,cnt,kn){
       var d=document.createElement("div"); d.className="row"; d.style.cursor="pointer";
-      d.innerHTML='<span class="dot"'+(cnt>0&&kn===cnt?' style="background:var(--known)"':'')+'></span><div class="body"><div class="f">'+esc(name)+'</div><div class="b" style="display:block">'+cnt+" kelime · "+kn+" öğrenildi</div></div>"+chev;
+      var del = id!=="all" ? '<button class="iconbtn del projdel" title="Projeyi sil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M6 6l1 14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-14"/></svg></button>' : '';
+      d.innerHTML='<span class="dot"'+(cnt>0&&kn===cnt?' style="background:var(--known)"':'')+'></span><div class="body"><div class="f">'+esc(name)+'</div><div class="b" style="display:block">'+cnt+" kelime · "+kn+" öğrenildi</div></div>"+del+chev;
       d.onclick=function(){ selectedProj=id; showProjWords(); window.scrollTo(0,0); };
+      var db=d.querySelector(".projdel");
+      if(db){ db.onclick=function(e){ e.stopPropagation(); removeProject(id); }; }
       wrap.appendChild(d);
     }
     addRow("all","📚 Tüm Projeler",cards.length,knownCount());
@@ -630,6 +633,31 @@
       addRow(p.id,p.name,cnt,kn);
     }
   }
+  /* ===== Proje silme: kelimeler "İsimsiz Proje"ye taşınır ===== */
+  function findDefaultProject(){
+    for(var i=0;i<projects.length;i++){
+      if(String(projects[i].name).trim().toLocaleLowerCase("tr")==="isimsiz proje") return projects[i];
+    }
+    return null;
+  }
+  function removeProject(pid){
+    var p=projById(pid); if(!p) return;
+    var def=findDefaultProject();
+    if(def && def.id===pid){ toast('"İsimsiz Proje" silinemez'); return; }
+    var cnt=0, i;
+    for(i=0;i<cards.length;i++){ if(cards[i].proj===pid) cnt++; }
+    var msg='"'+p.name+'" projesi silinsin mi?'+(cnt? "\nİçindeki "+cnt+' kelime "İsimsiz Proje" altına taşınacak.':"");
+    if(!confirm(msg)) return;
+    if(!def){ def={ id:uid(), name:"İsimsiz Proje", created:Date.now() }; projects.push(def); }
+    for(i=0;i<cards.length;i++){ if(cards[i].proj===pid) cards[i].proj=def.id; }
+    projects=projects.filter(function(x){ return x.id!==pid; });
+    saveProjects(); save();
+    if(selectedProj===pid) selectedProj=null;
+    try{ if(localStorage.getItem(LASTPROJ_KEY)===pid) localStorage.setItem(LASTPROJ_KEY,def.id); }catch(e){}
+    fillProjSelect(null); renderProjects(); renderList();
+    toast(cnt? 'Proje silindi · '+cnt+' kelime "İsimsiz Proje"ye taşındı' : "Proje silindi");
+  }
+
   function showProjPick(){ $("projPick").style.display="block"; $("projWords").style.display="none"; renderProjects(); }
   function showProjWords(){
     $("projPick").style.display="none"; $("projWords").style.display="block";
@@ -802,7 +830,8 @@
     var flipped=$("card").classList.contains("flipped");
     bp.style.display=(bp._has&&!flipped)?"block":"none";
   }
-  $("backPeek").onclick=function(e){ e.stopPropagation(); flip(); };
+  /* önizleme alanı kaydırılabilir: dokunuş kartı çevirmesin */
+  $("backPeek").onclick=function(e){ e.stopPropagation(); };
   function next(){ if(order.length){ pos=(pos+1)%order.length; showCard(); } }
   function prev(){ if(order.length){ pos=(pos-1+order.length)%order.length; showCard(); } }
   $("card").onclick=function(){ if(cardSwiped){ return; } flip(); }; $("btnNext").onclick=next; $("btnPrev").onclick=prev;
