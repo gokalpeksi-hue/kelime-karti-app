@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Prompter — Sese Duyarlı Teleprompter</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ ANA EKRAN ============ -->
+<section id="screen-home" class="screen active">
+  <header class="app-header">
+    <div class="app-title">
+      <span class="logo-dot"></span>
+      <h1>Prompter</h1>
+    </div>
+    <p class="app-subtitle">Sese duyarlı teleprompter — toplantı ve video çekimleri için</p>
+  </header>
+
+  <div class="home-actions">
+    <button id="btn-new-script" class="btn btn-primary btn-big">＋ Yeni Konuşma Metni</button>
+  </div>
+
+  <h2 class="section-title">Konuşma Arşivim</h2>
+  <div id="script-list" class="card-list"></div>
+  <p id="script-empty" class="empty-note">Henüz kayıtlı metin yok. "Yeni Konuşma Metni" ile başlayın.</p>
+
+  <h2 class="section-title">Video Kayıtlarım</h2>
+  <div id="recording-list" class="card-list"></div>
+  <p id="recording-empty" class="empty-note">Henüz video kaydı yok. Prompter ekranında ⏺ tuşuyla kayıt alabilirsiniz.</p>
+
+  <footer class="app-footer">
+    Metinler tarayıcınızda saklanır. Videolar cihazınıza indirilebilir ve dilerseniz Google Drive'a yükleyebilirsiniz.
+  </footer>
+</section>
+
+<!-- ============ EDİTÖR ============ -->
+<section id="screen-editor" class="screen">
+  <header class="editor-header">
+    <button id="btn-editor-back" class="btn btn-ghost">← Geri</button>
+    <span class="editor-header-title">Metin Düzenle</span>
+    <button id="btn-editor-save" class="btn btn-primary">Kaydet</button>
+  </header>
+  <div class="editor-body">
+    <input id="editor-title" type="text" placeholder="Konuşma başlığı (örn. Pazartesi toplantısı)" maxlength="120">
+    <textarea id="editor-text" placeholder="Konuşma metninizi buraya yazın veya yapıştırın...&#10;&#10;Prompter ekranında bu metin kameranın önünden akacak ve siz konuştukça ses tanıma ile konumunuzu takip edecek."></textarea>
+    <div class="editor-meta"><span id="editor-wordcount">0 kelime</span> · <span id="editor-duration">~0 dk</span></div>
+    <button id="btn-editor-start" class="btn btn-accent btn-big">▶ Prompter'ı Başlat</button>
+  </div>
+</section>
+
+<!-- ============ PROMPTER ============ -->
+<section id="screen-prompter" class="screen">
+  <video id="camera" autoplay playsinline muted></video>
+  <div id="camera-off-note" class="camera-off-note hidden">Kamera kapalı — yalnızca metin modu</div>
+
+  <div id="prompter-scroll" class="prompter-scroll">
+    <div id="prompter-text" class="prompter-text"></div>
+  </div>
+  <div class="reading-line" aria-hidden="true"></div>
+
+  <header class="prompter-top">
+    <button id="btn-prompter-close" class="pbtn" title="Kapat">✕</button>
+    <div id="rec-status" class="rec-status hidden"><span class="rec-dot"></span><span id="rec-timer">00:00</span></div>
+    <div id="voice-status" class="voice-status" title="Ses takibi durumu">🎙 kapalı</div>
+  </header>
+
+  <div class="prompter-controls">
+    <div class="controls-row controls-main">
+      <button id="btn-restart" class="pbtn" title="Başa dön">⟲</button>
+      <button id="btn-voice" class="pbtn pbtn-toggle" title="Sese duyarlı takip: metin siz konuştukça akar">🎙</button>
+      <button id="btn-record" class="pbtn pbtn-record" title="Video kaydını başlat / durdur">⏺</button>
+      <button id="btn-autoscroll" class="pbtn pbtn-toggle" title="Sabit hızda otomatik akış">▶</button>
+      <button id="btn-mirror" class="pbtn pbtn-toggle" title="Ayna modu (prompter camı için)">⇋</button>
+    </div>
+    <div class="controls-row controls-sliders">
+      <label>Hız <input id="slider-speed" type="range" min="10" max="200" value="60"></label>
+      <label>Yazı <input id="slider-font" type="range" min="22" max="72" value="40"></label>
+      <label>Fon <input id="slider-dim" type="range" min="0" max="90" value="35"></label>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VİDEO OYNATICI ============ -->
+<div id="player-overlay" class="player-overlay hidden">
+  <div class="player-box">
+    <video id="player-video" controls playsinline></video>
+    <div class="player-actions">
+      <a id="player-download" class="btn btn-primary" download>⬇ İndir (Drive'a yüklenebilir)</a>
+      <button id="player-close" class="btn btn-ghost">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
