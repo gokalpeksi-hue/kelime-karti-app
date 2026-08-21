@@ -155,6 +155,8 @@
 
   .data-tools{display:flex;gap:10px;margin-top:18px}
   .data-tools .chip{flex:1;justify-content:center}
+  .verinfo{font-size:11px;color:var(--muted);text-align:center;margin-top:6px}
+  body.mode-kayit .verinfo{color:rgba(26,18,6,.65);font-weight:600}
 
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:var(--accent);color:#fff;padding:11px 18px;border-radius:12px;font-size:13.5px;font-weight:500;box-shadow:0 10px 30px -8px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:.25s;z-index:50}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -492,6 +494,11 @@
       <button class="chip drive" id="btnDriveSave"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Drive'a yedekle</button>
       <button class="chip drive" id="btnDriveLoad"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 3h14"/></svg>Drive'dan yükle</button>
     </div>
+    <div class="tools-label">Uygulama güncellemesi</div>
+    <div class="data-tools" style="margin-top:0">
+      <button class="chip" id="btnUpdate"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10"/><path d="M20.5 15a9 9 0 0 1-14.9 3.4L1 14"/></svg>Güncelle</button>
+    </div>
+    <p class="verinfo" id="verInfo"></p>
     <div class="tools-label">Google bağlantısı (Drive yedekleme için gerekli)</div>
     <div class="panel" id="gcidPanel" style="margin-bottom:0">
       <p class="lead" id="gcidStatus" style="margin-bottom:10px"></p>
@@ -526,6 +533,9 @@
      Aşağıdaki tırnak içine Google OAuth Client ID'ni yapıştır.
      Boş kalırsa Drive düğmeleri kurulum uyarısı verir; uygulamanın gerisi normal çalışır. */
   var GOOGLE_CLIENT_ID = "";
+  /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
+     'Güncelle' butonu yeni sürümü bu numaradan anlar. */
+  var APP_VERSION = "2026-08-21.1";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -1158,6 +1168,31 @@
   }
   $("btnDriveSave").onclick=driveSave;
   $("btnDriveLoad").onclick=driveLoad;
+
+  /* ===== Uygulama güncelleme: GitHub Pages'ten en son sürümü çek ===== */
+  (function(){
+    var vi=$("verInfo"); if(vi) vi.textContent="Sürüm: "+APP_VERSION;
+    var btn=$("btnUpdate"); if(!btn) return;
+    btn.onclick=function(){
+      toast("Güncelleme denetleniyor…");
+      fetch("index.html?upd="+Date.now(),{cache:"no-store"})
+        .then(function(r){ if(!r.ok) throw 0; return r.text(); })
+        .then(function(t){
+          var m=t.match(/APP_VERSION\s*=\s*"([^"]+)"/);
+          var remote=m? m[1] : null;
+          if(remote && remote===APP_VERSION){
+            toast("✅ Uygulama zaten güncel ("+APP_VERSION+")");
+            return;
+          }
+          /* yeni sürüm var (veya sürüm okunamadı) → önbelleği atlayarak yeniden yükle */
+          toast("🔄 Yeni sürüm indiriliyor…");
+          setTimeout(function(){
+            location.replace(location.pathname+"?v="+Date.now());
+          },700);
+        })
+        .catch(function(){ toast("Bağlantı kurulamadı, tekrar dene"); });
+    };
+  })();
 
   updateStats(); gcidRefresh(); fillProjSelect(null);
   if(cards.length===0) setTab("add"); else setTab("study");
