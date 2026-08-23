@@ -573,23 +573,62 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-08-23.5";
+  var APP_VERSION = "2026-08-23.6";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
   var KEY="Dictionary_cards_v1", memFallback=null;
+
+  /* ===== Geniş depo (IndexedDB) =====
+     localStorage ~5MB ile sınırlı ve kelime sayısı artınca doluyor.
+     Veriler ayrıca kotası çok daha büyük olan IndexedDB'ye yazılır;
+     açılışta hangisi daha yeniyse o kullanılır. */
+  var idb=null, lsFullWarned=false;
+  function idbOpen(cb){
+    try{
+      var req=indexedDB.open("MyDictionaryDB",1);
+      req.onupgradeneeded=function(e){ try{ e.target.result.createObjectStore("kv"); }catch(_){} };
+      req.onsuccess=function(e){ idb=e.target.result; if(cb) cb(); };
+      req.onerror=function(){ if(cb) cb(); };
+    }catch(e){ if(cb) cb(); }
+  }
+  function idbPut(key,str){
+    if(!idb) return false;
+    try{
+      var tx=idb.transaction("kv","readwrite"), st=tx.objectStore("kv");
+      st.put(str,key); st.put(Date.now(),key+"_ts");
+      return true;
+    }catch(e){ return false; }
+  }
+  function idbGet(key,cb){
+    if(!idb){ cb(undefined,0); return; }
+    try{
+      var st=idb.transaction("kv","readonly").objectStore("kv");
+      var rv=st.get(key), rt=st.get(key+"_ts"), val, ts, done=0;
+      function fin(){ if(++done===2) cb(val,ts||0); }
+      rv.onsuccess=function(){ val=rv.result; fin(); }; rv.onerror=function(){ fin(); };
+      rt.onsuccess=function(){ ts=rt.result; fin(); }; rt.onerror=function(){ fin(); };
+    }catch(e){ cb(undefined,0); }
+  }
+  function lsTs(key){ var t=parseInt(localStorage.getItem(key+"_ts"),10); return isNaN(t)?0:t; }
+
   function load(){ try{ var r=localStorage.getItem(KEY); return r?JSON.parse(r):[]; }catch(e){ return memFallback||[]; } }
   function save(){
-    try{ localStorage.setItem(KEY,JSON.stringify(cards)); }
-    catch(e){
+    var s=JSON.stringify(cards), now=Date.now(), lsOk=false;
+    try{ localStorage.setItem(KEY,s); localStorage.setItem(KEY+"_ts",String(now)); lsOk=true; }catch(e){}
+    var idbOk=idbPut(KEY,s);
+    if(lsOk||idbOk) cardsTs=now;
+    if(!lsOk && !idbOk){
       memFallback=cards.slice();
-      /* kota dolu / kısıtlı modda kayıt başarısız: kullanıcıyı sessizce bırakma.
-         Uyarı, işlemin kendi bildirimi kaybolduktan sonra gösterilir. */
       setTimeout(function(){ try{ toast("⚠️ Değişiklik hafızaya YAZILAMADI! Hemen 'Yedek al' ile yedek indirin."); }catch(_){} },1900);
+    } else if(!lsOk && idbOk && !lsFullWarned){
+      lsFullWarned=true;
+      setTimeout(function(){ try{ toast("ℹ️ Tarayıcı hafızası doldu; verileriniz geniş depoya kaydedildi ✅"); }catch(_){} },1900);
     }
   }
 
   var cards=load(), editingId=null, editReturn=null;
+  var cardsTs=lsTs(KEY);
   var order=[], pos=0, onlyUnlearned=false, onlyReview=false, studyQuery="", lastListScroll=0;
   var selectMode=false, selectedIds={};
 
@@ -611,7 +650,14 @@
   var projects=loadProjects();
   var projectsLoadFailed=(projects===null);
   if(projectsLoadFailed) projects=[];
-  function saveProjects(){ try{ localStorage.setItem(PKEY, JSON.stringify(projects)); }catch(e){ try{ toast("⚠️ Proje listesi hafızaya yazılamadı!"); }catch(_){} } }
+  var projTs=lsTs(PKEY);
+  function saveProjects(){
+    var s=JSON.stringify(projects), now=Date.now(), lsOk=false;
+    try{ localStorage.setItem(PKEY,s); localStorage.setItem(PKEY+"_ts",String(now)); lsOk=true; }catch(e){}
+    var idbOk=idbPut(PKEY,s);
+    if(lsOk||idbOk) projTs=now;
+    if(!lsOk && !idbOk){ try{ toast("⚠️ Proje listesi hafızaya yazılamadı!"); }catch(_){} }
+  }
   function projById(id){ for(var i=0;i<projects.length;i++){ if(projects[i].id===id) return projects[i]; } return null; }
   function addProject(name){ var p={ id:uid(), name:String(name).slice(0,40), created:Date.now() }; projects.push(p); saveProjects(); return p; }
   (function(){
@@ -1380,15 +1426,7 @@
      Uygulama arka plandan dönünce ya da başka bir sekme kayıt yapınca
      hafızadaki güncel veri benimsenir; böylece eski veriyle bekleyen bir
      sekme, başka yerde yapılan taşımaları/değişiklikleri geri yazamaz. */
-  function adoptStorage(){
-    var changed=false;
-    try{
-      var rc=localStorage.getItem(KEY);
-      if(rc!==null && rc!==JSON.stringify(cards)){ cards=JSON.parse(rc); changed=true; }
-      var rp=localStorage.getItem(PKEY);
-      if(rp!==null && rp!==JSON.stringify(projects)){ projects=JSON.parse(rp); changed=true; }
-    }catch(e){ return; }
-    if(!changed) return;
+  function refreshAllViews(){
     updateStats(); fillProjSelect(null); renderList();
     if($("viewStudy").classList.contains("active")){
       if(selectedProj===null) renderProjects();
@@ -1396,9 +1434,42 @@
       else showCard();
     }
   }
+  function adoptStorage(){
+    var changed=false;
+    try{
+      /* zaman damgası olan yerde yalnızca DAHA YENİ localStorage verisi
+         benimsenir; böylece kota dolduğunda bayat kalan localStorage,
+         geniş depodaki güncel veriyi ezemez */
+      var tc=lsTs(KEY), rc=localStorage.getItem(KEY);
+      if(rc!==null && (tc>cardsTs || (tc===0 && cardsTs===0 && rc!==JSON.stringify(cards)))){ cards=JSON.parse(rc); cardsTs=tc; changed=true; }
+      var tp=lsTs(PKEY), rp=localStorage.getItem(PKEY);
+      if(rp!==null && (tp>projTs || (tp===0 && projTs===0 && rp!==JSON.stringify(projects)))){ projects=JSON.parse(rp); projTs=tp; changed=true; }
+    }catch(e){ return; }
+    if(changed) refreshAllViews();
+  }
   document.addEventListener("visibilitychange",function(){ if(!document.hidden) adoptStorage(); });
   window.addEventListener("pageshow",function(e){ if(e && e.persisted) adoptStorage(); });
   window.addEventListener("storage",function(e){ if(e && (e.key===KEY || e.key===PKEY)) adoptStorage(); });
+
+  /* Açılış: IndexedDB'de daha yeni veri varsa (localStorage dolduğunda
+     kayıtlar oraya yazılmış olabilir) onu benimse; yoksa mevcut veriyle
+     IndexedDB'yi tohumla */
+  idbOpen(function(){
+    if(!idb) return;
+    idbGet(KEY,function(val,ts){
+      var newCards=null;
+      if(typeof val==="string" && ts>cardsTs){ try{ newCards=JSON.parse(val); }catch(e){} }
+      idbGet(PKEY,function(pval,pts){
+        var newProjects=null;
+        if(typeof pval==="string" && pts>projTs){ try{ newProjects=JSON.parse(pval); }catch(e){} }
+        if(newCards){ cards=newCards; cardsTs=ts; }
+        if(newProjects){ projects=newProjects; projTs=pts; }
+        if(newCards||newProjects) refreshAllViews();
+        if(val===undefined && cards.length) idbPut(KEY,JSON.stringify(cards));
+        if(pval===undefined && projects.length) idbPut(PKEY,JSON.stringify(projects));
+      });
+    });
+  });
 
   updateStats(); gcidRefresh(); fillProjSelect(null);
   if(cards.length===0) setTab("add"); else setTab("study");
