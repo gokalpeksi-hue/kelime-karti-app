@@ -325,6 +325,11 @@
   body.mode-ezber .projrev-row .prbox{border-color:rgba(255,255,255,.4)}
   body.mode-ezber .projrev-row.on{border-color:#ffb04d}
   body.mode-ezber .projrev-row.on .prbox{background:#ffb04d;border-color:#ffb04d;color:#1a1206}
+  /* özümsedim tiki: yeşil */
+  #absorbToggle.on{border-color:#4dbd8a}
+  #absorbToggle.on .prbox{background:#4dbd8a;border-color:#4dbd8a;color:#0f2b1e}
+  body.mode-ezber #absorbToggle.on{border-color:#5fd6a1}
+  body.mode-ezber #absorbToggle.on .prbox{background:#5fd6a1;border-color:#5fd6a1;color:#0f2b1e}
   #btnReviewLater.on{color:#ffb04d;background:rgba(255,176,77,.16)}
   .index-item .revb{border-color:rgba(255,176,77,.5);background:rgba(255,176,77,.14)}
   @media (max-width:470px){
@@ -456,6 +461,9 @@
       <div class="projrev-row" id="projRevToggle" role="button" tabindex="0">
         <span class="prbox">✓</span><span>📌 Proje tekrarı — bu projede tekrar gözden geçir</span>
       </div>
+      <div class="projrev-row" id="absorbToggle" role="button" tabindex="0">
+        <span class="prbox">✓</span><span>🌟 Özümsedim — projede ayrı grupta gözden geçir</span>
+      </div>
       <div class="judge">
         <button class="btn review" id="btnReview">↺ Tekrar et</button>
         <button class="btn know" id="btnKnow">✓ Biliyorum</button>
@@ -565,7 +573,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-08-23.1";
+  var APP_VERSION = "2026-08-23.2";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -765,11 +773,13 @@
       gg.innerHTML=(title? '<div class="letter-head">'+title+'</div>':'')+list.map(rowHtml).join('');
       wrap.appendChild(gg);
     }
-    /* 📌 proje tekrarına eklenen kelimeler ayrı grup olarak en üstte */
+    /* 📌 proje tekrarı ve 🌟 özümsedikler ayrı gruplar olarak en üstte */
     var prList=arr.filter(function(c){ return c.projrev; });
-    var restList=arr.filter(function(c){ return !c.projrev; });
-    if(prList.length){
+    var abList=arr.filter(function(c){ return !c.projrev && c.absorbed; });
+    var restList=arr.filter(function(c){ return !c.projrev && !c.absorbed; });
+    if(prList.length || abList.length){
       buildGroup("📌 Proje tekrarı ("+prList.length+")",prList);
+      buildGroup("🌟 Özümsedikler ("+abList.length+")",abList);
       buildGroup("Kelimeler",restList);
     } else {
       buildGroup("",arr);
@@ -965,6 +975,7 @@
     $("modeText").textContent=mparts.join(" · ");
     var rb=$("btnReviewLater"); if(rb) rb.classList.toggle("on",!!c.review);
     var pr=$("projRevToggle"); if(pr) pr.classList.toggle("on",!!c.projrev);
+    var ab=$("absorbToggle"); if(ab) ab.classList.toggle("on",!!c.absorbed);
     $("progressBar").style.width = cards.length? (knownCount()/cards.length*100)+"%" : "0%";
     var bp=$("backPeek");
     if(bp){ bp._has=!!(c.back&&c.back.trim()); $("backPeekText").innerHTML=fmt(c.back||""); updateBackPeek(); }
@@ -1004,9 +1015,19 @@
   };
   $("projRevToggle").onclick=function(){
     var c=byId(order[pos]); if(!c) return;
-    c.projrev=!c.projrev; save();
+    c.projrev=!c.projrev;
+    if(c.projrev && c.absorbed){ c.absorbed=false; var ab=$("absorbToggle"); if(ab) ab.classList.remove("on"); }
+    save();
     this.classList.toggle("on",!!c.projrev);
     toast(c.projrev? '📌 "Proje tekrarı" grubuna eklendi' : '"Proje tekrarı" grubundan çıkarıldı');
+  };
+  $("absorbToggle").onclick=function(){
+    var c=byId(order[pos]); if(!c) return;
+    c.absorbed=!c.absorbed;
+    if(c.absorbed && c.projrev){ c.projrev=false; var pr=$("projRevToggle"); if(pr) pr.classList.remove("on"); }
+    save();
+    this.classList.toggle("on",!!c.absorbed);
+    toast(c.absorbed? '🌟 "Özümsedikler" grubuna eklendi' : '"Özümsedikler" grubundan çıkarıldı');
   };
   function editFromStudy(id,ret){ editReturn=ret||null; setTab("add"); startEdit(id,true); }
 
@@ -1201,7 +1222,7 @@
       if(d&&typeof d.front==="string"&&typeof d.back==="string"&&!cardExists(d.front,d.back)){
         var nn=(typeof d.num==="number" && !numUsed(d.num))? d.num : nextNum();
         var pj=d.proj? (idMap[d.proj]||d.proj) : null; if(!pj || !projById(pj)) pj=projects[0].id;
-        cards.push({ id:d.id||uid(), num:nn, front:d.front, back:d.back, proj:pj, known:!!d.known, review:!!d.review, projrev:!!d.projrev, created:d.created||Date.now() }); added++;
+        cards.push({ id:d.id||uid(), num:nn, front:d.front, back:d.back, proj:pj, known:!!d.known, review:!!d.review, projrev:!!d.projrev, absorbed:!!d.absorbed, created:d.created||Date.now() }); added++;
       }
     });
     save(); updateStats(); renderList(); fillProjSelect(null); if(selectedProj===null && $("viewStudy").classList.contains("active")) renderProjects();
