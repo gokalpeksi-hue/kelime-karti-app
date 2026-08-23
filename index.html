@@ -573,13 +573,21 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-08-23.3";
+  var APP_VERSION = "2026-08-23.4";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
   var KEY="Dictionary_cards_v1", memFallback=null;
   function load(){ try{ var r=localStorage.getItem(KEY); return r?JSON.parse(r):[]; }catch(e){ return memFallback||[]; } }
-  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(cards)); }catch(e){ memFallback=cards.slice(); } }
+  function save(){
+    try{ localStorage.setItem(KEY,JSON.stringify(cards)); }
+    catch(e){
+      memFallback=cards.slice();
+      /* kota dolu / kısıtlı modda kayıt başarısız: kullanıcıyı sessizce bırakma.
+         Uyarı, işlemin kendi bildirimi kaybolduktan sonra gösterilir. */
+      setTimeout(function(){ try{ toast("⚠️ Değişiklik hafızaya YAZILAMADI! Hemen 'Yedek al' ile yedek indirin."); }catch(_){} },1900);
+    }
+  }
 
   var cards=load(), editingId=null, editReturn=null;
   var order=[], pos=0, onlyUnlearned=false, onlyReview=false, studyQuery="", lastListScroll=0;
@@ -599,13 +607,17 @@
 
   /* ===== Projeler ===== */
   var PKEY="MyDictionary_projects_v1", LASTPROJ_KEY="MyDictionary_lastproj";
-  function loadProjects(){ try{ var r=localStorage.getItem(PKEY); return r? JSON.parse(r):[]; }catch(e){ return []; } }
+  function loadProjects(){ try{ var r=localStorage.getItem(PKEY); return r? JSON.parse(r):[]; }catch(e){ return null; } }
   var projects=loadProjects();
-  function saveProjects(){ try{ localStorage.setItem(PKEY, JSON.stringify(projects)); }catch(e){} }
+  var projectsLoadFailed=(projects===null);
+  if(projectsLoadFailed) projects=[];
+  function saveProjects(){ try{ localStorage.setItem(PKEY, JSON.stringify(projects)); }catch(e){ try{ toast("⚠️ Proje listesi hafızaya yazılamadı!"); }catch(_){} } }
   function projById(id){ for(var i=0;i<projects.length;i++){ if(projects[i].id===id) return projects[i]; } return null; }
   function addProject(name){ var p={ id:uid(), name:String(name).slice(0,40), created:Date.now() }; projects.push(p); saveProjects(); return p; }
   (function(){
     if(!projects.length){ projects.push({ id:"genel", name:"İsimsiz Proje", created:Date.now() }); saveProjects(); }
+    /* proje listesi OKUNAMADIYSA kartların proje bağlantısını bozma */
+    if(projectsLoadFailed) return;
     var changed=false;
     for(var i=0;i<cards.length;i++){ if(!cards[i].proj || !projById(cards[i].proj)){ cards[i].proj=projects[0].id; changed=true; } }
     if(changed) save();
@@ -1344,6 +1356,30 @@
         .catch(function(){ toast("Bağlantı kurulamadı, tekrar dene"); });
     };
   })();
+
+  /* ===== Hafıza eşitleme =====
+     Uygulama arka plandan dönünce ya da başka bir sekme kayıt yapınca
+     hafızadaki güncel veri benimsenir; böylece eski veriyle bekleyen bir
+     sekme, başka yerde yapılan taşımaları/değişiklikleri geri yazamaz. */
+  function adoptStorage(){
+    var changed=false;
+    try{
+      var rc=localStorage.getItem(KEY);
+      if(rc!==null && rc!==JSON.stringify(cards)){ cards=JSON.parse(rc); changed=true; }
+      var rp=localStorage.getItem(PKEY);
+      if(rp!==null && rp!==JSON.stringify(projects)){ projects=JSON.parse(rp); changed=true; }
+    }catch(e){ return; }
+    if(!changed) return;
+    updateStats(); fillProjSelect(null); renderList();
+    if($("viewStudy").classList.contains("active")){
+      if(selectedProj===null) renderProjects();
+      else if($("studyCard").style.display==="none") showProjWords();
+      else showCard();
+    }
+  }
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden) adoptStorage(); });
+  window.addEventListener("pageshow",function(e){ if(e && e.persisted) adoptStorage(); });
+  window.addEventListener("storage",function(e){ if(e && (e.key===KEY || e.key===PKEY)) adoptStorage(); });
 
   updateStats(); gcidRefresh(); fillProjSelect(null);
   if(cards.length===0) setTab("add"); else setTab("study");
