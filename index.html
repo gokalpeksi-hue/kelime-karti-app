@@ -573,7 +573,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-08-23.4";
+  var APP_VERSION = "2026-08-23.5";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -1277,12 +1277,22 @@
       tokenClient=google.accounts.oauth2.initTokenClient({
         client_id:cid,
         scope:"https://www.googleapis.com/auth/drive.file",
-        callback:function(){}
+        callback:function(){},
+        error_callback:function(err){
+          var t=(err&&err.type)||"";
+          if(t==="popup_failed_to_open") toast("İzin penceresi AÇILAMADI (popup engeli). Siteyi Safari'de açıp deneyin.");
+          else if(t==="popup_closed") toast("İzin penceresi kapatıldı, izin verilmedi");
+          else toast("Google izin hatası: "+(t||"bilinmiyor"));
+        }
       });
     }
     tokenClient.callback=function(resp){
       if(resp&&resp.access_token){ driveToken=resp.access_token; cb(); }
-      else { toast("Drive izni alınamadı"); }
+      else {
+        var e=(resp&&resp.error)||"";
+        if(e==="access_denied") toast("İzin reddedildi. OAuth ekranında 'Publish app' yapın veya hesabınızı Test users'a ekleyin.");
+        else toast("Drive izni alınamadı"+(e?": "+e:""));
+      }
     };
     tokenClient.requestAccessToken({ prompt: driveToken? "":"consent" });
   }
@@ -1290,7 +1300,15 @@
     var url="https://www.googleapis.com/drive/v3/files?q="+encodeURIComponent("(name='"+DRIVE_FILE_NAME+"' or name='"+DRIVE_FILE_LEGACY+"') and trashed=false")+"&spaces=drive&fields=files(id,name)";
     return fetch(url,{ headers:{ Authorization:"Bearer "+driveToken } })
       .then(function(r){ return r.json(); })
-      .then(function(j){ return (j.files&&j.files.length)? j.files[0].id : null; });
+      .then(function(j){
+        if(j&&j.error){
+          var err=new Error("drive-api");
+          err.detail="HTTP "+(j.error.code||"?")+(j.error.status?" · "+j.error.status:"");
+          if(j.error.code===403) err.detail+=" — Google Drive API'yi 'Enable' ettiğinizden emin olun";
+          throw err;
+        }
+        return (j.files&&j.files.length)? j.files[0].id : null;
+      });
   }
   function driveSave(){
     withToken(function(){
@@ -1310,8 +1328,9 @@
         }
       }).then(function(r){
         if(r&&r.ok) toast("Drive'a yedeklendi ("+cards.length+" kart)");
+        else if(r) toast("Drive'a yazılamadı (HTTP "+r.status+")"+(r.status===403?" — Drive API etkin mi kontrol edin":""));
         else toast("Drive'a yazılamadı");
-      }).catch(function(){ toast("Drive hatası"); });
+      }).catch(function(e){ toast("Drive hatası"+(e&&e.detail?" — "+e.detail:"")); });
     });
   }
   function driveLoad(){
@@ -1326,7 +1345,7 @@
             var added=mergeImported(JSON.parse(t));
             if(added<0) toast("Yedek bozuk"); else toast(added+" yeni kart eklendi");
           });
-      }).catch(function(){ toast("Drive hatası"); });
+      }).catch(function(e){ toast("Drive hatası"+(e&&e.detail?" — "+e.detail:"")); });
     });
   }
   $("btnDriveSave").onclick=driveSave;
