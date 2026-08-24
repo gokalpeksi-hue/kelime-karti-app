@@ -328,6 +328,7 @@
     #printArea .pq{font-weight:700;font-size:13.5px;white-space:pre-wrap}
     #printArea .pq .pnum{color:#666;font-weight:400;font-size:11px;margin-right:6px}
     #printArea .pa{font-size:12px;margin-top:3px;white-space:pre-wrap;color:#222}
+    #printArea .pitem.words-only{padding:5px 0}
   }
 
   /* ===== Proje tekrarı: karttaki tik alanı ===== */
@@ -589,7 +590,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-08-23.7";
+  var APP_VERSION = "2026-08-24.1";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -1001,18 +1002,44 @@
   };
   $("btnCancelSel").onclick=function(){ exitSelectMode(); renderIndex(); };
 
-  /* ===== PDF dışa aktarma: açık listedeki kelimeler + cevapları ===== */
-  $("chipPdf").onclick=function(){
-    var arr=studyCards();
-    if(!arr.length){ toast("Aktarılacak kelime yok"); return; }
+  /* ===== PDF dışa aktarma: içerik seçimli (sadece kelimeler / kelime+açıklama) ===== */
+  function exportPdf(arr,mode){
     var title=($("projTitle")&&$("projTitle").textContent)||"Kelimeler";
     var html='<h1>'+esc(title)+'</h1><div class="pmeta">'+arr.length+" kelime · MyDictionary · "+new Date().toLocaleDateString("tr-TR")+'</div>';
     arr.forEach(function(c){
-      html+='<div class="pitem"><div class="pq"><span class="pnum">#'+c.num+'</span>'+esc(c.front)+'</div><div class="pa">'+esc(c.back)+'</div></div>';
+      html+='<div class="pitem'+(mode==="words"?" words-only":"")+'"><div class="pq"><span class="pnum">#'+c.num+'</span>'+esc(c.front)+'</div>'
+        +(mode==="words"?'':'<div class="pa">'+esc(c.back)+'</div>')
+        +'</div>';
     });
     $("printArea").innerHTML=html;
     toast("Yazdırma penceresinden 'PDF olarak kaydet'i seçin");
     setTimeout(function(){ window.print(); },150);
+  }
+  $("chipPdf").onclick=function(e){
+    e.stopPropagation();
+    var arr=studyCards();
+    if(!arr.length){ toast("Aktarılacak kelime yok"); return; }
+    if(projMenuEl && projMenuEl._pdf){ closeProjMenu(); return; }
+    closeProjMenu();
+    var m=document.createElement("div"); m.className="proj-menu"; m._pdf=true;
+    m.innerHTML='<div class="pm-title">PDF içeriği</div>'
+      +'<div class="pm-item" data-mode="words"><span class="pm-check"></span>Sadece kelimeler</div>'
+      +'<div class="pm-item" data-mode="full"><span class="pm-check"></span>Kelimeler + açıklamalar</div>';
+    document.body.appendChild(m);
+    var r=this.getBoundingClientRect(), mr=m.getBoundingClientRect();
+    var left=Math.min(Math.max(8,r.left), window.innerWidth-mr.width-8);
+    var top=r.bottom+6;
+    if(top+mr.height>window.innerHeight-8) top=Math.max(8,r.top-mr.height-6);
+    m.style.left=left+"px"; m.style.top=top+"px";
+    Array.prototype.forEach.call(m.querySelectorAll(".pm-item"),function(it){
+      it.onclick=function(ev){
+        ev.stopPropagation();
+        var mode=it.getAttribute("data-mode");
+        closeProjMenu();
+        exportPdf(arr,mode);
+      };
+    });
+    projMenuEl=m;
   };
   $("btnMoveSel").onclick=function(e){
     e.stopPropagation();
