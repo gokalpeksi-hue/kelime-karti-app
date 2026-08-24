@@ -316,6 +316,20 @@
   .selbar .btn{padding:9px 12px;font-size:13px;box-shadow:none;background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);color:#fff}
   .selbar .btn.primary{background:#7a5cc4;border-color:#7a5cc4;color:#fff}
 
+  /* ===== PDF dışa aktarma (yazdırma görünümü) ===== */
+  #printArea{display:none}
+  @media print{
+    body{background:#fff !important;padding:0 !important}
+    .wrap,.toast,.selbar,.proj-menu{display:none !important}
+    #printArea{display:block;color:#000;font-family:Georgia,'Times New Roman',serif;padding:8px 4px}
+    #printArea h1{font-size:20px;margin:0 0 2px}
+    #printArea .pmeta{font-size:11px;color:#555;margin:0 0 14px}
+    #printArea .pitem{padding:8px 0;border-bottom:1px solid #bbb;page-break-inside:avoid}
+    #printArea .pq{font-weight:700;font-size:13.5px;white-space:pre-wrap}
+    #printArea .pq .pnum{color:#666;font-weight:400;font-size:11px;margin-right:6px}
+    #printArea .pa{font-size:12px;margin-top:3px;white-space:pre-wrap;color:#222}
+  }
+
   /* ===== Proje tekrarı: karttaki tik alanı ===== */
   .projrev-row{display:flex;align-items:center;gap:9px;margin-top:10px;padding:11px 14px;background:var(--card);border:1px solid var(--line);border-radius:13px;cursor:pointer;font-size:13px;font-weight:600;box-shadow:var(--shadow);-webkit-user-select:none;user-select:none}
   .projrev-row .prbox{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:transparent;flex-shrink:0;transition:.12s}
@@ -415,6 +429,7 @@
         <button class="chip" id="chipUnlearned">Sadece öğrenilmemişler</button>
         <button class="chip" id="chipReview">🔁 Tekrar çalış</button>
         <button class="chip" id="chipSelect">☑️ Seç</button>
+        <button class="chip" id="chipPdf">📄 PDF</button>
         <button class="chip" id="chipReset">İlerlemeyi sıfırla</button>
       </div>
       <div class="index-list" id="indexList"></div>
@@ -563,6 +578,7 @@
 </div>
 
 <div class="toast" id="toast"></div>
+<div id="printArea"></div>
 
 <script>
 (function(){
@@ -573,7 +589,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-08-23.6";
+  var APP_VERSION = "2026-08-23.7";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -984,6 +1000,20 @@
     if(selectMode) toast("Taşınacak kelimelere dokunarak seç");
   };
   $("btnCancelSel").onclick=function(){ exitSelectMode(); renderIndex(); };
+
+  /* ===== PDF dışa aktarma: açık listedeki kelimeler + cevapları ===== */
+  $("chipPdf").onclick=function(){
+    var arr=studyCards();
+    if(!arr.length){ toast("Aktarılacak kelime yok"); return; }
+    var title=($("projTitle")&&$("projTitle").textContent)||"Kelimeler";
+    var html='<h1>'+esc(title)+'</h1><div class="pmeta">'+arr.length+" kelime · MyDictionary · "+new Date().toLocaleDateString("tr-TR")+'</div>';
+    arr.forEach(function(c){
+      html+='<div class="pitem"><div class="pq"><span class="pnum">#'+c.num+'</span>'+esc(c.front)+'</div><div class="pa">'+esc(c.back)+'</div></div>';
+    });
+    $("printArea").innerHTML=html;
+    toast("Yazdırma penceresinden 'PDF olarak kaydet'i seçin");
+    setTimeout(function(){ window.print(); },150);
+  };
   $("btnMoveSel").onclick=function(e){
     e.stopPropagation();
     var ids=[],k; for(k in selectedIds){ if(selectedIds[k]) ids.push(k); }
