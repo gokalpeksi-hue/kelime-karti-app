@@ -429,6 +429,8 @@
         </button>
         <button class="chip" id="chipUnlearned">Sadece öğrenilmemişler</button>
         <button class="chip" id="chipReview">🔁 Tekrar çalış</button>
+        <button class="chip" id="chipProjrev">📌 Proje tekrarı</button>
+        <button class="chip" id="chipAbsorbed">🌟 Özümsedikler</button>
         <button class="chip" id="chipSelect">☑️ Seç</button>
         <button class="chip" id="chipPdf">📄 PDF</button>
         <button class="chip" id="chipReset">İlerlemeyi sıfırla</button>
@@ -590,7 +592,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-08-24.1";
+  var APP_VERSION = "2026-08-24.2";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -646,7 +648,7 @@
 
   var cards=load(), editingId=null, editReturn=null;
   var cardsTs=lsTs(KEY);
-  var order=[], pos=0, onlyUnlearned=false, onlyReview=false, studyQuery="", lastListScroll=0;
+  var order=[], pos=0, onlyUnlearned=false, onlyReview=false, onlyProjrev=false, onlyAbsorbed=false, studyQuery="", lastListScroll=0;
   var selectMode=false, selectedIds={};
 
   /* kayıt numarası: mevcut kartlara ekleniş sırasına göre numara ver */
@@ -725,6 +727,8 @@
     var arr=cards.slice();
     if(onlyUnlearned) arr=arr.filter(function(c){ return !c.known; });
     if(onlyReview) arr=arr.filter(function(c){ return c.review; });
+    if(onlyProjrev) arr=arr.filter(function(c){ return c.projrev; });
+    if(onlyAbsorbed) arr=arr.filter(function(c){ return c.absorbed; });
     if(studyQuery){ var q=studyQuery.toLowerCase(); arr=arr.filter(function(c){ return (c.front+" "+c.back).toLowerCase().indexOf(q)>=0 || numMatch(c,q); }); }
     if(selectedProj==="review") arr=arr.filter(function(c){ return c.review; });
     else if(selectedProj && selectedProj!=="all") arr=arr.filter(function(c){ return c.proj===selectedProj; });
@@ -828,7 +832,7 @@
   }
   $("btnBackProjects").onclick=function(){ selectedProj=null; showProjPick(); window.scrollTo(0,0); };
   function renderIndex(){
-    updateReviewChip();
+    updateReviewChip(); updateGroupChips();
     var arr=studyCards(), wrap=$("indexList"); wrap.innerHTML="";
     if(arr.length===0){ wrap.innerHTML='<div class="index-item" style="cursor:default"><span class="f" style="color:var(--muted);font-style:italic">Bu filtreye uygun kart yok.</span></div>'; return; }
     var chev='<span class="chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></span>';
@@ -1080,6 +1084,30 @@
     var el=$("chipReview"); if(el) el.textContent="🔁 Tekrar çalış"+(n?" ("+n+")":"");
   }
   $("chipReview").onclick=function(){ onlyReview=!onlyReview; this.classList.toggle("on",onlyReview); renderIndex(); };
+  /* açık görünümdeki (proje / tümü / tekrar) 📌 ve 🌟 sayaçları */
+  function scopeCards(){
+    if(selectedProj==="review") return cards.filter(function(c){ return c.review; });
+    if(selectedProj && selectedProj!=="all") return cards.filter(function(c){ return c.proj===selectedProj; });
+    return cards.slice();
+  }
+  function updateGroupChips(){
+    var sc=scopeCards(), pr=0, ab=0, i;
+    for(i=0;i<sc.length;i++){ if(sc[i].projrev) pr++; if(sc[i].absorbed) ab++; }
+    var cp=$("chipProjrev"); if(cp) cp.textContent="📌 Proje tekrarı"+(pr?" ("+pr+")":"");
+    var ca=$("chipAbsorbed"); if(ca) ca.textContent="🌟 Özümsedikler"+(ab?" ("+ab+")":"");
+  }
+  $("chipProjrev").onclick=function(){
+    onlyProjrev=!onlyProjrev;
+    if(onlyProjrev && onlyAbsorbed){ onlyAbsorbed=false; $("chipAbsorbed").classList.remove("on"); }
+    this.classList.toggle("on",onlyProjrev);
+    renderIndex();
+  };
+  $("chipAbsorbed").onclick=function(){
+    onlyAbsorbed=!onlyAbsorbed;
+    if(onlyAbsorbed && onlyProjrev){ onlyProjrev=false; $("chipProjrev").classList.remove("on"); }
+    this.classList.toggle("on",onlyAbsorbed);
+    renderIndex();
+  };
   $("chipReset").onclick=function(){ var scope= selectedProj==="review"? cards.filter(function(c){ return c.review; }) : ((selectedProj&&selectedProj!=="all")? cards.filter(function(c){ return c.proj===selectedProj; }) : cards); if(!confirm(scope.length+" kartın 'öğrenildi' işareti kaldırılsın mı?")) return; scope.forEach(function(c){ c.known=false; }); save(); updateStats(); renderIndex(); toast("İlerleme sıfırlandı"); };
   $("studySearch").addEventListener("input",function(){ studyQuery=this.value.trim(); renderIndex(); });
   $("btnBackList").onclick=function(){ setStudyMode("list"); renderIndex(); window.scrollTo(0,lastListScroll); };
