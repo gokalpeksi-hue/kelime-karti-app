@@ -194,6 +194,8 @@
   body.mode-study .chip{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.24);color:#fff;font-weight:700}
   body.mode-study .chip:hover{background:rgba(255,255,255,.18)}
   body.mode-study .chip.primary,body.mode-study .chip.on{background:#7a5cc4;border-color:#7a5cc4;color:#fff}
+  body.mode-study .sortsel{background:rgba(0,0,0,.28);border-color:rgba(255,255,255,.22);color:#fff;font-weight:700}
+  body.mode-study .sortsel option{background:#3a2a63;color:#fff}
   body.mode-study .index-list{background:#3a2a63;border-color:rgba(255,255,255,.2);box-shadow:0 12px 30px -12px rgba(0,0,0,.6)}
   body.mode-study .letter-head{background:#4b3880;border-color:rgba(255,255,255,.14);color:#e9ddff}
   body.mode-study .index-item{border-color:rgba(255,255,255,.1)}
@@ -408,7 +410,15 @@
     <!-- A) LİSTE MODU -->
     <div id="studyList">
       <div id="projPick">
-        <div class="tools-label" style="margin-top:0">Projelerin — birine dokunarak kelimelerini aç</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px">
+          <div class="tools-label" style="margin:0">Projelerin — birine dokunarak kelimelerini aç</div>
+          <select id="projSortSel" class="sortsel" title="Proje sıralaması">
+            <option value="created">Eklenme sırası</option>
+            <option value="az">A → Z</option>
+            <option value="za">Z → A</option>
+            <option value="count">Kelime sayısı</option>
+          </select>
+        </div>
         <div class="rows" id="projRows"></div>
       </div>
       <div id="projWords" style="display:none">
@@ -422,6 +432,11 @@
         <input type="text" id="studySearch" placeholder="Kelime veya cümle ara…">
       </div>
       <div class="study-tools">
+        <select id="studySortSel" class="sortsel" title="Kelime sıralaması">
+          <option value="num">Sıraya göre (no)</option>
+          <option value="az">A → Z</option>
+          <option value="za">Z → A</option>
+        </select>
         <button class="chip primary" id="chipStudyAll">▶ Baştan çalış</button>
         <button class="chip" id="chipShuffle">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
@@ -592,7 +607,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-08-24.2";
+  var APP_VERSION = "2026-09-02.1";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -650,6 +665,8 @@
   var cardsTs=lsTs(KEY);
   var order=[], pos=0, onlyUnlearned=false, onlyReview=false, onlyProjrev=false, onlyAbsorbed=false, studyQuery="", lastListScroll=0;
   var selectMode=false, selectedIds={};
+  var studySort=localStorage.getItem("MyDictionary_studysort")||"num";
+  var projSort=localStorage.getItem("MyDictionary_projsort")||"created";
 
   /* kayıt numarası: mevcut kartlara ekleniş sırasına göre numara ver */
   (function(){
@@ -732,7 +749,11 @@
     if(studyQuery){ var q=studyQuery.toLowerCase(); arr=arr.filter(function(c){ return (c.front+" "+c.back).toLowerCase().indexOf(q)>=0 || numMatch(c,q); }); }
     if(selectedProj==="review") arr=arr.filter(function(c){ return c.review; });
     else if(selectedProj && selectedProj!=="all") arr=arr.filter(function(c){ return c.proj===selectedProj; });
-    arr.sort(function(a,b){ return (a.num||0)-(b.num||0); });
+    arr.sort(function(a,b){
+      if(studySort==="az") return (a.front||"").localeCompare(b.front||"","tr",{sensitivity:"base"});
+      if(studySort==="za") return (b.front||"").localeCompare(a.front||"","tr",{sensitivity:"base"});
+      return (a.num||0)-(b.num||0);
+    });
     return arr;
   }
   function applyTheme(){
@@ -770,11 +791,19 @@
     var rvCnt=0,rvKn=0;
     for(var r=0;r<cards.length;r++){ if(cards[r].review){ rvCnt++; if(cards[r].known) rvKn++; } }
     addRow("review","🔁 Tekrar çalışılacaklar",rvCnt,rvKn);
+    var plist=[];
     for(var i=0;i<projects.length;i++){
       var p=projects[i], cnt=0, kn=0;
       for(var j=0;j<cards.length;j++){ if(cards[j].proj===p.id){ cnt++; if(cards[j].known) kn++; } }
-      addRow(p.id,p.name,cnt,kn);
+      plist.push({ p:p, cnt:cnt, kn:kn });
     }
+    plist.sort(function(x,y){
+      if(projSort==="az") return String(x.p.name).localeCompare(String(y.p.name),"tr",{sensitivity:"base"});
+      if(projSort==="za") return String(y.p.name).localeCompare(String(x.p.name),"tr",{sensitivity:"base"});
+      if(projSort==="count") return y.cnt-x.cnt;
+      return (x.p.created||0)-(y.p.created||0);
+    });
+    plist.forEach(function(it){ addRow(it.p.id,it.p.name,it.cnt,it.kn); });
   }
   /* ===== Proje adını düzenle ===== */
   function renameProject(pid){
@@ -1110,6 +1139,12 @@
   };
   $("chipReset").onclick=function(){ var scope= selectedProj==="review"? cards.filter(function(c){ return c.review; }) : ((selectedProj&&selectedProj!=="all")? cards.filter(function(c){ return c.proj===selectedProj; }) : cards); if(!confirm(scope.length+" kartın 'öğrenildi' işareti kaldırılsın mı?")) return; scope.forEach(function(c){ c.known=false; }); save(); updateStats(); renderIndex(); toast("İlerleme sıfırlandı"); };
   $("studySearch").addEventListener("input",function(){ studyQuery=this.value.trim(); renderIndex(); });
+  (function(){
+    var ss=$("studySortSel");
+    if(ss){ ss.value=studySort; ss.addEventListener("change",function(){ studySort=this.value; try{ localStorage.setItem("MyDictionary_studysort",studySort); }catch(e){} renderIndex(); }); }
+    var ps=$("projSortSel");
+    if(ps){ ps.value=projSort; ps.addEventListener("change",function(){ projSort=this.value; try{ localStorage.setItem("MyDictionary_projsort",projSort); }catch(e){} renderProjects(); }); }
+  })();
   $("btnBackList").onclick=function(){ setStudyMode("list"); renderIndex(); window.scrollTo(0,lastListScroll); };
 
   function showCard(){
