@@ -706,7 +706,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-09-04.4";
+  var APP_VERSION = "2026-09-04.5";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -1747,6 +1747,8 @@
   var SM_EX_PREFIX=/^(örnek(ler)?(\s*cümle(ler)?)?|example[s]?|ex|e\.g\.|cümle(ler)?|kullanım[ıi]?|usage)\s*\d*\s*[:：\-–—]/i;
   var SM_EN_STOP=/\b(the|to|a|an|of|and|is|was|were|in|he|she|it|i|you|we|they|this|that|with|for|on|at|be|are|have|has|not|my|his|her|our|their|from|by|but|or|as|if|will|would|can|could|do|does|did|him|them|me|us)\b/gi;
   var SM_LIST=/^(\d+[\.\)]|[-•*–])\s+/;
+  var SM_POS=/^(fiil|isim|sıfat|zarf|edat|bağlaç|zamir|ünlem|deyim|kalıp|ifade|öbek\s*fiil|phrasal\s*verb|verb|noun|adjective|adverb|preposition|conjunction|pronoun|interjection|idiom|expression|phrase|sözcük\s*türü)(\s*\([^)]*\))?(\s*\/\s*[\p{L}\s()]+)?\s*[:：\-–—]?\s*$/iu;
+  var SM_POS_PREFIX=/^(fiil|isim|sıfat|zarf|edat|bağlaç|zamir|ünlem|deyim|kalıp|verb|noun|adjective|adverb|idiom)(\s*\([^)]*\))?\s*[:：\-–—]\s*/i;
   function smClean(l){
     return String(l).replace(/^[#>\s]+/,"").replace(/\*\*|__|`|~~/g,"").replace(/^[*_]+|[*_]+$/g,"")
       .replace(/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2190}-\u{23FF}\u{2460}-\u{27BF}\u{2900}-\u{2BFF}\u{FE0F}\u{200D}]/gu,"").trim();
@@ -1771,41 +1773,50 @@
   function shortMeaning(c){
     var back=String(c.back||""), front=String(c.front||"");
     var fw=displayWord(front).word.toLocaleLowerCase("tr");
-    var raw=back.split(/\r?\n/), lines=[], inMeaning=false, i;
+    var raw=back.split(/\r?\n/), lines=[], inMeaning=false, prevEn=false, i;
     for(i=0;i<raw.length;i++){
       var rawL=raw[i];
-      if(/→|->|=>|⇒|⟶/.test(rawL)) continue;                     /* örnek cümle + çevirisi */
+      if(!rawL.trim()) continue;
+      if(/→|->|=>|⇒|⟶/.test(rawL)){ prevEn=true; continue; }      /* örnek cümle + çevirisi */
       var l=smClean(rawL); if(!l) continue;
       var isList=SM_LIST.test(rawL.trim()) || SM_LIST.test(l);
       var t=l.replace(SM_LIST,"").trim(); if(!t) continue;
       var low=t.toLocaleLowerCase("tr");
-      if(SM_LABEL.test(t)){ inMeaning=/anlam/.test(low); continue; } /* başlık/etiket */
-      if(/^[^:：]{1,30}[:：]\s*$/.test(t)) continue;                 /* kısa "Başlık:" satırı */
-      if(SM_EX_PREFIX.test(t)) continue;                             /* "Örnek: ..." */
+      var thisEn=smIsEnglish(t), wasPrevEn=prevEn; prevEn=thisEn;
+      if(SM_LABEL.test(low)){ inMeaning=/anlam/.test(low); continue; } /* başlık/etiket */
+      if(SM_POS.test(low)) continue;                                 /* "Fiil (Verb)", "İsim / Fiil" gibi tür etiketi */
+      if(/[:：]\s*$/.test(t)) continue;                               /* ":" ile biten giriş/başlık satırı */
+      if(SM_EX_PREFIX.test(low)) continue;                           /* "Örnek: ..." */
       if(!/[\p{L}\p{N}]/u.test(t)) continue;                         /* çizgi / sembol satırı */
       if(smIsPron(t)) continue;
-      if(smIsEnglish(t)) continue;
+      if(thisEn) continue;
+      if(wasPrevEn && /[.!?…]$/.test(t)) continue;                   /* İngilizce örneğin Türkçe çevirisi */
       if(fw){
         var rest=low.split(fw).join("").replace(/\([^)]*\)/g,"").replace(/[^\p{L}]+/gu,"");
         if(low.indexOf(fw)>=0 && rest.length<3) continue;          /* sadece kelime (+okunuş) */
-        if(/[=:：]\s*$/.test(t) && low.indexOf(fw.split(" ")[0])>=0) continue; /* "Condensed =" */
+        if(/[=]\s*$/.test(t) && low.indexOf(fw.split(" ")[0])>=0) continue; /* "Condensed =" */
       }
-      lines.push({ t:t, list:isList, sec:inMeaning, len:t.length, sentence:(/[.!?…]$/.test(t) && t.length>60) });
+      var words=t.split(/\s+/).length;
+      lines.push({ t:t, list:isList, sec:inMeaning, len:t.length, long:t.length>60, sentence:(/[.!?…]$/.test(t) && words>=4) });
     }
     function fin(t){
-      t=t.replace(/^(türkçe\s*anlam[ıi]?|anlam[ıi]?|tr)\s*[:=：\-–—]\s*/i,"").trim();
+      var lw=t.toLocaleLowerCase("tr"), pm=lw.match(/^(türkçe\s*anlam[ıi]?|anlam[ıi]?|tr)\s*[:=：\-–—]\s*/) || lw.match(SM_POS_PREFIX);
+      if(pm) t=t.slice(pm[0].length);
+      t=t.trim();
       if(fw){ var re=new RegExp("^"+fw.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s*(\\([^)]*\\))?\\s*[:=：\\-–—]\\s*","i"); t=t.replace(re,"").trim(); }
       if(t.length>90) t=t.slice(0,88).replace(/\s+\S*$/,"")+"…";
       return t;
     }
     var pick=null, k;
-    for(k=0;k<lines.length && !pick;k++){ if(lines[k].sec && (lines[k].list || !lines[k].sentence)) pick=lines[k]; }
-    for(k=0;k<lines.length && !pick;k++){ if(lines[k].list && !lines[k].sentence) pick=lines[k]; }
-    for(k=0;k<lines.length && !pick;k++){ if(!lines[k].sentence && lines[k].len<=80) pick=lines[k]; }
+    for(k=0;k<lines.length && !pick;k++){ if(lines[k].sec && lines[k].list) pick=lines[k]; }          /* anlam bölümü maddesi */
+    for(k=0;k<lines.length && !pick;k++){ if(lines[k].sec && !lines[k].long) pick=lines[k]; }         /* anlam bölümü kısa satır */
+    for(k=0;k<lines.length && !pick;k++){ if((lines[k].list && !lines[k].long) || (!lines[k].sentence && lines[k].len<=80)) pick=lines[k]; } /* belge sırasında ilk kısa madde / cümle olmayan satır */
+    for(k=0;k<lines.length && !pick;k++){ if(lines[k].sec) pick=lines[k]; }
     if(!pick && lines.length) pick=lines[0];
     if(!pick) return "";
     var out=fin(pick.t);
-    if(!out || !/\p{L}/u.test(out) || SM_LABEL.test(out) || smIsEnglish(out) || smIsPron(out)) return "";
+    var outLow=out.toLocaleLowerCase("tr");
+    if(!out || !/\p{L}/u.test(out) || SM_LABEL.test(outLow) || SM_POS.test(outLow) || smIsEnglish(out) || smIsPron(out)) return "";
     return out;
   }
   function testPool(scope){
