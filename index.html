@@ -381,6 +381,51 @@
   body.mode-ezber .back-peek .bp-label{color:rgba(255,255,255,.6)}
   body.mode-ezber .back-peek .bp-text{color:rgba(255,255,255,.92);font-weight:600}
   body.mode-ezber .back-peek .bp-text strong,body.mode-ezber .back-peek .bp-text em,body.mode-ezber .back-peek .bp-text .mh{color:#fff}
+  /* ===== TEST: koyu yeşil-mavi tema ===== */
+  body.mode-test{background:radial-gradient(120% 80% at 50% -10%,#134f4a 0%,#0e3b39 55%,#0a2c2b 100%);color:#fff}
+  body.mode-test .brand h1{color:#fff}
+  body.mode-test .brand .sub{color:rgba(255,255,255,.78)}
+  body.mode-test .stat{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.2);box-shadow:none}
+  body.mode-test .stat b{color:#fff}
+  body.mode-test .stat span{color:rgba(255,255,255,.72)}
+  body.mode-test .tabs{background:rgba(0,0,0,.25);border-color:rgba(255,255,255,.18)}
+  body.mode-test .tab{color:rgba(255,255,255,.66)}
+  body.mode-test .tab.active{background:#1f8a7a;color:#fff;box-shadow:none}
+  body.mode-test .tools-label{color:rgba(255,255,255,.7)}
+  body.mode-test .field label{color:rgba(255,255,255,.75)}
+  body.mode-test .sortsel{background:rgba(0,0,0,.28);border-color:rgba(255,255,255,.22);color:#fff;font-weight:700}
+  body.mode-test .sortsel option{background:#123c3a;color:#fff}
+  body.mode-test .progress{background:rgba(0,0,0,.3);border-color:rgba(255,255,255,.15)}
+  body.mode-test .progress > i{background:#5fd6a1}
+  body.mode-test .btn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.24);color:#fff;box-shadow:none;font-weight:700}
+  body.mode-test .btn.primary{background:#1f8a7a;border-color:#1f8a7a;color:#fff}
+  .tpanel{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);border-radius:var(--radius);padding:18px}
+  .tpanel h2{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:20px;margin-bottom:4px}
+  .tlead{font-size:13px;color:rgba(255,255,255,.75);margin-bottom:16px;line-height:1.45}
+  .tbtn{width:100%}
+  .tcounter{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:10px}
+  .tqword{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:27px;line-height:1.25;margin:16px 0 6px;white-space:pre-wrap}
+  .tqask{font-size:12.5px;color:rgba(255,255,255,.7);margin-bottom:14px}
+  .topts{display:flex;flex-direction:column;gap:9px}
+  .topt{text-align:left;border:1px solid rgba(255,255,255,.24);background:rgba(0,0,0,.22);color:#fff;font:inherit;font-size:14.5px;font-weight:600;padding:12px 14px;border-radius:13px;cursor:pointer;display:flex;gap:10px;align-items:flex-start;line-height:1.35;transition:.15s}
+  .topt .tl{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+  .topt:hover{background:rgba(255,255,255,.12)}
+  .topt.ok{background:#1f6b4a;border-color:#5fd6a1}
+  .topt.bad{background:#7a2a2a;border-color:#ff8a8a}
+  .topt.dim{opacity:.5}
+  .topt:disabled{cursor:default}
+  .tnav{display:flex;gap:10px;margin-top:16px}
+  .tnav .btn{flex:1}
+  .trscore{font-family:'Fraunces',Georgia,serif;font-size:44px;font-weight:600;margin:6px 0 4px}
+  .thist{display:flex;flex-direction:column;gap:6px;font-size:13px;color:rgba(255,255,255,.85)}
+  .thist .hrow{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;background:rgba(0,0,0,.2);border-radius:10px}
+  .thist .hrow b{color:#5fd6a1}
+  .twrong{display:flex;flex-direction:column;gap:8px}
+  .twrong .wrow{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.4}
+  .twrong .wrow .wq{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:15px}
+  .twrong .wrow .wa{color:#5fd6a1;margin-top:3px}
+  .twrong .wrow .wp{color:#ff9a9a;margin-top:2px;font-size:12.5px}
+
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -403,6 +448,7 @@
   <div class="tabs">
     <button class="tab" id="tabStudy">Çalışma</button>
     <button class="tab" id="tabAdd">Kayıt</button>
+    <button class="tab" id="tabTest">Test</button>
   </div>
 
   <!-- ÇALIŞMA -->
@@ -596,6 +642,54 @@
       </details>
     </div>
   </section>
+
+  <!-- TEST -->
+  <section class="view" id="viewTest">
+    <div class="tpanel" id="testSetup">
+      <h2>📝 Kelime Testi</h2>
+      <p class="tlead">Karıştırılmış kelimelerle çoktan seçmeli test. Her başlatmada yeni sorular gelir.</p>
+      <div class="field">
+        <label>Kelimeler nereden gelsin?</label>
+        <select id="testScope" class="sortsel" style="width:100%"></select>
+      </div>
+      <div class="field">
+        <label>Soru sayısı</label>
+        <select id="testCount" class="sortsel" style="width:100%">
+          <option value="10">10 soru</option>
+          <option value="20">20 soru</option>
+          <option value="50" selected>50 soru</option>
+        </select>
+      </div>
+      <button class="btn primary tbtn" id="btnTestStart">▶ Testi başlat</button>
+      <div class="tools-label" style="margin-top:22px">Son testler</div>
+      <div class="thist" id="testHist"></div>
+    </div>
+
+    <div class="tpanel" id="testQ" style="display:none">
+      <div class="tcounter"><span id="tqCounter">Soru 1 / 50</span><span id="tqScore">✓ 0 · ✗ 0</span></div>
+      <div class="progress"><i id="tqBar"></i></div>
+      <div class="tqword" id="tqWord"></div>
+      <div class="tqask">Bu kelimenin anlamı nedir?</div>
+      <div class="topts" id="tqOpts"></div>
+      <div class="tnav">
+        <button class="btn" id="btnTestQuit">✕ Testi bitir</button>
+        <button class="btn primary" id="btnTestNext" style="display:none">Sonraki soru ›</button>
+      </div>
+    </div>
+
+    <div class="tpanel" id="testResult" style="display:none">
+      <h2 id="trTitle">Sonuç</h2>
+      <div class="trscore" id="trScore"></div>
+      <p class="tlead" id="trSub"></p>
+      <div class="tnav">
+        <button class="btn primary" id="btnTestAgain">🔄 Yeni test</button>
+        <button class="btn" id="btnTestWrongReview">🔁 Yanlışları tekrar listesine ekle</button>
+      </div>
+      <div class="tools-label" style="margin-top:20px">Yanlış cevaplar</div>
+      <div class="twrong" id="trWrong"></div>
+      <button class="btn tbtn" id="btnTestBack" style="margin-top:14px">← Test ekranına dön</button>
+    </div>
+  </section>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -610,7 +704,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-09-04.1";
+  var APP_VERSION = "2026-09-04.2";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -731,16 +825,19 @@
   function updateStats(){ $("statTotal").textContent=cards.length; $("statKnown").textContent=knownCount(); }
 
   function setTab(which){
-    var study=which==="study";
+    var study=which==="study", test=which==="test", add=!study&&!test;
     $("tabStudy").classList.toggle("active",study);
-    $("tabAdd").classList.toggle("active",!study);
+    $("tabAdd").classList.toggle("active",add);
+    $("tabTest").classList.toggle("active",test);
     $("viewStudy").classList.toggle("active",study);
-    $("viewAdd").classList.toggle("active",!study);
-    if(study) enterStudy(); else renderList();
+    $("viewAdd").classList.toggle("active",add);
+    $("viewTest").classList.toggle("active",test);
+    if(study) enterStudy(); else if(add) renderList(); else enterTest();
     applyTheme();
   }
   $("tabStudy").onclick=function(){ setTab("study"); };
   $("tabAdd").onclick=function(){ setTab("add"); };
+  $("tabTest").onclick=function(){ setTab("test"); };
 
   /* ===== ÇALIŞMA ===== */
   function studyCards(){
@@ -763,12 +860,14 @@
   }
   function applyTheme(){
     var studyActive=$("viewStudy").classList.contains("active");
+    var testActive=$("viewTest").classList.contains("active");
     var cardMode=$("studyCard").style.display!=="none";
     document.body.classList.toggle("mode-study", studyActive && !cardMode);
     document.body.classList.toggle("mode-ezber", studyActive && cardMode);
-    document.body.classList.toggle("mode-kayit", !studyActive);
+    document.body.classList.toggle("mode-kayit", !studyActive && !testActive);
+    document.body.classList.toggle("mode-test", testActive);
     var mc=document.querySelector('meta[name="theme-color"]');
-    if(mc) mc.setAttribute("content", studyActive? (cardMode? "#40101d" : "#2e2050") : "#ef8a10");
+    if(mc) mc.setAttribute("content", testActive? "#0e3b39" : (studyActive? (cardMode? "#40101d" : "#2e2050") : "#ef8a10"));
   }
   function setStudyMode(mode){
     $("studyList").style.display = mode==="list"?"block":"none";
@@ -1627,6 +1726,184 @@
         if(pval===undefined && projects.length) idbPut(PKEY,JSON.stringify(projects));
       });
     });
+  });
+
+
+  /* =====================================================================
+     TEST: karıştırılmış kelimelerle çoktan seçmeli sınav
+     ===================================================================== */
+  var TEST_HIST_KEY="MyDictionary_tests";
+  var testState=null;
+  function shuffleArr(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function normTxt(t){ return String(t||"").toLocaleLowerCase("tr").replace(/[^\p{L}\p{N}]+/gu," ").trim(); }
+  /* Uzun açıklamadan kısa Türkçe anlam çıkar (seçenek metni) */
+  function shortMeaning(c){
+    var back=String(c.back||""), front=String(c.front||"");
+    var fw=front.replace(/\([^)]*\)/g," ").replace(/\s+/g," ").trim().toLocaleLowerCase("tr");
+    var fwFirst=fw.split(" ")[0]||"";
+    var lines=back.split(/\r?\n/).map(function(l){ return l.trim(); }).filter(Boolean);
+    var skip=/^(telaffuz|türkçe anlam|tr\b|🇹🇷|anlam[ıi]?\s*:|---+|>|okunu[sş]|pronunciation|etimoloji|🏛|📌|💡|⭐|örnek|example)/i;
+    var pick=null;
+    for(var i=0;i<lines.length;i++){
+      var l=lines[i];
+      var low=l.toLocaleLowerCase("tr");
+      if(skip.test(l)) continue;
+      if(fw && low.indexOf(fw)>=0) continue;
+      if(fwFirst.length>3 && low.indexOf(fwFirst)>=0 && /[=:]\s*$/.test(l)) continue;
+      if(/^[\s\W_]*$/.test(l)) continue;
+      pick=l; break;
+    }
+    if(!pick){ pick=lines[0]||back; }
+    pick=pick.replace(/^\s*(\d+[\.\)]|[-•*–])\s*/,"").replace(/\*\*|__|`/g,"").replace(/[⭐✅✔️🔹🔸]/g,"").trim();
+    if(pick.length>90) pick=pick.slice(0,88).replace(/\s+\S*$/,"")+"…";
+    return pick;
+  }
+  function testPool(scope){
+    if(scope==="all") return cards.slice();
+    if(scope==="review") return cards.filter(function(c){ return c.review; });
+    if(scope==="projrev") return cards.filter(function(c){ return c.projrev; });
+    return cards.filter(function(c){ return c.proj===scope; });
+  }
+  function fillTestScope(){
+    var el=$("testScope"); if(!el) return; var cur=el.value;
+    el.innerHTML="";
+    function opt(v,t){ var o=document.createElement("option"); o.value=v; o.textContent=t; el.appendChild(o); }
+    opt("all","📚 Tüm Projeler ("+cards.length+")");
+    var rv=cards.filter(function(c){ return c.review; }).length; if(rv) opt("review","🔁 Tekrar çalışılacaklar ("+rv+")");
+    var pr=cards.filter(function(c){ return c.projrev; }).length; if(pr) opt("projrev","📌 Proje tekrarı ("+pr+")");
+    for(var i=0;i<projects.length;i++){
+      var n=0; for(var j=0;j<cards.length;j++){ if(cards[j].proj===projects[i].id) n++; }
+      opt(projects[i].id, projects[i].name+" ("+n+")");
+    }
+    if(cur){ for(var k=0;k<el.options.length;k++){ if(el.options[k].value===cur){ el.value=cur; break; } } }
+  }
+  function loadTestHist(){ try{ var r=localStorage.getItem(TEST_HIST_KEY); return r? JSON.parse(r):[]; }catch(e){ return []; } }
+  function saveTestHist(h){ try{ localStorage.setItem(TEST_HIST_KEY,JSON.stringify(h.slice(0,10))); }catch(e){} }
+  function renderTestHist(){
+    var el=$("testHist"); if(!el) return; var h=loadTestHist();
+    if(!h.length){ el.innerHTML='<div class="hrow" style="justify-content:center;color:rgba(255,255,255,.6)">Henüz test yapılmadı</div>'; return; }
+    el.innerHTML=h.map(function(x){
+      var pct=x.total? Math.round(x.score/x.total*100):0;
+      return '<div class="hrow"><span>'+esc(x.scope)+' · '+esc(x.date)+'</span><b>'+x.score+' / '+x.total+' · %'+pct+'</b></div>';
+    }).join("");
+  }
+  function enterTest(){
+    fillTestScope(); renderTestHist();
+    $("testSetup").style.display="block"; $("testQ").style.display="none"; $("testResult").style.display="none";
+  }
+  function scopeLabel(scope){
+    if(scope==="all") return "Tüm Projeler";
+    if(scope==="review") return "Tekrar çalışılacaklar";
+    if(scope==="projrev") return "Proje tekrarı";
+    return (projById(scope)||{}).name||"?";
+  }
+  function buildTest(scope,n){
+    var meaningOf={};
+    function m(c){ if(!(c.id in meaningOf)) meaningOf[c.id]=shortMeaning(c); return meaningOf[c.id]; }
+    var pool=testPool(scope).filter(function(c){ return c.front && c.back && m(c); });
+    var all=cards.filter(function(c){ return c.back && m(c); });
+    shuffleArr(pool);
+    var qs=[];
+    for(var i=0;i<pool.length && qs.length<n;i++){
+      var c=pool[i], correct=m(c), used={}; used[normTxt(correct)]=1;
+      var opts=[{t:correct,ok:true}];
+      var cand=shuffleArr(all.slice());
+      for(var k=0;k<cand.length && opts.length<5;k++){
+        if(cand[k].id===c.id) continue;
+        var mt=m(cand[k]), key=normTxt(mt);
+        if(!mt || used[key]) continue;
+        used[key]=1; opts.push({t:mt,ok:false});
+      }
+      if(opts.length<2) continue;
+      shuffleArr(opts);
+      qs.push({ card:c, opts:opts, picked:-1 });
+    }
+    return qs;
+  }
+  function startTest(){
+    var scope=$("testScope").value||"all", n=parseInt($("testCount").value,10)||50;
+    var qs=buildTest(scope,n);
+    if(!qs.length){ toast("Bu kapsamda test için yeterli kelime yok"); return; }
+    if(qs.length<n) toast(qs.length+" kelime bulundu, test "+qs.length+" soruluk olacak");
+    testState={ scope:scope, qs:qs, idx:0, correct:0, wrong:0 };
+    $("testSetup").style.display="none"; $("testResult").style.display="none"; $("testQ").style.display="block";
+    renderQuestion(); window.scrollTo(0,0);
+  }
+  function renderQuestion(){
+    var st=testState; if(!st) return;
+    var q=st.qs[st.idx], total=st.qs.length;
+    $("tqCounter").textContent="Soru "+(st.idx+1)+" / "+total;
+    $("tqScore").textContent="✓ "+st.correct+" · ✗ "+st.wrong;
+    $("tqBar").style.width=(st.idx/total*100)+"%";
+    $("tqWord").textContent=q.card.front;
+    var letters="ABCDE", html="";
+    q.opts.forEach(function(o,i){
+      html+='<button type="button" class="topt" data-i="'+i+'"><span class="tl">'+letters[i]+'</span><span>'+esc(o.t)+'</span></button>';
+    });
+    $("tqOpts").innerHTML=html;
+    Array.prototype.forEach.call($("tqOpts").querySelectorAll(".topt"),function(b){
+      b.onclick=function(){ answerTest(parseInt(b.getAttribute("data-i"),10)); };
+    });
+    $("btnTestNext").style.display="none";
+    $("btnTestNext").textContent = st.idx===total-1 ? "Sonucu gör ›" : "Sonraki soru ›";
+  }
+  function answerTest(i){
+    var st=testState; if(!st) return;
+    var q=st.qs[st.idx]; if(q.picked>=0) return;
+    q.picked=i;
+    if(q.opts[i].ok) st.correct++; else st.wrong++;
+    Array.prototype.forEach.call($("tqOpts").querySelectorAll(".topt"),function(b,k){
+      b.disabled=true;
+      if(q.opts[k].ok) b.classList.add("ok");
+      else if(k===i) b.classList.add("bad");
+      else b.classList.add("dim");
+    });
+    $("tqScore").textContent="✓ "+st.correct+" · ✗ "+st.wrong;
+    $("btnTestNext").style.display="block";
+  }
+  function nextTestQ(){
+    var st=testState; if(!st) return;
+    if(st.idx>=st.qs.length-1){ finishTest(); return; }
+    st.idx++; renderQuestion(); window.scrollTo(0,0);
+  }
+  function finishTest(){
+    var st=testState; if(!st) return;
+    var answered=st.qs.filter(function(q){ return q.picked>=0; });
+    var total=answered.length, score=st.correct;
+    var pct=total? Math.round(score/total*100):0;
+    $("trScore").textContent=score+" / "+total;
+    $("trTitle").textContent = pct>=90? "🏆 Mükemmel!" : pct>=70? "👏 Çok iyi" : pct>=50? "🙂 İyi gidiyor" : "💪 Tekrar etmeye değer";
+    $("trSub").textContent="Başarı: %"+pct+" · "+scopeLabel(st.scope)+(total<st.qs.length? " · "+(st.qs.length-total)+" soru cevaplanmadı":"");
+    var wrong=st.qs.filter(function(q){ return q.picked>=0 && !q.opts[q.picked].ok; });
+    $("trWrong").innerHTML = wrong.length? wrong.map(function(q){
+      var corr=q.opts.filter(function(o){ return o.ok; })[0];
+      return '<div class="wrow"><div class="wq">'+esc(q.card.front)+'</div><div class="wa">✓ '+esc(corr?corr.t:"")+'</div><div class="wp">✗ Seçtiğin: '+esc(q.opts[q.picked].t)+'</div></div>';
+    }).join("") : '<div class="wrow" style="text-align:center;color:rgba(255,255,255,.7)">Yanlış yok 🎉</div>';
+    $("btnTestWrongReview").style.display = wrong.length? "flex":"none";
+    if(total>0){
+      var h=loadTestHist();
+      h.unshift({ date:new Date().toLocaleDateString("tr-TR"), scope:scopeLabel(st.scope), score:score, total:total });
+      saveTestHist(h);
+    }
+    $("testQ").style.display="none"; $("testResult").style.display="block"; window.scrollTo(0,0);
+  }
+  $("btnTestStart").onclick=startTest;
+  $("btnTestNext").onclick=nextTestQ;
+  $("btnTestQuit").onclick=function(){ if(!testState) return; if(confirm("Test bitirilsin mi? Cevaplanan sorular değerlendirilir.")) finishTest(); };
+  $("btnTestAgain").onclick=startTest;
+  $("btnTestBack").onclick=function(){ testState=null; enterTest(); window.scrollTo(0,0); };
+  $("btnTestWrongReview").onclick=function(){
+    var st=testState; if(!st) return; var n=0;
+    st.qs.forEach(function(q){ if(q.picked>=0 && !q.opts[q.picked].ok && !q.card.review){ q.card.review=true; n++; } });
+    if(n){ save(); toast(n+' kelime "Tekrar çalış" listesine eklendi'); } else toast("Yanlışlar zaten tekrar listesinde");
+    this.style.display="none";
+  };
+  document.addEventListener("keydown",function(e){
+    if(!$("viewTest").classList.contains("active") || $("testQ").style.display==="none") return;
+    var tag=(e.target.tagName||"").toLowerCase(); if(tag==="input"||tag==="textarea"||tag==="select") return;
+    var k=e.key.toUpperCase(), idx="ABCDE".indexOf(k);
+    if(idx>=0 && testState && testState.qs[testState.idx].opts[idx]) answerTest(idx);
+    else if((e.key==="Enter"||e.key===" ") && $("btnTestNext").style.display!=="none"){ e.preventDefault(); nextTestQ(); }
   });
 
   updateStats(); gcidRefresh(); fillProjSelect(null);
