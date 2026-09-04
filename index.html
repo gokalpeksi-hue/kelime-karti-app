@@ -405,6 +405,7 @@
   .tbtn{width:100%}
   .tcounter{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:10px}
   .tqword{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:27px;line-height:1.25;margin:16px 0 6px;white-space:pre-wrap}
+  .tqpron{font-size:13px;color:rgba(255,255,255,.6);margin:-2px 0 6px;white-space:pre-wrap}
   .tqask{font-size:12.5px;color:rgba(255,255,255,.7);margin-bottom:14px}
   .topts{display:flex;flex-direction:column;gap:9px}
   .topt{text-align:left;border:1px solid rgba(255,255,255,.24);background:rgba(0,0,0,.22);color:#fff;font:inherit;font-size:14.5px;font-weight:600;padding:12px 14px;border-radius:13px;cursor:pointer;display:flex;gap:10px;align-items:flex-start;line-height:1.35;transition:.15s}
@@ -669,6 +670,7 @@
       <div class="tcounter"><span id="tqCounter">Soru 1 / 50</span><span id="tqScore">✓ 0 · ✗ 0</span></div>
       <div class="progress"><i id="tqBar"></i></div>
       <div class="tqword" id="tqWord"></div>
+      <div class="tqpron" id="tqPron" style="display:none"></div>
       <div class="tqask">Bu kelimenin anlamı nedir?</div>
       <div class="topts" id="tqOpts"></div>
       <div class="tnav">
@@ -704,7 +706,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-09-04.3";
+  var APP_VERSION = "2026-09-04.4";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -1740,38 +1742,59 @@
      Başlıklar (Türkçe anlamı, Telaffuz…), okunuşlar (IPA / "Türkçe okunuşu:"),
      ayraçlar ve kelimenin kendisi atlanır; "Türkçe anlamı" bölümünün ilk
      maddesi öncelikli, uzun yorum cümleleri en son tercih edilir. */
-  var SM_LABEL=/^(türkçe\s*anlam[ıi]?|anlam[ıi]?|tr|telaffuz[u]?|okunu[şs][u]?|türkçe\s*okunu[şs][u]?|ipa|pronunciation|etimoloji(k)?(\s*köken[i]?)?|etymology|köken[i]?|örnek(ler)?(\s*cümle(ler)?)?|example[s]?|eş\s*anlaml[ıi](lar[ıi]?)?|synonym[s]?|zıt\s*anlaml[ıi](lar[ıi]?)?|antonym[s]?|not(lar)?|kullanım[ıi]?|usage|açıklama|ek\s*bilgi|bağlam|context|kelime\s*türü|part\s*of\s*speech|tür[üu]?|kısa\s*not)\s*[:=\-–—]?\s*$/i;
-  var SM_PRON_PREFIX=/^(türkçe\s*okunu[şs][u]?|okunu[şs][u]?|telaffuz[u]?|ipa|pronunciation|söyleni[şs][i]?)\s*[:=\-–—]/i;
+  var SM_LABEL=/^(türkçe\s*anlam[ıi]?|anlam[ıi]?|tr|telaffuz[u]?|okunu[şs][u]?|türkçe\s*okunu[şs][u]?|ipa|pronunciation|etimoloji(k)?(\s*köken[i]?)?|etymology|köken[i]?|örnek(ler)?(\s*cümle(ler)?)?|example[s]?|eş\s*anlaml[ıi](lar[ıi]?)?|synonym[s]?|zıt\s*anlaml[ıi](lar[ıi]?)?|antonym[s]?|not(lar)?|kullanım[ıi]?|usage|açıklama|ek\s*bilgi|bağlam|context|kelime\s*türü|part\s*of\s*speech|tür[üu]?|kısa\s*not|özet|summary)\s*[:=：\-–—]?\s*$/i;
+  var SM_PRON_PREFIX=/^(türkçe\s*okunu[şs][u]?|okunu[şs][u]?|telaffuz[u]?|ipa|pronunciation|söyleni[şs][i]?)\s*[:=：\-–—]/i;
+  var SM_EX_PREFIX=/^(örnek(ler)?(\s*cümle(ler)?)?|example[s]?|ex|e\.g\.|cümle(ler)?|kullanım[ıi]?|usage)\s*\d*\s*[:：\-–—]/i;
+  var SM_EN_STOP=/\b(the|to|a|an|of|and|is|was|were|in|he|she|it|i|you|we|they|this|that|with|for|on|at|be|are|have|has|not|my|his|her|our|their|from|by|but|or|as|if|will|would|can|could|do|does|did|him|them|me|us)\b/gi;
+  var SM_LIST=/^(\d+[\.\)]|[-•*–])\s+/;
   function smClean(l){
     return String(l).replace(/^[#>\s]+/,"").replace(/\*\*|__|`|~~/g,"").replace(/^[*_]+|[*_]+$/g,"")
-      .replace(/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu,"").trim();
+      .replace(/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2190}-\u{23FF}\u{2460}-\u{27BF}\u{2900}-\u{2BFF}\u{FE0F}\u{200D}]/gu,"").trim();
   }
   function smIsPron(l){
     return SM_PRON_PREFIX.test(l) || /[ˈˌəɪʊɛɔæʃʒθðŋɑɒʌ]/.test(l) || /^\/[^\/]+\/$/.test(l) || /\/[^\/\s][^\/]*\/\s*$/.test(l);
   }
+  /* İngilizce cümle/örnek mi? (2+ farklı İngilizce bağlaç/zamir ve Türkçe harf yok) */
+  function smIsEnglish(t){
+    var m=String(t).match(SM_EN_STOP); if(!m) return false;
+    var set={}; for(var i=0;i<m.length;i++) set[m[i].toLowerCase()]=1;
+    return Object.keys(set).length>=2 && !/[çğıöşüÇĞİÖŞÜ]/.test(t);
+  }
+  /* Soruda gösterilecek sade kelime: "Temptation — /IPA/ — “okunuş”" → "Temptation" */
+  function displayWord(front){
+    var f=String(front||"").trim();
+    var w=f.split(/\s+[—–-]\s+|\s*\/[^\/]*\/|\s*\(/)[0].trim();
+    if(!w) w=f;
+    var rest=f.slice(w.length).trim().replace(/^[—–-]\s*/,"").trim();
+    return { word:w, rest:(rest===f? "":rest) };
+  }
   function shortMeaning(c){
     var back=String(c.back||""), front=String(c.front||"");
-    var fw=front.replace(/\([^)]*\)/g," ").replace(/\s+/g," ").trim().toLocaleLowerCase("tr");
+    var fw=displayWord(front).word.toLocaleLowerCase("tr");
     var raw=back.split(/\r?\n/), lines=[], inMeaning=false, i;
     for(i=0;i<raw.length;i++){
-      var l=smClean(raw[i]); if(!l) continue;
-      var low=l.toLocaleLowerCase("tr");
-      if(SM_LABEL.test(l)){ inMeaning=/anlam/.test(low); continue; }
-      if(/^[-–—=_*\s.]+$/.test(l)) continue;
-      if(smIsPron(l)) continue;
+      var rawL=raw[i];
+      if(/→|->|=>|⇒|⟶/.test(rawL)) continue;                     /* örnek cümle + çevirisi */
+      var l=smClean(rawL); if(!l) continue;
+      var isList=SM_LIST.test(rawL.trim()) || SM_LIST.test(l);
+      var t=l.replace(SM_LIST,"").trim(); if(!t) continue;
+      var low=t.toLocaleLowerCase("tr");
+      if(SM_LABEL.test(t)){ inMeaning=/anlam/.test(low); continue; } /* başlık/etiket */
+      if(/^[^:：]{1,30}[:：]\s*$/.test(t)) continue;                 /* kısa "Başlık:" satırı */
+      if(SM_EX_PREFIX.test(t)) continue;                             /* "Örnek: ..." */
+      if(!/[\p{L}\p{N}]/u.test(t)) continue;                         /* çizgi / sembol satırı */
+      if(smIsPron(t)) continue;
+      if(smIsEnglish(t)) continue;
       if(fw){
         var rest=low.split(fw).join("").replace(/\([^)]*\)/g,"").replace(/[^\p{L}]+/gu,"");
         if(low.indexOf(fw)>=0 && rest.length<3) continue;          /* sadece kelime (+okunuş) */
-        if(/[=:]\s*$/.test(l) && low.indexOf(fw.split(" ")[0])>=0) continue; /* "Condensed =" */
+        if(/[=:：]\s*$/.test(t) && low.indexOf(fw.split(" ")[0])>=0) continue; /* "Condensed =" */
       }
-      var isList=/^(\d+[\.\)]|[-•*–])\s+/.test(raw[i].trim()) || /^(\d+[\.\)]|[-•*–])\s+/.test(l);
-      var t=l.replace(/^(\d+[\.\)]|[-•*–])\s+/,"").trim();
-      if(!t) continue;
       lines.push({ t:t, list:isList, sec:inMeaning, len:t.length, sentence:(/[.!?…]$/.test(t) && t.length>60) });
     }
     function fin(t){
-      t=t.replace(/^(türkçe\s*anlam[ıi]?|anlam[ıi]?|tr)\s*[:=\-–—]\s*/i,"").trim();
-      if(fw){ var re=new RegExp("^"+fw.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s*(\\([^)]*\\))?\\s*[:=\\-–—]\\s*","i"); t=t.replace(re,"").trim(); }
+      t=t.replace(/^(türkçe\s*anlam[ıi]?|anlam[ıi]?|tr)\s*[:=：\-–—]\s*/i,"").trim();
+      if(fw){ var re=new RegExp("^"+fw.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s*(\\([^)]*\\))?\\s*[:=：\\-–—]\\s*","i"); t=t.replace(re,"").trim(); }
       if(t.length>90) t=t.slice(0,88).replace(/\s+\S*$/,"")+"…";
       return t;
     }
@@ -1780,7 +1803,10 @@
     for(k=0;k<lines.length && !pick;k++){ if(lines[k].list && !lines[k].sentence) pick=lines[k]; }
     for(k=0;k<lines.length && !pick;k++){ if(!lines[k].sentence && lines[k].len<=80) pick=lines[k]; }
     if(!pick && lines.length) pick=lines[0];
-    return pick? fin(pick.t) : "";
+    if(!pick) return "";
+    var out=fin(pick.t);
+    if(!out || !/\p{L}/u.test(out) || SM_LABEL.test(out) || smIsEnglish(out) || smIsPron(out)) return "";
+    return out;
   }
   function testPool(scope){
     if(scope==="all") return cards.slice();
@@ -1859,7 +1885,9 @@
     $("tqCounter").textContent="Soru "+(st.idx+1)+" / "+total;
     $("tqScore").textContent="✓ "+st.correct+" · ✗ "+st.wrong;
     $("tqBar").style.width=(st.idx/total*100)+"%";
-    $("tqWord").textContent=q.card.front;
+    var dw=displayWord(q.card.front);
+    $("tqWord").textContent=dw.word;
+    $("tqPron").textContent=dw.rest; $("tqPron").style.display=dw.rest? "block":"none";
     var letters="ABCDE", html="";
     q.opts.forEach(function(o,i){
       html+='<button type="button" class="topt" data-i="'+i+'"><span class="tl">'+letters[i]+'</span><span>'+esc(o.t)+'</span></button>';
