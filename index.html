@@ -406,6 +406,9 @@
   .tcounter{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:rgba(255,255,255,.85);margin-bottom:10px}
   .tqword{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:27px;line-height:1.25;margin:16px 0 6px;white-space:pre-wrap}
   .tqpron{font-size:13px;color:rgba(255,255,255,.6);margin:-2px 0 6px;white-space:pre-wrap}
+  .tqback{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.14);border-radius:13px;padding:12px 14px;font-size:14px;line-height:1.5;max-height:42vh;overflow-y:auto;-webkit-overflow-scrolling:touch;white-space:pre-wrap;word-wrap:break-word;margin:12px 0 8px;color:rgba(255,255,255,.92)}
+  .tqback strong,.tqback em,.tqback .mh{color:#fff}
+  .tqback .mask{background:rgba(255,255,255,.2);border-radius:4px;padding:0 5px;letter-spacing:2px;color:rgba(255,255,255,.7)}
   .tqask{font-size:12.5px;color:rgba(255,255,255,.7);margin-bottom:14px}
   .topts{display:flex;flex-direction:column;gap:9px}
   .topt{text-align:left;border:1px solid rgba(255,255,255,.24);background:rgba(0,0,0,.22);color:#fff;font:inherit;font-size:14.5px;font-weight:600;padding:12px 14px;border-radius:13px;cursor:pointer;display:flex;gap:10px;align-items:flex-start;line-height:1.35;transition:.15s}
@@ -654,6 +657,13 @@
         <select id="testScope" class="sortsel" style="width:100%"></select>
       </div>
       <div class="field">
+        <label>Soru tipi</label>
+        <select id="testMode" class="sortsel" style="width:100%">
+          <option value="tr2en" selected>Açıklama → İngilizce kelime (önerilen)</option>
+          <option value="en2tr">İngilizce kelime → Türkçe anlam</option>
+        </select>
+      </div>
+      <div class="field">
         <label>Soru sayısı</label>
         <select id="testCount" class="sortsel" style="width:100%">
           <option value="10">10 soru</option>
@@ -671,7 +681,8 @@
       <div class="progress"><i id="tqBar"></i></div>
       <div class="tqword" id="tqWord"></div>
       <div class="tqpron" id="tqPron" style="display:none"></div>
-      <div class="tqask">Bu kelimenin anlamı nedir?</div>
+      <div class="tqback" id="tqBack" style="display:none"></div>
+      <div class="tqask" id="tqAsk">Bu kelimenin anlamı nedir?</div>
       <div class="topts" id="tqOpts"></div>
       <div class="tnav">
         <button class="btn" id="btnTestQuit">✕ Testi bitir</button>
@@ -706,7 +717,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-09-04.5";
+  var APP_VERSION = "2026-09-04.6";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -1819,6 +1830,42 @@
     if(!out || !/\p{L}/u.test(out) || SM_LABEL.test(outLow) || SM_POS.test(outLow) || smIsEnglish(out) || smIsPron(out)) return "";
     return out;
   }
+  /* Açıklama → Kelime modu: kartın Türkçe açıklamasını, İngilizce kelimeyi ve
+     okunuş satırlarını gizleyerek soru metnine çevir */
+  var MASK_TOKEN="▮▮▮▮";
+  function maskBack(c){
+    var front=String(c.front||""), back=String(c.back||"");
+    var dw=displayWord(front), fw=dw.word;
+    var raw=back.split(/\r?\n/), out=[], i;
+    for(i=0;i<raw.length;i++){
+      var l=smClean(raw[i]);
+      if(!l){ out.push(""); continue; }
+      var low=l.toLocaleLowerCase("tr");
+      if(smIsPron(l)) continue;                                   /* IPA / okunuş satırı */
+      if(fw){
+        var rest=low.split(fw.toLocaleLowerCase("tr")).join("").replace(/\([^)]*\)/g,"").replace(/[^\p{L}]+/gu,"");
+        if(low.indexOf(fw.toLocaleLowerCase("tr"))>=0 && rest.length<3) continue; /* sadece kelime satırı */
+      }
+      out.push(raw[i]);
+    }
+    var txt=out.join("\n").replace(/\n{3,}/g,"\n\n").trim();
+    /* tüm ifadeyi ve kelimelerini kök bazlı maskele:
+       "Temptation" → "tempt…" (tempted, temptations), "scorn" → "scor…" (scorned) */
+    var esc_=function(w){ return w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); };
+    var stems=[], seenStem={};
+    fw.split(/\s+/).forEach(function(w){
+      var cw=w.replace(/[^\p{L}]/gu,""); if(cw.length<3) return;
+      var st = cw.length>=4 ? cw.slice(0,Math.max(4,Math.floor(cw.length/2))) : cw;
+      var k=st.toLocaleLowerCase("tr"); if(seenStem[k]) return; seenStem[k]=1; stems.push(st);
+    });
+    var full=fw.replace(/[^\p{L}\s'’-]/gu,"").trim();
+    if(full && full.indexOf(" ")>0){ txt=txt.replace(new RegExp("(^|[^\\p{L}])"+esc_(full)+"[\\p{L}]{0,4}(?![\\p{L}])","giu"),"$1"+MASK_TOKEN); }
+    stems.forEach(function(st){
+      var re=new RegExp("(^|[^\\p{L}])"+esc_(st)+"[\\p{L}]{0,6}(?![\\p{L}])","giu");
+      txt=txt.replace(re,"$1"+MASK_TOKEN);
+    });
+    return txt;
+  }
   function testPool(scope){
     if(scope==="all") return cards.slice();
     if(scope==="review") return cards.filter(function(c){ return c.review; });
@@ -1850,6 +1897,7 @@
   }
   function enterTest(){
     fillTestScope(); renderTestHist();
+    try{ var tm=localStorage.getItem("MyDictionary_testmode"); if(tm && $("testMode")) $("testMode").value=tm; }catch(e){}
     $("testSetup").style.display="block"; $("testQ").style.display="none"; $("testResult").style.display="none";
   }
   function scopeLabel(scope){
@@ -1858,11 +1906,14 @@
     if(scope==="projrev") return "Proje tekrarı";
     return (projById(scope)||{}).name||"?";
   }
-  function buildTest(scope,n){
+  function buildTest(scope,n,mode){
     var meaningOf={};
-    function m(c){ if(!(c.id in meaningOf)) meaningOf[c.id]=shortMeaning(c); return meaningOf[c.id]; }
-    var pool=testPool(scope).filter(function(c){ return c.front && c.back && m(c); });
-    var all=cards.filter(function(c){ return c.back && m(c); });
+    function m(c){
+      if(!(c.id in meaningOf)) meaningOf[c.id] = (mode==="tr2en") ? displayWord(c.front).word : shortMeaning(c);
+      return meaningOf[c.id];
+    }
+    var pool=testPool(scope).filter(function(c){ return c.front && c.back && String(c.back).trim() && m(c); });
+    var all=cards.filter(function(c){ return c.front && m(c); });
     shuffleArr(pool);
     var qs=[];
     for(var i=0;i<pool.length && qs.length<n;i++){
@@ -1877,16 +1928,18 @@
       }
       if(opts.length<2) continue;
       shuffleArr(opts);
-      qs.push({ card:c, opts:opts, picked:-1 });
+      qs.push({ card:c, opts:opts, picked:-1, prompt:(mode==="tr2en"? maskBack(c) : "") });
     }
     return qs;
   }
   function startTest(){
     var scope=$("testScope").value||"all", n=parseInt($("testCount").value,10)||50;
-    var qs=buildTest(scope,n);
+    var mode=($("testMode")&&$("testMode").value)||"tr2en";
+    try{ localStorage.setItem("MyDictionary_testmode",mode); }catch(e){}
+    var qs=buildTest(scope,n,mode);
     if(!qs.length){ toast("Bu kapsamda test için yeterli kelime yok"); return; }
     if(qs.length<n) toast(qs.length+" kelime bulundu, test "+qs.length+" soruluk olacak");
-    testState={ scope:scope, qs:qs, idx:0, correct:0, wrong:0 };
+    testState={ scope:scope, mode:mode, qs:qs, idx:0, correct:0, wrong:0 };
     $("testSetup").style.display="none"; $("testResult").style.display="none"; $("testQ").style.display="block";
     renderQuestion(); window.scrollTo(0,0);
   }
@@ -1896,9 +1949,19 @@
     $("tqCounter").textContent="Soru "+(st.idx+1)+" / "+total;
     $("tqScore").textContent="✓ "+st.correct+" · ✗ "+st.wrong;
     $("tqBar").style.width=(st.idx/total*100)+"%";
-    var dw=displayWord(q.card.front);
-    $("tqWord").textContent=dw.word;
-    $("tqPron").textContent=dw.rest; $("tqPron").style.display=dw.rest? "block":"none";
+    if(st.mode==="tr2en"){
+      $("tqWord").style.display="none"; $("tqPron").style.display="none";
+      var bk=$("tqBack"); bk.style.display="block";
+      bk.innerHTML=fmt(q.prompt||"").split(MASK_TOKEN).join('<span class="mask">____</span>');
+      bk.scrollTop=0;
+      $("tqAsk").textContent="Bu açıklama hangi İngilizce kelimeye ait?";
+    } else {
+      var dw=displayWord(q.card.front);
+      $("tqWord").style.display="block"; $("tqWord").textContent=dw.word;
+      $("tqPron").textContent=dw.rest; $("tqPron").style.display=dw.rest? "block":"none";
+      $("tqBack").style.display="none";
+      $("tqAsk").textContent="Bu kelimenin anlamı nedir?";
+    }
     var letters="ABCDE", html="";
     q.opts.forEach(function(o,i){
       html+='<button type="button" class="topt" data-i="'+i+'"><span class="tl">'+letters[i]+'</span><span>'+esc(o.t)+'</span></button>';
@@ -1940,7 +2003,8 @@
     var wrong=st.qs.filter(function(q){ return q.picked>=0 && !q.opts[q.picked].ok; });
     $("trWrong").innerHTML = wrong.length? wrong.map(function(q){
       var corr=q.opts.filter(function(o){ return o.ok; })[0];
-      return '<div class="wrow"><div class="wq">'+esc(q.card.front)+'</div><div class="wa">✓ '+esc(corr?corr.t:"")+'</div><div class="wp">✗ Seçtiğin: '+esc(q.opts[q.picked].t)+'</div></div>';
+      var head = st.mode==="tr2en" ? (shortMeaning(q.card)||displayWord(q.card.front).word) : q.card.front;
+      return '<div class="wrow"><div class="wq">'+esc(head)+'</div><div class="wa">✓ '+esc(corr?corr.t:"")+'</div><div class="wp">✗ Seçtiğin: '+esc(q.opts[q.picked].t)+'</div></div>';
     }).join("") : '<div class="wrow" style="text-align:center;color:rgba(255,255,255,.7)">Yanlış yok 🎉</div>';
     $("btnTestWrongReview").style.display = wrong.length? "flex":"none";
     if(total>0){
