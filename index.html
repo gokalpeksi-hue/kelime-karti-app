@@ -704,7 +704,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-09-04.2";
+  var APP_VERSION = "2026-09-04.3";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -1736,27 +1736,51 @@
   var testState=null;
   function shuffleArr(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
   function normTxt(t){ return String(t||"").toLocaleLowerCase("tr").replace(/[^\p{L}\p{N}]+/gu," ").trim(); }
-  /* Uzun açıklamadan kısa Türkçe anlam çıkar (seçenek metni) */
+  /* Uzun açıklamadan kısa Türkçe anlam çıkar (seçenek metni).
+     Başlıklar (Türkçe anlamı, Telaffuz…), okunuşlar (IPA / "Türkçe okunuşu:"),
+     ayraçlar ve kelimenin kendisi atlanır; "Türkçe anlamı" bölümünün ilk
+     maddesi öncelikli, uzun yorum cümleleri en son tercih edilir. */
+  var SM_LABEL=/^(türkçe\s*anlam[ıi]?|anlam[ıi]?|tr|telaffuz[u]?|okunu[şs][u]?|türkçe\s*okunu[şs][u]?|ipa|pronunciation|etimoloji(k)?(\s*köken[i]?)?|etymology|köken[i]?|örnek(ler)?(\s*cümle(ler)?)?|example[s]?|eş\s*anlaml[ıi](lar[ıi]?)?|synonym[s]?|zıt\s*anlaml[ıi](lar[ıi]?)?|antonym[s]?|not(lar)?|kullanım[ıi]?|usage|açıklama|ek\s*bilgi|bağlam|context|kelime\s*türü|part\s*of\s*speech|tür[üu]?|kısa\s*not)\s*[:=\-–—]?\s*$/i;
+  var SM_PRON_PREFIX=/^(türkçe\s*okunu[şs][u]?|okunu[şs][u]?|telaffuz[u]?|ipa|pronunciation|söyleni[şs][i]?)\s*[:=\-–—]/i;
+  function smClean(l){
+    return String(l).replace(/^[#>\s]+/,"").replace(/\*\*|__|`|~~/g,"").replace(/^[*_]+|[*_]+$/g,"")
+      .replace(/[\u{1F1E6}-\u{1F1FF}\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{200D}]/gu,"").trim();
+  }
+  function smIsPron(l){
+    return SM_PRON_PREFIX.test(l) || /[ˈˌəɪʊɛɔæʃʒθðŋɑɒʌ]/.test(l) || /^\/[^\/]+\/$/.test(l) || /\/[^\/\s][^\/]*\/\s*$/.test(l);
+  }
   function shortMeaning(c){
     var back=String(c.back||""), front=String(c.front||"");
     var fw=front.replace(/\([^)]*\)/g," ").replace(/\s+/g," ").trim().toLocaleLowerCase("tr");
-    var fwFirst=fw.split(" ")[0]||"";
-    var lines=back.split(/\r?\n/).map(function(l){ return l.trim(); }).filter(Boolean);
-    var skip=/^(telaffuz|türkçe anlam|tr\b|🇹🇷|anlam[ıi]?\s*:|---+|>|okunu[sş]|pronunciation|etimoloji|🏛|📌|💡|⭐|örnek|example)/i;
-    var pick=null;
-    for(var i=0;i<lines.length;i++){
-      var l=lines[i];
+    var raw=back.split(/\r?\n/), lines=[], inMeaning=false, i;
+    for(i=0;i<raw.length;i++){
+      var l=smClean(raw[i]); if(!l) continue;
       var low=l.toLocaleLowerCase("tr");
-      if(skip.test(l)) continue;
-      if(fw && low.indexOf(fw)>=0) continue;
-      if(fwFirst.length>3 && low.indexOf(fwFirst)>=0 && /[=:]\s*$/.test(l)) continue;
-      if(/^[\s\W_]*$/.test(l)) continue;
-      pick=l; break;
+      if(SM_LABEL.test(l)){ inMeaning=/anlam/.test(low); continue; }
+      if(/^[-–—=_*\s.]+$/.test(l)) continue;
+      if(smIsPron(l)) continue;
+      if(fw){
+        var rest=low.split(fw).join("").replace(/\([^)]*\)/g,"").replace(/[^\p{L}]+/gu,"");
+        if(low.indexOf(fw)>=0 && rest.length<3) continue;          /* sadece kelime (+okunuş) */
+        if(/[=:]\s*$/.test(l) && low.indexOf(fw.split(" ")[0])>=0) continue; /* "Condensed =" */
+      }
+      var isList=/^(\d+[\.\)]|[-•*–])\s+/.test(raw[i].trim()) || /^(\d+[\.\)]|[-•*–])\s+/.test(l);
+      var t=l.replace(/^(\d+[\.\)]|[-•*–])\s+/,"").trim();
+      if(!t) continue;
+      lines.push({ t:t, list:isList, sec:inMeaning, len:t.length, sentence:(/[.!?…]$/.test(t) && t.length>60) });
     }
-    if(!pick){ pick=lines[0]||back; }
-    pick=pick.replace(/^\s*(\d+[\.\)]|[-•*–])\s*/,"").replace(/\*\*|__|`/g,"").replace(/[⭐✅✔️🔹🔸]/g,"").trim();
-    if(pick.length>90) pick=pick.slice(0,88).replace(/\s+\S*$/,"")+"…";
-    return pick;
+    function fin(t){
+      t=t.replace(/^(türkçe\s*anlam[ıi]?|anlam[ıi]?|tr)\s*[:=\-–—]\s*/i,"").trim();
+      if(fw){ var re=new RegExp("^"+fw.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"\\s*(\\([^)]*\\))?\\s*[:=\\-–—]\\s*","i"); t=t.replace(re,"").trim(); }
+      if(t.length>90) t=t.slice(0,88).replace(/\s+\S*$/,"")+"…";
+      return t;
+    }
+    var pick=null, k;
+    for(k=0;k<lines.length && !pick;k++){ if(lines[k].sec && (lines[k].list || !lines[k].sentence)) pick=lines[k]; }
+    for(k=0;k<lines.length && !pick;k++){ if(lines[k].list && !lines[k].sentence) pick=lines[k]; }
+    for(k=0;k<lines.length && !pick;k++){ if(!lines[k].sentence && lines[k].len<=80) pick=lines[k]; }
+    if(!pick && lines.length) pick=lines[0];
+    return pick? fin(pick.t) : "";
   }
   function testPool(scope){
     if(scope==="all") return cards.slice();
