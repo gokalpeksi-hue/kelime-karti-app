@@ -717,7 +717,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-09-04.6";
+  var APP_VERSION = "2026-09-04.7";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -1065,9 +1065,12 @@
       for(var i=0;i<vs.length;i++){ if(vs[i].lang && vs[i].lang.toLowerCase().indexOf("en")===0){ enVoice=vs[i]; break; } }
     }catch(e){}
   }
-  if(window.speechSynthesis){ pickVoice(); window.speechSynthesis.onvoiceschanged=pickVoice; }
+  /* Açılışta ses altyapısına DOKUNULMAZ: iOS'ta getVoices()/voiceschanged
+     ses oturumunu tekrar tekrar açıp ses göstergesini yanıp söndürüyordu.
+     Ses listesi yalnızca 🔊 basıldığında, konuşma anında alınır. */
   function speakText(text){
     if(!window.speechSynthesis){ toast("Bu tarayıcı seslendirmeyi desteklemiyor"); return; }
+    if(!enVoice) pickVoice();
     /* parantez içindeki okunuş yazımını (örn. "gabıldı-guk") seslendirme */
     var t=String(text||"").replace(/\([^)]*\)/g," ").replace(/\s+/g," ").trim();
     if(!t) return;
