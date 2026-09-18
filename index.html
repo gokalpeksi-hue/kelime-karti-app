@@ -430,6 +430,18 @@
   .twrong .wrow .wa{color:#5fd6a1;margin-top:3px}
   .twrong .wrow .wp{color:#ff9a9a;margin-top:2px;font-size:12.5px}
 
+
+  /* ===== üstteki ortak yedekleme çubuğu ===== */
+  #backupBar .chip{justify-content:center}
+  body.mode-ezber #backupBar{display:none}
+  body.mode-ezber .chip,body.mode-test .chip{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.24);color:#fff;font-weight:700}
+  body.mode-ezber .chip:hover,body.mode-test .chip:hover{background:rgba(255,255,255,.18)}
+  body.mode-study .data-tools .chip.drive,body.mode-test .data-tools .chip.drive{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.28);color:#fff}
+  body.mode-study .data-tools .chip.drive:hover,body.mode-test .data-tools .chip.drive:hover{background:rgba(255,255,255,.2)}
+
+  /* Kayıt: üst/alt zıplama butonu */
+  #jumpBtn{position:fixed;right:16px;bottom:18px;z-index:70;width:48px;height:48px;border-radius:50%;border:1.5px solid rgba(255,176,77,.4);background:#180f04;color:#ffb04d;font-size:21px;cursor:pointer;box-shadow:0 10px 24px -6px rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;transition:opacity .2s}
+  body.mode-kayit #jumpBtn{display:flex}
 </style>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -453,6 +465,19 @@
     <button class="tab" id="tabStudy">Çalışma</button>
     <button class="tab" id="tabAdd">Kayıt</button>
     <button class="tab" id="tabTest">Test</button>
+  </div>
+
+  <!-- ORTAK YEDEKLEME ÇUBUĞU: Çalışma, Kayıt ve Test'te üstte görünür -->
+  <div id="backupBar">
+    <div class="data-tools" style="margin:0 0 8px">
+      <button class="chip" id="btnExport"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Yedek al (.json)</button>
+      <button class="chip" id="btnImport"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 3h14"/></svg>Yedek yükle</button>
+      <input type="file" id="fileInput" accept="application/json,.json" style="display:none">
+    </div>
+    <div class="data-tools" style="margin:0 0 18px">
+      <button class="chip drive" id="btnDriveSave"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Drive'a yedekle</button>
+      <button class="chip drive" id="btnDriveLoad"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 3h14"/></svg>Drive'dan yükle</button>
+    </div>
   </div>
 
   <!-- ÇALIŞMA -->
@@ -608,16 +633,6 @@
     <div class="rows" id="rows"></div>
     <div class="empty" id="listEmpty"><div class="big">Liste boş</div><p>Eklediğin kartlar burada görünecek ve buradan düzenleyebileceksin.</p></div>
 
-    <div class="data-tools">
-      <button class="chip" id="btnExport"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Yedek al (.json)</button>
-      <button class="chip" id="btnImport"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 3h14"/></svg>Yedek yükle</button>
-      <input type="file" id="fileInput" accept="application/json,.json" style="display:none">
-    </div>
-    <div class="tools-label">Google Drive ile senkron</div>
-    <div class="data-tools">
-      <button class="chip drive" id="btnDriveSave"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Drive'a yedekle</button>
-      <button class="chip drive" id="btnDriveLoad"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 3h14"/></svg>Drive'dan yükle</button>
-    </div>
     <div class="tools-label">Uygulama güncellemesi</div>
     <div class="data-tools" style="margin-top:0">
       <button class="chip" id="btnUpdate"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10"/><path d="M20.5 15a9 9 0 0 1-14.9 3.4L1 14"/></svg>Güncelle</button>
@@ -705,6 +720,7 @@
   </section>
 </div>
 
+<button id="jumpBtn" type="button" title="En alta git">⬇</button>
 <div class="toast" id="toast"></div>
 <div id="printArea"></div>
 
@@ -1586,7 +1602,7 @@
     var cid=effectiveClientId();
     if(!cid){
       toast("Önce Google bağlantısını kur");
-      var p=$("gcidPanel"); if(p){ $("gcidHelp").open=true; p.scrollIntoView({behavior:"smooth"}); }
+      var p=$("gcidPanel"); if(p){ setTab("add"); $("gcidHelp").open=true; setTimeout(function(){ p.scrollIntoView({behavior:"smooth"}); },80); }
       return;
     }
     if(!gisReady()){ toast("Google bağlanamadı, tekrar dene"); return; }
@@ -2035,6 +2051,30 @@
     if(idx>=0 && testState && testState.qs[testState.idx].opts[idx]) answerTest(idx);
     else if((e.key==="Enter"||e.key===" ") && $("btnTestNext").style.display!=="none"){ e.preventDefault(); nextTestQ(); }
   });
+
+  /* Kayıt: en üste / en alta zıplama */
+  (function(){
+    var jb=$("jumpBtn"); if(!jb) return;
+    function span(){ return Math.max(0, document.documentElement.scrollHeight - window.innerHeight); }
+    function upd(){
+      var y=window.pageYOffset||0, h=span();
+      var down = y < h/2;
+      jb.textContent = down? "⬇" : "⬆";
+      jb.title = down? "En alta git" : "En üste git";
+      jb.style.opacity = h>200? "1" : "0";
+      jb.style.pointerEvents = h>200? "auto" : "none";
+    }
+    jb.onclick=function(){
+      var y=window.pageYOffset||0, h=span();
+      if(y < h/2) window.scrollTo({top:document.documentElement.scrollHeight,behavior:"smooth"});
+      else window.scrollTo({top:0,behavior:"smooth"});
+      setTimeout(upd,450);
+    };
+    window.addEventListener("scroll",upd,{passive:true});
+    window.addEventListener("resize",upd,{passive:true});
+    setInterval(upd,800);
+    upd();
+  })();
 
   updateStats(); gcidRefresh(); fillProjSelect(null);
   if(cards.length===0) setTab("add"); else setTab("study");
