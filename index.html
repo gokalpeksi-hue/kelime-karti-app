@@ -90,6 +90,10 @@
   .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 26px 26px 52px;display:flex;flex-direction:column;background-image:repeating-linear-gradient(transparent 0 37px, var(--rule) 37px 38px);background-position:0 26px;overflow:hidden}
   .face::before{content:"";position:absolute;top:0;bottom:0;left:36px;width:1.5px;background:var(--margin);opacity:.7}
   .face .tag{position:absolute;top:14px;right:18px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .face-copy{position:absolute;top:32px;right:12px;z-index:5}
+  /* mode-study genel .iconbtn'i beyaz yapar; kart yüzü açık renkte kaldığından yüz içi buton koyu kalmalı */
+  body.mode-study .face-copy{color:var(--muted)}
+  body.mode-study .face-copy:hover{background:var(--desk);color:var(--ink)}
   .back{transform:rotateY(180deg)}
   /* Kaydırma iç kapta: iOS Safari, preserve-3d altındaki yüzeyde overflow
      kaydırmayı çalıştırmıyor; translateZ(0) kaydırıcıya kendi katmanını verir */
@@ -572,6 +576,7 @@
         <div class="card" id="card">
           <div class="face front">
             <span class="tag" id="tagFront">Soru</span>
+            <button class="iconbtn face-copy" id="btnCopyFront" title="Soru metnini kopyala"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
             <div class="card-text"><div class="q" id="cardFront"></div></div>
             <div class="hint">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>
@@ -580,6 +585,7 @@
           </div>
           <div class="face back">
             <span class="tag" id="tagBack">Cevap</span>
+            <button class="iconbtn face-copy" id="btnCopyBack" title="Cevap metnini kopyala"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
             <div class="card-text"><div class="qsmall" id="cardBackQ"></div><div class="a" id="cardBack"></div></div>
           </div>
         </div>
@@ -752,7 +758,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-09-28.1";
+  var APP_VERSION = "2026-09-28.2";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -1382,6 +1388,17 @@
       toast(ok? 'Kopyalandı: "'+word+'"' : "Kopyalanamadı");
     });
   };
+  /* Kart yüzündeki tüm soru/cevap metnini kopyala (buton karta dokunma sayılmasın diye stopPropagation) */
+  function copyFaceText(kind){
+    var c=byId(order[pos]); if(!c) return;
+    var t=String((kind==="front"? c.front : c.back)||"").trim();
+    if(!t){ toast("Kopyalanacak içerik yok"); return; }
+    copyText(t).then(function(ok){
+      toast(ok? (kind==="front"? "Soru metni kopyalandı 📋" : "Cevap metni kopyalandı 📋") : "Kopyalanamadı");
+    });
+  }
+  $("btnCopyFront").onclick=function(e){ e.stopPropagation(); copyFaceText("front"); };
+  $("btnCopyBack").onclick=function(e){ e.stopPropagation(); copyFaceText("back"); };
   $("btnReviewLater").onclick=function(){
     var c=byId(order[pos]); if(!c) return;
     c.review=!c.review; save();
