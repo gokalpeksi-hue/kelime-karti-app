@@ -87,11 +87,17 @@
   .stage{perspective:1400px;display:flex;align-items:center;min-height:200px}
   .card{position:relative;width:100%;min-height:200px;cursor:pointer;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
   .card.flipped{transform:rotateY(180deg)}
-  .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 26px 26px 52px;display:flex;flex-direction:column;background-image:repeating-linear-gradient(transparent 0 37px, var(--rule) 37px 38px);background-position:0 26px;overflow:auto}
+  .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 26px 26px 52px;display:flex;flex-direction:column;background-image:repeating-linear-gradient(transparent 0 37px, var(--rule) 37px 38px);background-position:0 26px;overflow:hidden}
   .face::before{content:"";position:absolute;top:0;bottom:0;left:36px;width:1.5px;background:var(--margin);opacity:.7}
   .face .tag{position:absolute;top:14px;right:18px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
   .back{transform:rotateY(180deg)}
-  .card-text{margin:auto 0;display:flex;flex-direction:column;justify-content:center;flex:1}
+  /* Kaydırma iç kapta: iOS Safari, preserve-3d altındaki yüzeyde overflow
+     kaydırmayı çalıştırmıyor; translateZ(0) kaydırıcıya kendi katmanını verir */
+  .card-text{margin:auto 0;display:flex;flex-direction:column;justify-content:center;flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;transform:translateZ(0)}
+  .card-text::-webkit-scrollbar{width:5px}
+  .card-text::-webkit-scrollbar-track{background:transparent}
+  .card-text::-webkit-scrollbar-thumb{background:rgba(0,0,0,.25);border-radius:3px}
+  body.mode-study .card-text::-webkit-scrollbar-thumb,body.mode-ezber .card-text::-webkit-scrollbar-thumb{background:rgba(255,255,255,.35)}
   .front .card-text .q{font-family:'Fraunces',Georgia,serif;font-weight:500;font-size:30px;line-height:1.25;letter-spacing:-.01em;white-space:pre-wrap}
   .back .card-text .a{font-size:21px;line-height:1.4;font-weight:500;white-space:pre-wrap}
   .back .card-text .qsmall{font-size:13px;color:var(--muted);margin-bottom:10px;font-style:italic}
@@ -746,7 +752,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-09-04.7";
+  var APP_VERSION = "2026-09-28.1";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -1320,15 +1326,22 @@
     var bp=$("backPeek");
     if(bp){ bp._has=!!(c.back&&c.back.trim()); $("backPeekText").innerHTML=fmt(c.back||""); updateBackPeek(); }
     var ff=document.querySelector("#card .face.front"), fb=document.querySelector("#card .face.back");
-    [ff,fb].forEach(function(f){ if(f) f.scrollTop=0; });
+    [ff,fb].forEach(function(f){ if(!f) return; var ct=f.querySelector(".card-text"); if(ct) ct.scrollTop=0; f.scrollTop=0; });
     requestAnimationFrame(function(){
-      [ff,fb].forEach(function(f){ if(!f) return; f.classList.toggle("long", f.scrollHeight>f.clientHeight+4); f.scrollTop=0; });
+      [ff,fb].forEach(function(f){
+        if(!f) return;
+        var ct=f.querySelector(".card-text");
+        var over=ct? ct.scrollHeight>ct.clientHeight+4 : f.scrollHeight>f.clientHeight+4;
+        f.classList.toggle("long", over);
+        if(ct) ct.scrollTop=0;
+        f.scrollTop=0;
+      });
     });
   }
   function flip(){
     $("card").classList.toggle("flipped");
     var ff=document.querySelector("#card .face.front"), fb=document.querySelector("#card .face.back");
-    [ff,fb].forEach(function(f){ if(f) f.scrollTop=0; });
+    [ff,fb].forEach(function(f){ if(!f) return; var ct=f.querySelector(".card-text"); if(ct) ct.scrollTop=0; f.scrollTop=0; });
     updateBackPeek();
   }
   /* ön yüz görünürken kartın altında cevabın küçük italik önizlemesi */
