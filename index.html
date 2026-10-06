@@ -87,8 +87,9 @@
   #studyCard .counter{margin:14px 2px 8px}
   #studyCard .progress{margin-bottom:2px}
   .progress > i{display:block;height:100%;background:var(--known);width:0;transition:width .35s ease}
-  .stage{perspective:1400px;display:flex;align-items:center;min-height:200px}
-  .card{position:relative;width:100%;min-height:200px;cursor:pointer;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
+  /* 275px: eski 200px + soru yazısından iki satır (2 × 37.5px) */
+  .stage{perspective:1400px;display:flex;align-items:center;min-height:275px}
+  .card{position:relative;width:100%;min-height:275px;cursor:pointer;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.2,.7,.2,1)}
   .card.flipped{transform:rotateY(180deg)}
   .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 26px 26px 52px;display:flex;flex-direction:column;background-image:repeating-linear-gradient(transparent 0 37px, var(--rule) 37px 38px);background-position:0 26px;overflow:hidden}
   .face::before{content:"";position:absolute;top:0;bottom:0;left:36px;width:1.5px;background:var(--margin);opacity:.7}
@@ -761,7 +762,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-10-02.1";
+  var APP_VERSION = "2026-10-06.1";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
