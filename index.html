@@ -99,6 +99,15 @@
   body.mode-study .face-copy{color:var(--muted)}
   body.mode-study .face-copy:hover{background:var(--desk);color:var(--ink)}
   .back{transform:rotateY(180deg)}
+  /* iOS Safari, preserve-3d altındaki yüzlerde overflow kaydırmayı çalıştırmıyor
+     (translateZ(0) gerçek cihazda yetmedi). Çevirme animasyonu bitince kart
+     "settled" olur: 3D kapanır, görünmeyen yüz gizlenir, görünen yüz normal
+     (düz) katmanda kalır ve içi parmakla kaydırılabilir. */
+  .card.settled{transform:none;transform-style:flat;transition:none}
+  .card.settled .face{backface-visibility:visible;-webkit-backface-visibility:visible}
+  .card.settled:not(.flipped) .face.back{visibility:hidden}
+  .card.settled.flipped .face.back{transform:none}
+  .card.settled.flipped .face.front{visibility:hidden}
   /* Kaydırma iç kapta: iOS Safari, preserve-3d altındaki yüzeyde overflow
      kaydırmayı çalıştırmıyor; translateZ(0) kaydırıcıya kendi katmanını verir */
   .card-text{margin:auto 0;display:flex;flex-direction:column;justify-content:center;flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;transform:translateZ(0)}
@@ -762,7 +771,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-10-06.1";
+  var APP_VERSION = "2026-10-07.1";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -1321,8 +1330,19 @@
   })();
   $("btnBackList").onclick=function(){ setStudyMode("list"); renderIndex(); window.scrollTo(0,lastListScroll); };
 
+  var settleTimer=null;
+  /* Çevirmeden önce 3D durumuna dön (reflow ile), animasyon bitince düzleş */
+  function unsettleCard(){
+    var card=$("card"); clearTimeout(settleTimer);
+    if(card.classList.contains("settled")){ card.classList.remove("settled"); void card.offsetHeight; }
+  }
+  function scheduleSettle(){
+    clearTimeout(settleTimer);
+    settleTimer=setTimeout(function(){ $("card").classList.add("settled"); },540);
+  }
   function showCard(){
     var c=byId(order[pos]); if(!c){ enterStudy(); return; }
+    unsettleCard();
     $("card").classList.remove("flipped");
     $("cardFront").innerHTML=fmt(c.front); $("cardBack").innerHTML=fmt(c.back); $("cardBackQ").innerHTML=fmt(c.front);
     var pn=(projById(c.proj)||{}).name||""; $("tagFront").textContent=pn+" · Soru · #"+c.num; $("tagBack").textContent=pn+" · Cevap · #"+c.num;
@@ -1347,12 +1367,15 @@
         f.scrollTop=0;
       });
     });
+    scheduleSettle();
   }
   function flip(){
+    unsettleCard();
     $("card").classList.toggle("flipped");
     var ff=document.querySelector("#card .face.front"), fb=document.querySelector("#card .face.back");
     [ff,fb].forEach(function(f){ if(!f) return; var ct=f.querySelector(".card-text"); if(ct) ct.scrollTop=0; f.scrollTop=0; });
     updateBackPeek();
+    scheduleSettle();
   }
   /* ön yüz görünürken kartın altında cevabın küçük italik önizlemesi */
   function updateBackPeek(){
