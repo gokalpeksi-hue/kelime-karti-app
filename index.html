@@ -1357,7 +1357,7 @@
     $("card").classList.remove("flipped");
     $("cardFront").innerHTML=fmt(c.front); $("cardBack").innerHTML=fmt(c.back); $("cardBackQ").innerHTML=fmt(c.front);
     var pn=(projById(c.proj)||{}).name||""; $("tagFront").textContent=pn+" · Soru · #"+c.num; $("tagBack").textContent=pn+" · Cevap · #"+c.num;
-    $("counterText").textContent=(pos+1)+" / "+order.length+"  ·  #"+c.num;
+    $("counterText").textContent=(pos+1)+" / "+order.length+"  ·  "+(order.length-pos-1)+" kaldı";
     var mparts=[]; if(c.known) mparts.push("✓ öğrenildi"); if(c.review) mparts.push("🔁 tekrar");
     $("modeText").textContent=mparts.join(" · ");
     var rb=$("btnReviewLater"); if(rb) rb.classList.toggle("on",!!c.review);
