@@ -783,7 +783,7 @@
   var GOOGLE_CLIENT_ID = "";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-11-03.1";
+  var APP_VERSION = "2026-11-03.2";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -1664,7 +1664,11 @@
     var text="Kelime kartlarım ("+cards.length+" kart). Uygulamayı aç: "+link+" — ekteki dosyayı \"Yedek yükle\" ile içe aktar.";
     var file=null; try{ file=new File([json],name,{type:"application/json"}); }catch(e){}
     if(file && navigator.canShare && navigator.canShare({files:[file]})){
-      navigator.share({files:[file],title:"Kelime Kartları",text:text}).catch(function(err){ if(err && err.name!=="AbortError") toast("Paylaşılamadı"); });
+      /* yalnızca dosya: WhatsApp (özellikle iOS) dosya+yazı birlikteyken dosyayı düşürüp yazıyı gönderiyor.
+         Link panoya kopyalanır, kullanıcı ayrı mesaj olarak yapıştırır. */
+      try{ if(navigator.clipboard) navigator.clipboard.writeText(link).catch(function(){}); }catch(e){}
+      navigator.share({files:[file]}).then(function(){ toast("Gönderildi. Uygulama linki panoda: mesaja yapıştırabilirsin"); })
+        .catch(function(err){ if(err && err.name!=="AbortError") toast("Paylaşılamadı"); });
       return;
     }
     /* dosya paylaşımı desteklenmiyorsa: dosyayı indir, linki paylaş/kopyala */
