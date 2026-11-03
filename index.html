@@ -511,6 +511,7 @@
     <div class="data-tools" style="margin:0 0 8px">
       <button class="chip" id="btnExport"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>Yedek al (.json)</button>
       <button class="chip" id="btnImport"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 3h14"/></svg>Yedek yükle</button>
+      <button class="chip" id="btnShare"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4"/><path d="M15.4 6.5l-6.8 4"/></svg>Paylaş</button>
       <input type="file" id="fileInput" accept="application/json,.json" style="display:none">
     </div>
     <div class="data-tools" style="margin:0 0 18px">
@@ -1652,6 +1653,27 @@
     var a=document.createElement("a"); a.href=URL.createObjectURL(blob);
     a.download="MyDictionary-yedek-"+new Date().toISOString().slice(0,10)+".json";
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(a.href); },1000); toast("Yedek indirildi");
+  };
+  /* ===== Paylaş: uygulama linki + tüm kartlar (öğrenme durumu sıfırlanmış) ===== */
+  $("btnShare").onclick=function(){
+    if(!cards.length){ toast("Önce kart ekle"); return; }
+    var link=location.origin+location.pathname;
+    var list=cards.map(function(c){ return { id:c.id, num:c.num, front:c.front, back:c.back, proj:c.proj, created:c.created }; });
+    var json=JSON.stringify({app:"MyDictionary",version:2,projects:projects,cards:list},null,2);
+    var name="MyDictionary-kartlar-"+new Date().toISOString().slice(0,10)+".json";
+    var text="Kelime kartlarım ("+cards.length+" kart). Uygulamayı aç: "+link+" — ekteki dosyayı \"Yedek yükle\" ile içe aktar.";
+    var file=null; try{ file=new File([json],name,{type:"application/json"}); }catch(e){}
+    if(file && navigator.canShare && navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:"Kelime Kartları",text:text}).catch(function(err){ if(err && err.name!=="AbortError") toast("Paylaşılamadı"); });
+      return;
+    }
+    /* dosya paylaşımı desteklenmiyorsa: dosyayı indir, linki paylaş/kopyala */
+    var blob=new Blob([json],{type:"application/json"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(a.href); },1000);
+    if(navigator.share){ navigator.share({title:"Kelime Kartları",text:text,url:link}).catch(function(){}); }
+    else if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){ toast("Dosya indirildi, link kopyalandı"); },function(){ toast("Dosya indirildi"); }); }
+    else toast("Dosya indirildi");
   };
   $("btnImport").onclick=function(){ $("fileInput").click(); };
   $("fileInput").onchange=function(e){
