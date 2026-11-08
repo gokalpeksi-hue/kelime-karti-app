@@ -783,7 +783,7 @@
   var GOOGLE_CLIENT_ID = "93563620545-2jm0ajsd8qes1ou0dj5bsp5g0rs6t9qj.apps.googleusercontent.com";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-11-03.3";
+  var APP_VERSION = "2026-11-08.1";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -903,6 +903,63 @@
   function knownCount(){ var k=0; for(var i=0;i<cards.length;i++){ if(cards[i].known) k++; } return k; }
   function updateStats(){ $("statTotal").textContent=cards.length; $("statKnown").textContent=knownCount(); }
 
+  /* ===== Son kalınan yer =====
+     Uygulama yeniden açıldığında ana sayfaya dönmek yerine en son açık olan
+     sekme / proje / kart (ve kaydırma konumu) geri yüklenir. */
+  var NAV_KEY="MyDictionary_nav_v1", navRestoring=false, navScrollTimer=null;
+  function curTab(){ return $("viewStudy").classList.contains("active")? "study" : ($("viewTest").classList.contains("active")? "test" : "add"); }
+  function saveNav(){
+    if(navRestoring) return;
+    try{
+      var cardMode=$("studyCard").style.display!=="none";
+      var st={ tab:curTab(), proj:selectedProj, mode:cardMode?"card":"list",
+        f:{u:onlyUnlearned,r:onlyReview,p:onlyProjrev,a:onlyAbsorbed}, q:studyQuery,
+        scroll:window.pageYOffset||0, listScroll:lastListScroll };
+      if(cardMode){
+        st.cur=order[pos]||null; st.pos=pos;
+        /* sıra yalnızca karıştırılmışsa saklanır; değilse açılışta yeniden kurulur */
+        var plain=studyCards().map(function(c){ return c.id; });
+        if(plain.join(",")!==order.join(",")) st.order=order;
+      }
+      localStorage.setItem(NAV_KEY,JSON.stringify(st));
+    }catch(e){}
+  }
+  function restoreNav(){
+    var st=null; try{ st=JSON.parse(localStorage.getItem(NAV_KEY)||"null"); }catch(e){}
+    if(!st || !st.tab || cards.length===0) return false;
+    navRestoring=true;
+    try{
+      var f=st.f||{};
+      onlyUnlearned=!!f.u; onlyReview=!!f.r; onlyProjrev=!!f.p; onlyAbsorbed=!!f.a;
+      $("chipUnlearned").classList.toggle("on",onlyUnlearned);
+      $("chipReview").classList.toggle("on",onlyReview);
+      $("chipProjrev").classList.toggle("on",onlyProjrev);
+      $("chipAbsorbed").classList.toggle("on",onlyAbsorbed);
+      studyQuery=typeof st.q==="string"? st.q : ""; $("studySearch").value=studyQuery;
+      var sp=st.proj;
+      selectedProj=(sp===null || sp==="all" || sp==="review" || sp==="projrev" || sp==="absorbed" || projById(sp))? (sp===undefined?null:sp) : null;
+      lastListScroll=st.listScroll||0;
+      if(st.tab==="add" || st.tab==="test") setTab(st.tab);
+      else{
+        setTab("study");
+        if(st.mode==="card"){
+          if(st.order && st.order.length){ order=st.order.filter(function(id){ return !!byId(id); }); }
+          else buildOrder(false);
+          pos=st.cur? order.indexOf(st.cur) : -1;
+          if(pos<0) pos=Math.max(0,Math.min(st.pos||0,order.length-1));
+          if(order.length){ setStudyMode("card"); showCard(); }
+        }
+      }
+    }catch(e){ navRestoring=false; return false; }
+    navRestoring=false;
+    var y=st.scroll||0;
+    requestAnimationFrame(function(){ window.scrollTo(0,y); saveNav(); });
+    return true;
+  }
+  window.addEventListener("scroll",function(){ clearTimeout(navScrollTimer); navScrollTimer=setTimeout(saveNav,300); },{passive:true});
+  document.addEventListener("visibilitychange",function(){ if(document.hidden) saveNav(); });
+  window.addEventListener("pagehide",saveNav);
+
   function setTab(which){
     var study=which==="study", test=which==="test", add=!study&&!test;
     $("tabStudy").classList.toggle("active",study);
@@ -913,6 +970,7 @@
     $("viewTest").classList.toggle("active",test);
     if(study) enterStudy(); else if(add) renderList(); else enterTest();
     applyTheme();
+    saveNav();
   }
   $("tabStudy").onclick=function(){ setTab("study"); };
   $("tabAdd").onclick=function(){ setTab("add"); };
@@ -952,6 +1010,7 @@
     $("studyList").style.display = mode==="list"?"block":"none";
     $("studyCard").style.display = mode==="card"?"block":"none";
     applyTheme();
+    saveNav();
   }
   function renderProjects(){
     var wrap=$("projRows"); if(!wrap) return; wrap.innerHTML="";
@@ -1036,7 +1095,7 @@
     toast(cnt? 'Proje silindi · '+cnt+' kelime "İsimsiz Proje"ye taşındı' : "Proje silindi");
   }
 
-  function showProjPick(){ if(selectMode) exitSelectMode(); $("projPick").style.display="block"; $("projWords").style.display="none"; renderProjects(); }
+  function showProjPick(){ if(selectMode) exitSelectMode(); $("projPick").style.display="block"; $("projWords").style.display="none"; renderProjects(); saveNav(); }
   function showProjWords(){
     $("projPick").style.display="none"; $("projWords").style.display="block";
     $("projTitle").textContent = selectedProj==="all"? "📚 Tüm Projeler" : (selectedProj==="review"? "🔁 Tekrar çalışılacaklar" : (selectedProj==="projrev"? "📌 Proje tekrarı" : (selectedProj==="absorbed"? "🌟 Özümsedikler" : ((projById(selectedProj)||{}).name||"?"))));
@@ -1051,6 +1110,7 @@
   }
   $("btnBackProjects").onclick=function(){ selectedProj=null; showProjPick(); window.scrollTo(0,0); };
   function renderIndex(){
+    saveNav();
     updateReviewChip(); updateGroupChips();
     var arr=studyCards(), wrap=$("indexList"); wrap.innerHTML="";
     if(arr.length===0){ wrap.innerHTML='<div class="index-item" style="cursor:default"><span class="f" style="color:var(--muted);font-style:italic">Bu filtreye uygun kart yok.</span></div>'; return; }
@@ -1380,6 +1440,7 @@
       });
     });
     scheduleSettle();
+    saveNav();
   }
   function flip(){
     unsettleCard();
@@ -2218,7 +2279,7 @@
   })();
 
   updateStats(); gcidRefresh(); fillProjSelect(null);
-  if(cards.length===0) setTab("add"); else setTab("study");
+  if(!restoreNav()){ if(cards.length===0) setTab("add"); else setTab("study"); }
 })();
 </script>
 </body>
