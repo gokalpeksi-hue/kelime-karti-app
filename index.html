@@ -783,7 +783,7 @@
   var GOOGLE_CLIENT_ID = "93563620545-2jm0ajsd8qes1ou0dj5bsp5g0rs6t9qj.apps.googleusercontent.com";
   /* ÖNEMLİ: Uygulamada her değişiklik yapıldığında bu sürüm numarasını artır —
      'Güncelle' butonu yeni sürümü bu numaradan anlar. */
-  var APP_VERSION = "2026-11-08.1";
+  var APP_VERSION = "2026-11-14.1";
   var DRIVE_FILE_NAME = "MyDictionary-yedek.json";
   var DRIVE_FILE_LEGACY = "Dictionary-yedek.json";
   /* ================================ */
@@ -906,10 +906,15 @@
   /* ===== Son kalınan yer =====
      Uygulama yeniden açıldığında ana sayfaya dönmek yerine en son açık olan
      sekme / proje / kart (ve kaydırma konumu) geri yüklenir. */
-  var NAV_KEY="MyDictionary_nav_v1", navRestoring=false, navScrollTimer=null;
+  var NAV_KEY="MyDictionary_nav_v1", navRestoring=false, navScrollTimer=null, navTouched=false, navReady=false;
+  /* açılıştan sonra kullanıcı dokunduysa geç gelen kayıt onun gezintisini ezmesin */
+  ["pointerdown","keydown"].forEach(function(ev){ document.addEventListener(ev,function(){ navTouched=true; },{capture:true,once:true}); });
   function curTab(){ return $("viewStudy").classList.contains("active")? "study" : ($("viewTest").classList.contains("active")? "test" : "add"); }
+  /* geniş depodaki kayıt okunana kadar yazma: açılış ekranı eski konumu ezmesin */
+  function navSetReady(){ if(navReady) return; navReady=true; saveNav(); }
+  setTimeout(navSetReady,4000);
   function saveNav(){
-    if(navRestoring) return;
+    if(navRestoring || !navReady) return;
     try{
       var cardMode=$("studyCard").style.display!=="none";
       var st={ tab:curTab(), proj:selectedProj, mode:cardMode?"card":"list",
@@ -921,11 +926,17 @@
         var plain=studyCards().map(function(c){ return c.id; });
         if(plain.join(",")!==order.join(",")) st.order=order;
       }
-      localStorage.setItem(NAV_KEY,JSON.stringify(st));
+      st.ts=Date.now();
+      var js=JSON.stringify(st);
+      /* localStorage kartlarla dolmuş olabilir (kota ~5MB); bu yüzden konum
+         geniş depoya (IndexedDB) da yazılır, açılışta hangisi yeniyse o kullanılır */
+      try{ localStorage.setItem(NAV_KEY,js); }catch(e){}
+      idbPut(NAV_KEY,js);
     }catch(e){}
   }
-  function restoreNav(){
-    var st=null; try{ st=JSON.parse(localStorage.getItem(NAV_KEY)||"null"); }catch(e){}
+  function lsNav(){ try{ return JSON.parse(localStorage.getItem(NAV_KEY)||"null"); }catch(e){ return null; } }
+  function restoreNav(given){
+    var st=given||lsNav();
     if(!st || !st.tab || cards.length===0) return false;
     navRestoring=true;
     try{
@@ -1946,7 +1957,7 @@
      kayıtlar oraya yazılmış olabilir) onu benimse; yoksa mevcut veriyle
      IndexedDB'yi tohumla */
   idbOpen(function(){
-    if(!idb) return;
+    if(!idb){ navSetReady(); return; }
     idbGet(KEY,function(val,ts){
       var newCards=null;
       if(typeof val==="string" && ts>cardsTs){ try{ newCards=JSON.parse(val); }catch(e){} }
@@ -1958,6 +1969,16 @@
         if(newCards||newProjects) refreshAllViews();
         if(val===undefined && cards.length) idbPut(KEY,JSON.stringify(cards));
         if(pval===undefined && projects.length) idbPut(PKEY,JSON.stringify(projects));
+        /* son kalınan yer: geniş depodaki kayıt daha yeniyse (localStorage
+           dolu olduğu için oraya yazılamamışsa) ya da kartlar az önce geniş
+           depodan geldiyse konumu yeniden uygula */
+        idbGet(NAV_KEY,function(nval){
+          var inav=null; if(typeof nval==="string"){ try{ inav=JSON.parse(nval); }catch(e){} }
+          var lnav=lsNav(), best=lnav;
+          if(inav && (!lnav || (inav.ts||0)>(lnav.ts||0))) best=inav;
+          if(best && !navTouched && (best!==lnav || newCards || newProjects)) restoreNav(best);
+          navSetReady();
+        });
       });
     });
   });
